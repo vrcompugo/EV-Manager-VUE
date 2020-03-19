@@ -62,14 +62,14 @@ export default {
     }
   },
   env: {
-    baseUrl: process.env.API_URL || 'http://localhost:4000'
+    baseUrl: process.env.API_URL || 'https://api.korbacher-energiezentrum.de/'
   },
   /*
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
-    baseURL: process.env.API_URL || 'http://localhost:4000'
+    baseURL: process.env.API_URL || 'https://api.korbacher-energiezentrum.de/'
   },
   /*
   ** Auth module configuration
