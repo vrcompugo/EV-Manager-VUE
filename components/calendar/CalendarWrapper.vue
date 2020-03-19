@@ -4,15 +4,28 @@
   grid-template-columns: 200px 1fr;
   grid-column: 1/end;
 }
+.filterbox,
+.maingrid--header {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  background: #ffffff;
+  z-index: 180;
+}
+.filterbox {
+  height: 4em;
+}
 .maingrid--header {
   position: -webkit-sticky;
   position: sticky;
-  width: 100%;
-  top: 0;
-  background: #1976D2;
+  top: 4em;
+  height: 1.8em;
   color: #ffffff;
-  z-index: 180;
+  background: #1976D2;
   box-shadow: 0 0 3px 0 rgba(0,0,0,0.5);
+}
+.calendar-main-grid {
+  padding-top: 4em;
 }
 .swimlane__header,
 .swimlane {

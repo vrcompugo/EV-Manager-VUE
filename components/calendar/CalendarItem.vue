@@ -48,9 +48,6 @@
   background: red;
   height: 100%;
 }
-.swimlane__item__content:hover .drag-before {
-  display: block;
-}
 .swimlane__item__content .drag-after {
   content: ' ';
   display: none;
@@ -60,9 +57,6 @@
   width: 1em;
   background: red;
   height: 100%;
-}
-.swimlane__item__content:hover .drag-after {
-  display: block;
 }
 </style>
 

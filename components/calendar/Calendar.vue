@@ -12,8 +12,8 @@
 
 <template>
   <CalendarWrapper>
-    <v-row no-gutters style="flex: none">
-      <v-col cols="12" sm="3">
+    <v-row class="filterbox" no-gutters style="flex: none">
+      <v-col cols="12" sm="6">
         <v-btn @click="show = !show">{{ currentDateLabel }}</v-btn>
         <v-date-picker
           class="datepicker"
@@ -27,21 +27,7 @@
           @input="show = !show"
         ></v-date-picker>
       </v-col>
-      <v-col cols="12" sm="3" style="text-align: center;">
-        gefiltert nach: Kunde XY <v-btn small tile icon>X</v-btn>
-        <v-text-field style="display: inline-block;" label="Sortierung nach Entfernung zu:"></v-text-field>
-        <v-btn small tile icon>X</v-btn>
-      </v-col>
-      <v-col cols="12" sm="3" style="text-align: right;">
-        <v-btn-toggle mandatory v-model="filter_group" >
-          <v-btn value="all">Alle</v-btn>
-          <v-btn value="reseller">Verkäufer</v-btn>
-          <v-btn value="eeg">EEG</v-btn>
-          <v-btn value="construction">Montage</v-btn>
-          <v-btn value="service">Service</v-btn>
-        </v-btn-toggle>
-      </v-col>
-      <v-col cols="12" sm="3" style="text-align: right;">
+      <v-col cols="12" sm="6" style="text-align: right;">
         <v-btn-toggle mandatory v-model="calendar_type" >
           <v-btn value="day">Tag</v-btn>
           <v-btn value="week">Woche</v-btn>
@@ -49,7 +35,7 @@
         </v-btn-toggle>
       </v-col>
     </v-row>
-    <CalendarGrid data-app :currentDate="currentDate" :type="calendar_type" :filterGroup="filter_group" />
+    <CalendarGrid class="calendar-main-grid" data-app :currentDate="currentDate" :type="calendar_type" :filterGroup="filter_group" />
   </CalendarWrapper>
 </template>
 
