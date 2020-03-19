@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    lala
+    forbidden
   </div>
 </template>
 
@@ -10,7 +10,5 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
-.main-content {
-  background: red;
-}
+
 </style>

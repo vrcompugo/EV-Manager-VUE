@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    login3
+    forbidden
   </div>
 </template>
 
@@ -12,6 +12,5 @@ export default {}
 <style lang="scss" scoped>
 .main-content {
   flex: 1;
-  background: red;
 }
 </style>

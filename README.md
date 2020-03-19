@@ -1,6 +1,6 @@
-# lynx vue
+# ev manager vue
 
-> lynx frontend part in vue
+> ev manager part in vue
 
 ## Build Setup
 
