@@ -61,11 +61,15 @@ export default {
       }
     }
   },
+  env: {
+    baseUrl: process.env.API_URL || 'http://localhost:4000'
+  },
   /*
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
+    baseURL: process.env.API_URL || 'http://localhost:4000'
   },
   /*
   ** Auth module configuration
