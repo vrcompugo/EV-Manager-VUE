@@ -9,8 +9,8 @@ build1:
   stage: build
   script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN dev.hbbx.de:4300
-    - docker build -t dev.hbbx.de:4300/ev-manager/ev-manager-vue:latest .
-    - docker push dev.hbbx.de:4300/ev-manager/ev-manager-vue:latest
+    - docker build --build-arg API_URL=https://api.korbacher-energiezentrum.de/ -t dev.hbbx.de:4300/ev-manager/ev-manager-vue:web3 .
+    - docker push dev.hbbx.de:4300/ev-manager/ev-manager-vue:web3
   tags:
   - builder1
 
