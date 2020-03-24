@@ -12,7 +12,7 @@
           v-for="n in maxColumn"
           :key="'hh' + n"
           :style="'grid-column: ' + n"
-          class="swimlane__column">&nbsp;</div>
+          :class="'swimlane__column ' + columnClass(n)">&nbsp;</div>
       </div>
     </div>
     <div class="maingrid" v-for="team in teams" :key="team.label">
@@ -22,7 +22,7 @@
           v-for="n in maxColumn"
           :key="team.label + n"
           :style="'grid-column: ' + n"
-          class="swimlane__column">&nbsp;</div>
+          :class="'swimlane__column ' + columnClass(n)">&nbsp;</div>
       </div>
       <div class="maingrid" v-for="member in team.members" :key="team.label + member.id">
         <div class="team__member">{{ member.name }}</div>
@@ -44,7 +44,7 @@
             v-for="n in maxColumn"
             :key="team.label + member.id + n"
             :style="'grid-column: ' + n"
-            class="swimlane__column"
+            :class="'swimlane__column ' + columnClass(n)"
             @dragover="dragover($event, n)"
             @drop="drop($event, n)">&nbsp;</div>
         </div>
@@ -66,7 +66,7 @@ export default {
     CalendarItem
   },
 
-  props: ['currentDate', 'type', 'filterGroup'],
+  props: ['currentDate', 'type', 'filterGroup', 'searchPhrase'],
 
   data() {
     return {
@@ -77,7 +77,7 @@ export default {
   },
   computed: {
     typeDate(){
-      return this.type + this.currentDate + this.filterGroup
+      return this.type + this.currentDate + this.filterGroup + ' ' + this.searchPhrase
     },
     selectionLabel(){
       if (!this.type) return ""
@@ -121,7 +121,7 @@ export default {
         this.teams = []
         this.boundary = {}
         this.$axios
-          .get(`/calendar/?filter_group=${this.filterGroup}&type=${this.type}&date=${this.currentDate}`)
+          .get(`/calendar/?filter_group=${this.filterGroup}&type=${this.type}&date=${this.currentDate}&search_phrase=${this.searchPhrase}`)
           .then(response => {
             this.teams = response["data"]["data"]
             this.boundary = {
@@ -167,6 +167,27 @@ export default {
             ('0' + (begin.getMonth() + 1)).slice(-2) +
             "." + begin.getFullYear()
         case 'month': return index
+      }
+    },
+    columnClass(index){
+      const activeClass = "swimlane__column--bordered"
+      if (!this.type) return ""
+      switch(this.type) {
+        case 'day':
+          if((index-1) % 4 == 0){
+            return activeClass
+          }
+          return "";
+        case 'week':
+          return activeClass
+        case 'month':
+          if(!this.currentDate) return ""
+          var d = new Date(this.currentDate);
+          var currentDay = new Date(d.getUTCFullYear(), d.getMonth(), index);
+          if(currentDay.getDay() == 1){
+            return activeClass
+          }
+          return "";
       }
     },
     getWeekNumber(){

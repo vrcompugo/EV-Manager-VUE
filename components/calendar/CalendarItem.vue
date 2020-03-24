@@ -58,6 +58,10 @@
   background: red;
   height: 100%;
 }
+/*.swimlane__item__content:hover .drag-before,
+.swimlane__item__content:hover .drag-after {
+  display: block;
+}*/
 </style>
 
 

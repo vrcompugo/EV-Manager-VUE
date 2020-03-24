@@ -14,6 +14,7 @@
 }
 .filterbox {
   height: 4em;
+  z-index: 181;
 }
 .maingrid--header {
   position: -webkit-sticky;
@@ -49,14 +50,24 @@
 .swimlane--group-header {
   min-height: 0;
 }
+.team__header,
+.swimlane--group-header {
+  background-color: #eeeeee;
+}
+.maingrid--header .team__header {
+  background-color: transparent;
+}
 .swimlane__column {
   border-left: 1px solid rgb(228, 228, 228);
   border-bottom: 1px solid #c3c3c3;
   padding: 0.2em;
   grid-row: 1 / last-line;
 }
-.swimlane .swimlane__column:nth-last-child(7n+2){
+.swimlane .swimlane__column.swimlane__column--bordered {
   border-left: 1px solid rgb(176, 176, 176);
+}
+.maingrid--header .swimlane .swimlane__column.swimlane__column--bordered {
+  border-left: 1px solid #c9c9c9;
 }
 .calendar-type-day .swimlane--header.swimlane > span:last-of-type > div {
   text-align: right;
