@@ -70,7 +70,7 @@ export default {
       currentDate: new Date().toISOString().substr(0, 10),
       calendar_type: "week",
       filter_group: "construction",
-      search_phrase: "a"
+      search_phrase: ""
     }
   },
 
