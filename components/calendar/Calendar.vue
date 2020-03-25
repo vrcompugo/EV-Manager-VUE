@@ -7,6 +7,13 @@
 .datepicker[show=true] {
   display: block;
 }
+.add-new-fab {
+  position: fixed;
+  right: 1.5em;
+  bottom: 1em;
+  z-index: 100;
+  color: #ffffff;
+}
 </style>
 
 
@@ -47,6 +54,9 @@
       </v-col>
     </v-row>
     <CalendarGrid class="calendar-main-grid" data-app :searchPhrase="search_phrase" :currentDate="currentDate" :type="calendar_type" :filterGroup="filter_group" />
+    <v-btn @click="openNewTask" class="add-new-fab" fab color="#1976D2">
+      <v-icon>mdi-plus</v-icon>
+    </v-btn>
   </CalendarWrapper>
 </template>
 
@@ -99,6 +109,9 @@ export default {
       this.timeout = setTimeout(() => {
         this.search_phrase = e
       }, 300)
+    },
+    openNewTask(){
+      window.open("https://keso.bitrix24.de/company/personal/user/0/tasks/task/edit/0/", '_blank');
     }
   }
 }
