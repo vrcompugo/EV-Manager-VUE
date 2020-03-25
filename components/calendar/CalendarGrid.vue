@@ -171,6 +171,7 @@ export default {
     },
     columnClass(index){
       const activeClass = "swimlane__column--bordered"
+      const weekendClass = "swimlane__column--weekend"
       if (!this.type) return ""
       switch(this.type) {
         case 'day':
@@ -179,13 +180,20 @@ export default {
           }
           return "";
         case 'week':
-          return activeClass
+          let cssClass = activeClass
+          if(index >= 6){
+            cssClass = cssClass + " " + weekendClass
+          }
+          return cssClass
         case 'month':
           if(!this.currentDate) return ""
           var d = new Date(this.currentDate);
           var currentDay = new Date(d.getUTCFullYear(), d.getMonth(), index);
           if(currentDay.getDay() == 1){
             return activeClass
+          }
+          if(currentDay.getDay() == 0 || currentDay.getDay() == 6){
+            return weekendClass
           }
           return "";
       }

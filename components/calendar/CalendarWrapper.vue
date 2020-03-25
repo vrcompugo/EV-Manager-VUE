@@ -66,8 +66,14 @@
 .swimlane .swimlane__column.swimlane__column--bordered {
   border-left: 1px solid rgb(176, 176, 176);
 }
+.swimlane .swimlane__column.swimlane__column--weekend {
+  background-color: #eeeeee;
+}
 .maingrid--header .swimlane .swimlane__column.swimlane__column--bordered {
   border-left: 1px solid #c9c9c9;
+}
+.maingrid--header .swimlane .swimlane__column.swimlane__column--weekend {
+  background-color: transparent;
 }
 .calendar-type-day .swimlane--header.swimlane > span:last-of-type > div {
   text-align: right;
@@ -101,6 +107,9 @@
   &.item--electric .swimlane__item__content { background-color: #E53935;}
   &.item--heating .swimlane__item__content { background-color: #FB8C00;}
   &.item--interal .swimlane__item__content { background-color: #FFEB3B; color: #333;}
+
+  &.item--status-done .swimlane__item__content {
+    background-image: repeating-linear-gradient(-45deg, transparent, transparent 6px, rgba(255,255,255,.4) 6px, rgba(255,255,255,.4) 10px);}
 }
 </style>
 

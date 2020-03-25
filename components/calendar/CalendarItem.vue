@@ -142,7 +142,7 @@ export default {
 
   computed: {
     classDefinition(){
-      let classList = 'swimlane__item item--' + this.item.type
+      let classList = 'swimlane__item item--' + this.item.type + ' item--status-' + this.item.status
       if(this.isDragged){
         classList = classList + " item--is-dragged"
       }
