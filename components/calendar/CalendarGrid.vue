@@ -106,7 +106,7 @@ export default {
         case 'day': return 57;
         case 'week': return 7;
         case 'month':
-          if (!this.boundary.begin) return 0
+          if (!this.boundary.begin || this.boundary.begin === undefined) return 0
           const begin = new Date(this.boundary.begin);
           let last_day = new Date(begin.getFullYear() + "-" + (begin.getMonth() + 2) + "-1")
           last_day.setDate(0)
@@ -124,6 +124,12 @@ export default {
           .get(`/calendar/?filter_group=${this.filterGroup}&type=${this.type}&date=${this.currentDate}&search_phrase=${this.searchPhrase}`)
           .then(response => {
             this.teams = response["data"]["data"]
+            if(response["data"]["boundary"]["begin"] !== undefined){
+              response["data"]["boundary"]["begin"] = response["data"]["boundary"]["begin"].replace(" ", "T")
+            }
+            if(response["data"]["boundary"]["end"] !== undefined){
+              response["data"]["boundary"]["end"] = response["data"]["boundary"]["end"].replace(" ", "T")
+            }
             this.boundary = {
               "begin": new Date(response["data"]["boundary"]["begin"]),
               "end": new Date(response["data"]["boundary"]["end"])
@@ -153,7 +159,7 @@ export default {
           }
           return "";
         case 'week':
-          if (!this.boundary.begin) return ""
+          if (!this.boundary.begin || this.boundary.begin === undefined) return ""
           const currentDate = new Date(this.boundary.begin);
           currentDate.setDate(currentDate.getDate() + index - 1)
           const options = { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric' };

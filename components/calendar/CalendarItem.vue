@@ -182,7 +182,7 @@ export default {
         const begin = new Date(this.item.begin);
         const end = new Date(this.item.end);
         let endColumn = (this.convertTimeToGrid(end))
-        if(this.type == "month"){
+        if(this.type == "month" || this.type == "week"){
           endColumn = endColumn + 1
         }
         this.gridColumns = (

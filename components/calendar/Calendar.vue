@@ -86,7 +86,7 @@ export default {
 
   computed: {
     currentDateLabel(){
-      if(!this.currentDate) return ""
+      if(!this.currentDate || this.currentDate === undefined) return ""
       const currentDate = new Date(this.currentDate)
       const options = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' };
       return "KW " + this.getWeekNumber() + " - " + currentDate.toLocaleDateString('de-DE', options)
