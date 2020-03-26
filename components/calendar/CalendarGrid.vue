@@ -108,7 +108,7 @@ export default {
         case 'month':
           if (!this.boundary.begin || this.boundary.begin === undefined) return 0
           const begin = new Date(this.boundary.begin);
-          let last_day = new Date(begin.getFullYear() + "-" + (begin.getMonth() + 2) + "-1")
+          let last_day = new Date(begin.getFullYear() + "-" + ("00" + (begin.getMonth() + 2)).slice(-2) + "-01")
           last_day.setDate(0)
           return last_day.getDate()
       }
