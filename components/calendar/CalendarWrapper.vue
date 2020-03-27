@@ -95,7 +95,7 @@
   width: 100%;
   top: 0.1em;
   padding: 0.1em 0.2em;
-  box-shadow: 1px 2px 4px rgba(0,0,0,0.5);
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.6);
 }
 .item--is-dragged .swimlane__item__content {
   z-index: -1;
