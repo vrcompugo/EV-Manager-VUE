@@ -67,8 +67,6 @@ import CalendarWrapper from '~/components/calendar/CalendarWrapper.vue'
 import CalendarGrid from '~/components/calendar/CalendarGrid.vue'
 
 export default {
-  auth: false,
-
   components: {
     CalendarWrapper,
     CalendarGrid
