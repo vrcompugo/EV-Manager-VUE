@@ -42,6 +42,13 @@
       type="number"
       step="0.01"
       v-model="settings.consumer_base_cost"></v-text-field>
+    <br>
+    <b>Mehrverbrauch</b>
+    <v-text-field
+      label="Kosten pro kwh in Cent"
+      type="number"
+      step="0.01"
+      v-model="settings.extra_kwh_cost"></v-text-field>
 
     <b>Extra Produkte</b>
     <div class="spaced-horizontal">
