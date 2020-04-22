@@ -75,20 +75,18 @@
             </v-card>
             <v-btn @click="product.options.push({})"><v-icon>mdi-plus</v-icon></v-btn>
           </div>
-          <div v-if="!product.has_options">
-            Immer im Angebot hinzufügen?
-            <v-radio-group v-model="product.include_always" row>
-              <v-radio label="Nein" value=""></v-radio>
-              <v-radio label="Als 0-Produkt" value="top"></v-radio>
-              <v-radio label="Als Zubehör" value="bottom"></v-radio>
-            </v-radio-group>
-          </div>
-            Verfügbar bei Modulen?
-            <v-radio-group v-model="product.for_modules" row>
-              <v-radio label="Alle" value=""></v-radio>
-              <v-radio label="280W" value="280"></v-radio>
-              <v-radio label="390W" value="390"></v-radio>
-            </v-radio-group>
+          Immer im Angebot hinzufügen?
+          <v-radio-group v-model="product.include_always" row>
+            <v-radio label="Nein" value=""></v-radio>
+            <v-radio label="Als 0-Produkt" value="top"></v-radio>
+            <v-radio label="Als Zubehör" value="bottom"></v-radio>
+          </v-radio-group>
+          Verfügbar bei Modulen?
+          <v-radio-group v-model="product.for_modules" row>
+            <v-radio label="Alle" value=""></v-radio>
+            <v-radio label="280W" value="280"></v-radio>
+            <v-radio label="390W" value="390"></v-radio>
+          </v-radio-group>
         </div>
         <v-btn @click="pv_settings.optional_products.splice(index, 1)"><v-icon>mdi-delete</v-icon></v-btn>
       </v-card>
