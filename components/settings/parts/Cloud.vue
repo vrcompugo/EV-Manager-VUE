@@ -65,6 +65,7 @@
             <v-radio label="Als 1-Produkt" value="top-one"></v-radio>
             <v-radio label="Als 0-Produkt" value="top"></v-radio>
           </v-radio-group>
+          <v-checkbox v-model="product.is_packet_relative" label="Ist abhängig vom gewählten Paket"></v-checkbox>
         </div>
         <v-btn @click="settings.extra_products.splice(index, 1)"><v-icon>mdi-delete</v-icon></v-btn>
       </v-card>
