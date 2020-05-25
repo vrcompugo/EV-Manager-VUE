@@ -1,5 +1,11 @@
 <template>
-  <div :class="'calendar-type-' + this.type">
+  <div :class="'calendar-type-' + this.type + ' dragmode-' + (this.dragmode ? 'on' : 'off') + ' extentionmode-' + (this.extentionmode ? 'on' : 'off')">
+    <div :class="'loading-indicator ' + (this.loading ? 'active':'')">
+      <v-progress-circular
+        indeterminate
+        color="#1976D2"
+        ></v-progress-circular>
+    </div>
     <div class="maingrid maingrid--header">
       <div class="team__header">{{ selectionLabel }}</div>
       <div class="swimlane swimlane--header" :style="`grid-template-columns: repeat(${maxColumn}, 1fr);`">
@@ -38,15 +44,18 @@
             :team="team"
             :member="member"
             :ref="'CalendarItem-' + team.label + member.id + '-' + item.id"
-            :dragoverIndex="dragoverIndex"
-            @dragover="ignoreDrag" />
+            @extendStartBefore="startExtention"
+            @extendStartAfter="startExtention"
+            @startMove="startMoveItem"
+            @storeItem="storeItem" />
           <div
             v-for="n in maxColumn"
             :key="team.label + member.id + n"
             :style="'grid-column: ' + n"
-            :class="'swimlane__column ' + columnClass(n)"
-            @dragover="dragover($event, n)"
-            @drop="drop($event, n)">&nbsp;</div>
+            :class="'swimlane__column ' + columnClass(n) + ' ' + columnSelection(team.label + member.id, n)"
+            @mousedown="startSelection($event, team.label + member.id, n, team.label, member)"
+            @mouseenter="extendSelection($event, team.label + member.id, n)"
+            @mouseup="stopSelection($event, team.label + member.id, n)">&nbsp;</div>
         </div>
       </div>
     </div>
@@ -58,6 +67,7 @@
 <script>
 
 import CalendarItem from '~/components/calendar/CalendarItem.vue'
+import {convertColumnToDate, convertEventToColumns} from './date_column_convertion'
 import axios from 'axios'
 
 export default {
@@ -70,9 +80,23 @@ export default {
 
   data() {
     return {
+      loading: false,
       teams: [],
       boundary: {},
-      dragoverIndex: undefined
+      dragoverIndex: undefined,
+      extentionmode: false,
+      dragmode: false,
+      currentSelection: {
+        "group": "",
+        "drag_start": undefined,
+        "from": undefined,
+        "to": undefined
+      },
+      currentExtention: {
+        "group": "",
+        "drag_start": undefined,
+        "item": undefined
+      }
     }
   },
   computed: {
@@ -120,35 +144,65 @@ export default {
       handler() {
         this.teams = []
         this.boundary = {}
-        this.$axios
-          .get(`/calendar/?filter_group=${this.filterGroup}&type=${this.type}&date=${this.currentDate}&search_phrase=${this.searchPhrase}`)
-          .then(response => {
-            this.teams = response["data"]["data"]
-            if(response["data"]["boundary"]["begin"] !== undefined){
-              response["data"]["boundary"]["begin"] = response["data"]["boundary"]["begin"].replace(" ", "T")
-            }
-            if(response["data"]["boundary"]["end"] !== undefined){
-              response["data"]["boundary"]["end"] = response["data"]["boundary"]["end"].replace(" ", "T")
-            }
-            this.boundary = {
-              "begin": new Date(response["data"]["boundary"]["begin"]),
-              "end": new Date(response["data"]["boundary"]["end"])
-            }
-          })
+        this.reload()
       }
     }
   },
   methods: {
-    ignoreDrag(e){
-      return true
+    reload(){
+      this.loading = true
+      this.$axios
+        .get(`/calendar/?filter_group=${this.filterGroup}&type=${this.type}&date=${this.currentDate}&search_phrase=${this.searchPhrase}`)
+        .then(response => {
+          this.teams = response["data"]["data"]
+          if(response["data"]["boundary"]["begin"] !== undefined){
+            response["data"]["boundary"]["begin"] = response["data"]["boundary"]["begin"].replace(" ", "T")
+          }
+          if(response["data"]["boundary"]["end"] !== undefined){
+            response["data"]["boundary"]["end"] = response["data"]["boundary"]["end"].replace(" ", "T")
+          }
+          this.boundary = {
+            "begin": new Date(response["data"]["boundary"]["begin"]),
+            "end": new Date(response["data"]["boundary"]["end"])
+          }
+          this.loading = false
+          for(let i=0;i<this.teams.length; i++){
+            for(let j=0;j<this.teams[i].members.length; j++){
+              this.updateRowIndex(this.teams[i].members[j])
+            }
+          }
+        }).catch(response=>{
+          this.loading = false
+        })
     },
-    dragover(e, index){
-      if(index != this.dragoverIndex){
-        this.dragoverIndex = index
+    storeItem(data){
+      this.$emit('storeItem', data)
+    },
+    updateRowIndex(member){
+      if (!member.events){
+        member.max_rows = 1
+        return;
       }
-      e.preventDefault()
-    },
-    drop(e, index){
+      member.row_maximums = [0]
+      for(let j=0;j<member.events.length;j++){
+        if(member.events[j].beginColumn === undefined){
+          let columns = convertEventToColumns(member.events[j], this.type, this.boundary, this.maxColumn)
+          member.events[j].beginColumn = columns[0]
+          member.events[j].endColumn = columns[1]
+        }
+        for(let i=0;i<member.row_maximums.length;i++){
+          if(member.events[j].beginColumn >= member.row_maximums[i]){
+            member.row_maximums[i] = member.events[j].endColumn
+            member.events[j].rowIndex = i
+            break
+          }
+        }
+        if(member.events[j].rowIndex === undefined){
+          member.events[j].rowIndex = member.row_maximums.length
+          member.row_maximums.push(member.events[j].endColumn)
+        }
+      }
+      member.max_rows = member.row_maximums.length
     },
     columnLabel(index) {
       if (!this.type) return ""
@@ -174,6 +228,12 @@ export default {
             "." + begin.getFullYear()
         case 'month': return index
       }
+    },
+    maxRowsMember(row_maximums){
+      if(row_maximums !== undefined){
+        return row_maximums.length
+      }
+      return 1
     },
     columnClass(index){
       const activeClass = "swimlane__column--bordered"
@@ -203,6 +263,132 @@ export default {
           }
           return "";
       }
+    },
+    columnSelection(group, index){
+      if(this.currentSelection.group === group){
+        if(this.currentSelection.from !== undefined){
+          if(this.currentSelection.from <= index && index <= this.currentSelection.to){
+            return "selection-active";
+          }
+        }
+      }
+      return "";
+    },
+    startSelectionNewEvent(){
+      this.currentSelection.item = "new"
+      this.dragmode = true;
+    },
+    startMoveItem(data){
+      this.dragmode = true;
+      this.currentSelection.item = data.item
+      this.currentSelection.element = data.element
+    },
+    startSelection(e, group, index, team_label, member){
+      if(this.dragmode){
+        this.currentSelection.group = group
+        this.currentSelection.drag_start = index
+        this.currentSelection.from = index
+        this.currentSelection.to = index
+        this.currentSelection.team_label = team_label
+        this.currentSelection.member = member
+      }
+    },
+    extendSelection(e, group, index){
+      if(this.dragmode){
+        if(index > this.currentSelection.drag_start){
+          this.currentSelection.to = index
+        }
+        if(index <= this.currentSelection.drag_start){
+          this.currentSelection.to = this.currentSelection.drag_start
+          this.currentSelection.from = index
+        }
+      }
+      if(this.extentionmode){
+        if(index > this.currentExtention.drag_start){
+          this.currentExtention.item.end = convertColumnToDate(index, this.type, this.currentExtention.item.end)
+        }
+        if(index <= this.currentExtention.drag_start){
+          this.currentExtention.item.end = new Date(this.currentExtention.drag_start_date)
+          if(this.type === "day"){
+            index = index - 1
+          }
+          this.currentExtention.item.begin = convertColumnToDate(index, this.type, this.currentExtention.drag_start_date)
+        }
+      }
+    },
+    stopSelection(e, group, index){
+      if(this.dragmode){
+        if(this.currentSelection.item){
+          if(this.currentSelection.item === "new"){
+            const begin_date = new Date(this.boundary.begin)
+            const end_date = new Date(this.boundary.begin)
+            if(this.type !== "day"){
+              begin_date.setHours(9)
+              end_date.setHours(18)
+            }
+            let begin_date_converted = convertColumnToDate(this.currentSelection.from, this.type, begin_date)
+            if(this.type === "day"){
+              begin_date_converted = new Date(begin_date_converted.getTime() - 900000)
+            }
+            this.$emit('addNewEventBySelection', {
+              "user": this.currentSelection.member,
+              "task": {"members": []},
+              "begin": begin_date_converted,
+              "end": convertColumnToDate(this.currentSelection.to, this.type, end_date),
+            })
+          }else{
+            if(this.currentSelection.from === this.currentSelection.to){
+              const beginDate = new Date(this.currentSelection.item.begin)
+              let endDate = new Date(this.currentSelection.item.end)
+              const delta = endDate - beginDate
+              if(this.type === "day") {
+                this.currentSelection.from = this.currentSelection.from - 1
+              }
+              this.currentSelection.item.begin = convertColumnToDate(this.currentSelection.from, this.type, this.currentSelection.item.begin)
+              endDate = new Date(this.currentSelection.item.begin).getTime() + delta
+              this.currentSelection.item.end = new Date(endDate)
+            }else{
+              this.currentSelection.item.begin = convertColumnToDate(this.currentSelection.from, this.type, this.currentSelection.item.begin)
+              this.currentSelection.item.end = convertColumnToDate(this.currentSelection.to, this.type, this.currentSelection.item.end)
+            }
+            if(this.currentSelection.item.user_id !== this.currentSelection.member.id){
+              this.currentSelection.item.user_id = this.currentSelection.member.id
+            }
+            this.$emit('storeItem', {
+              "item": this.currentSelection.item
+            })
+          }
+        }
+        if(this.currentSelection.element){
+          this.currentSelection.element.isDragged = false
+        }
+        this.currentSelection.group = ""
+        this.currentSelection.to = undefined
+        this.currentSelection.from = undefined
+        this.currentSelection.item = undefined
+        this.currentSelection.element = undefined
+        this.dragmode = false
+      }
+      if(this.extentionmode){
+        this.$emit('storeItem', {
+          "item": this.currentExtention.item
+        })
+        this.extentionmode = false
+        this.currentExtention.element.isDragged = false
+        this.currentExtention.group = undefined
+        this.currentExtention.drag_start = undefined
+        this.currentExtention.item = undefined
+        this.currentExtention.element = undefined
+        // TODO Save changes
+      }
+    },
+    startExtention(e){
+      this.extentionmode = true
+      this.currentExtention.group = e.group
+      this.currentExtention.drag_start = e.drag_start
+      this.currentExtention.drag_start_date = e.drag_start_date
+      this.currentExtention.item = e.item
+      this.currentExtention.element = e.element
     },
     getWeekNumber(){
       if(!this.currentDate) return ""

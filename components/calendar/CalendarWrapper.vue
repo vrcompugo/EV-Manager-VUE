@@ -1,4 +1,19 @@
 <style lang="scss">
+.loading-indicator {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.2);
+  z-index: 1000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.loading-indicator.active {
+  display: flex;
+}
 .maingrid {
   display: grid;
   grid-template-columns: 200px 1fr;
@@ -39,6 +54,7 @@
 }
 .team__member {
   padding-left: 1em;
+  background: #ffffff;
 }
 .swimlane {
   display: grid;
@@ -58,6 +74,7 @@
   background-color: transparent;
 }
 .swimlane__column {
+  user-select: none;
   border-left: 1px solid rgb(228, 228, 228);
   border-bottom: 1px solid #c3c3c3;
   padding: 0.2em;
@@ -67,7 +84,7 @@
   border-left: 1px solid rgb(176, 176, 176);
 }
 .swimlane .swimlane__column.swimlane__column--weekend {
-  background-color: #eeeeee;
+  background-color: rgba(0,0,0,0.05);
 }
 .maingrid--header .swimlane .swimlane__column.swimlane__column--bordered {
   border-left: 1px solid #c9c9c9;
@@ -86,6 +103,7 @@
   border-bottom: 1px solid rgb(176, 176, 176);
 }
 .swimlane__item {
+  user-select: none;
   position: relative;
   color: #ffffff;
 }
@@ -97,8 +115,17 @@
   padding: 0.1em 0.2em;
   box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.6);
 }
-.item--is-dragged .swimlane__item__content {
+.extentionmode-on .swimlane__item,
+.dragmode-on .swimlane__item {
   z-index: -1;
+  opacity: 0.6;
+}
+.extentionmode-on .swimlane__item.item--is-dragged,
+.dragmode-on .swimlane__item.item--is-dragged {
+  opacity: 1;
+}
+.dragmode-on .swimlane__column.selection-active {
+  background-color: rgba(0,0,0,0.3);
 }
 .swimlane__item {
   &.item--service .swimlane__item__content { background-color: #43A047;}

@@ -28,7 +28,8 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    { src: '~/plugins/ckeditor', mode: 'client' }
+    { src: '~/plugins/ckeditor', mode: 'client' },
+    '~/plugins/dateTimePicker'
   ],
   /*
   ** Nuxt.js dev-modules

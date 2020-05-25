@@ -19,6 +19,7 @@
 
 <template>
   <CalendarWrapper>
+    <ReAuth></ReAuth>
     <v-row class="filterbox" no-gutters style="flex: none">
       <v-col cols="12" sm="3">
         <v-btn @click="show = !show">{{ currentDateLabel }}</v-btn>
@@ -46,6 +47,7 @@
         </v-btn-toggle>
       </v-col>
       <v-col cols="12" sm="3" style="text-align: right;">
+        <v-btn @click="$refs.CalendarGrid.reload()">Refresh</v-btn>
         <v-btn-toggle mandatory v-model="calendar_type" >
           <v-btn value="day">Tag</v-btn>
           <v-btn value="week">Woche</v-btn>
@@ -53,32 +55,49 @@
         </v-btn-toggle>
       </v-col>
     </v-row>
-    <CalendarGrid class="calendar-main-grid" data-app :searchPhrase="search_phrase" :currentDate="currentDate" :type="calendar_type" :filterGroup="filter_group" />
-    <v-btn @click="openNewTask" class="add-new-fab" fab color="#1976D2">
+    <CalendarGrid
+      ref="CalendarGrid"
+      class="calendar-main-grid"
+      data-app
+      :searchPhrase="search_phrase"
+      :currentDate="currentDate"
+      :type="calendar_type"
+      :filterGroup="filter_group"
+      @addNewEventBySelection="openNewTask"
+      @storeItem="storeItem" />
+    <v-btn @click="$refs.CalendarGrid.startSelectionNewEvent()" class="add-new-fab" fab color="#1976D2">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
+    <NewEventDialog ref="newEventDialog" :item="newItem" @storeItem="storeItem" />
   </CalendarWrapper>
 </template>
 
 
 
 <script>
-import CalendarWrapper from '~/components/calendar/CalendarWrapper.vue'
-import CalendarGrid from '~/components/calendar/CalendarGrid.vue'
+import NewEventDialog from './NewEventDialog'
+import CalendarWrapper from './CalendarWrapper.vue'
+import CalendarGrid from './CalendarGrid.vue'
+import ReAuth from '~/components/auth/ReAuth.vue'
+import {convertToLocalISOString} from './date_column_convertion'
 
 export default {
   components: {
     CalendarWrapper,
-    CalendarGrid
+    CalendarGrid,
+    ReAuth,
+    NewEventDialog
   },
 
   data() {
     return {
       show: false,
+      showNewEventDialog: false,
       currentDate: new Date().toISOString().substr(0, 10),
       calendar_type: "week",
       filter_group: "construction",
-      search_phrase: ""
+      search_phrase: "",
+      newItem: {"user": {}, "task":{"members": []}}
     }
   },
 
@@ -108,8 +127,32 @@ export default {
         this.search_phrase = e
       }, 300)
     },
-    openNewTask(){
-      window.open("https://keso.bitrix24.de/company/personal/user/0/tasks/task/edit/0/", '_blank');
+    openNewTask(data){
+      this.newItem = data
+      this.$refs.newEventDialog.show()
+    },
+    storeItem(data){
+      const postData = JSON.parse(JSON.stringify(data))
+      postData["item"]["begin"] = convertToLocalISOString(data.item.begin)
+      postData["item"]["end"] = convertToLocalISOString(data.item.end)
+      console.log(postData)
+      if(data.item.id > 0){
+        return this.$axios
+          .put(`/calendar/${data.item.id}`, postData["item"]).then(response => {
+            this.loading = false
+            this.$refs.CalendarGrid.reload()
+          }).catch(response=>{
+            this.loading = false
+          })
+      }else{
+        return this.$axios
+          .post(`/calendar/`, postData["item"]).then(response => {
+            this.loading = false
+            this.$refs.CalendarGrid.reload()
+          }).catch(response=>{
+            this.loading = false
+          })
+      }
     }
   }
 }
