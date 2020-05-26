@@ -48,6 +48,7 @@
   background: #9E9E9E;
   height: 100%;
   z-index: 180;
+  cursor: w-resize;
 }
 .swimlane__item__content .drag-after {
   content: ' ';
@@ -59,6 +60,7 @@
   background: #9E9E9E;
   height: 100%;
   z-index: 180;
+  cursor: w-resize;
 }
 .swimlane__item__content .drag-move {
   content: ' ';
@@ -71,6 +73,7 @@
   background: #9E9E9E;
   z-index: 180;
   text-align: center;
+  cursor: move;
 }
 .swimlane__item__content:hover .drag-move,
 .swimlane__item__content:hover .drag-before,
