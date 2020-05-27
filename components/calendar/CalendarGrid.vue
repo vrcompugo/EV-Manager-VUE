@@ -353,6 +353,7 @@ export default {
             }
             if(this.currentSelection.item.user_id !== this.currentSelection.member.id){
               this.currentSelection.item.user_id = this.currentSelection.member.id
+              this.currentSelection.item.user = this.currentSelection.member
             }
             this.$emit('storeItem', {
               "item": this.currentSelection.item

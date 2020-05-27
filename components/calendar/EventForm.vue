@@ -1,5 +1,15 @@
 <style lang="scss" scoped>
-
+  .color-dot {
+    border-radius: 3px;
+    display: inline-block;
+    color: #ffffff;
+    padding: 0.2em 0.3em;
+    font-size: 0.9em;
+    min-width: 5em;
+  }
+  .v-radio {
+    margin-right: 1em;
+  }
 </style>
 
 <template>
@@ -13,6 +23,66 @@
       <v-textarea
         label="Beschreibung"
         v-model="item.comment" />
+    </div>
+    <div style="display: flex; align-items: center;">
+      <div style="margin-right: 1em;">Spezielle Farbe:</div>
+      <v-radio-group v-model="item.color" row>
+        <v-radio
+          value="">
+          <template v-slot:label>
+            <div class="color-dot" style="border: 1px solid #333; color:#333;">Standard</div>
+          </template>
+        </v-radio>
+        <v-radio
+          color="#D32F2F"
+          value="#D32F2F">
+          <template v-slot:label>
+            <div class="color-dot" style="background-color: #D32F2F">Rot</div>
+          </template>
+        </v-radio>
+        <v-radio
+          color="#7B1FA2"
+          value="#7B1FA2">
+          <template v-slot:label>
+            <div class="color-dot" style="background-color: #7B1FA2">Purpur</div>
+          </template>
+        </v-radio>
+        <v-radio
+          color="#512DA8"
+          value="#512DA8">
+          <template v-slot:label>
+            <div class="color-dot" style="background-color: #512DA8">Lila</div>
+          </template>
+        </v-radio>
+        <v-radio
+          color="#1976D2"
+          value="#1976D2">
+          <template v-slot:label>
+            <div class="color-dot" style="background-color: #1976D2">Blau</div>
+          </template>
+        </v-radio>
+        <v-radio
+          color="#388E3C"
+          value="#388E3C">
+          <template v-slot:label>
+            <div class="color-dot" style="background-color: #388E3C">Grün</div>
+          </template>
+        </v-radio>
+        <v-radio
+          color="#F57C00"
+          value="#F57C00">
+          <template v-slot:label>
+            <div class="color-dot" style="background-color: #F57C00">Orange</div>
+          </template>
+        </v-radio>
+        <v-radio
+          color="#5D4037"
+          value="#5D4037">
+          <template v-slot:label>
+            <div class="color-dot" style="background-color: #5D4037">Braun</div>
+          </template>
+        </v-radio>
+      </v-radio-group>
     </div>
     <v-row no-gutters>
       <v-col cols="12" sm="6">

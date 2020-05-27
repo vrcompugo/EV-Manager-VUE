@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="900" transition="dialog-bottom-transition">
+  <v-dialog v-model="dialog" max-width="1400" transition="dialog-bottom-transition">
     <v-card>
       <v-toolbar color="#1976D2">
         <v-toolbar-title style="color: white;">Neuer Termin für {{ item.user.name }}</v-toolbar-title>
