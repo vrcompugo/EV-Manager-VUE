@@ -29,7 +29,8 @@ export default {
   */
   plugins: [
     { src: '~/plugins/ckeditor', mode: 'client' },
-    '~/plugins/dateTimePicker'
+    '~/plugins/dateTimePicker',
+    '~/plugins/confirmDialog'
   ],
   /*
   ** Nuxt.js dev-modules

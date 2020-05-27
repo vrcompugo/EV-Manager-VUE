@@ -162,7 +162,11 @@
             <br>
             <hr>
             <br>
-            <div style="text-align: right">
+            <div style="display: flex">
+              <v-btn @click="deleteItem()">
+                Löschen
+              </v-btn>
+              <div style="flex: 1"></div>
               <v-btn @click="editmode = false">
                 Abbrechen
               </v-btn>
@@ -251,6 +255,17 @@ export default {
       this.editItem.begin = new Date(this.editItem.begin)
       this.editItem.end = new Date(this.editItem.end)
       this.editmode = true
+    },
+    deleteItem(){
+      this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich löschen?</div>').then(res => {
+        if(res){
+          this.$emit('deleteItem', {
+            "item": this.editItem
+          })
+          this.editmode = false
+          this.dialog = false
+        }
+      })
     },
     save(){
       this.$emit('storeItem', {

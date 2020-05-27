@@ -64,7 +64,8 @@
       :type="calendar_type"
       :filterGroup="filter_group"
       @addNewEventBySelection="openNewTask"
-      @storeItem="storeItem" />
+      @storeItem="storeItem"
+      @deleteItem="deleteItem" />
     <v-btn @click="$refs.CalendarGrid.startSelectionNewEvent()" class="add-new-fab" fab color="#1976D2">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
@@ -147,6 +148,17 @@ export default {
       }else{
         return this.$axios
           .post(`/calendar/`, postData["item"]).then(response => {
+            this.loading = false
+            this.$refs.CalendarGrid.reload()
+          }).catch(response=>{
+            this.loading = false
+          })
+      }
+    },
+    deleteItem(data){
+      if(data.item.id > 0){
+        return this.$axios
+          .delete(`/calendar/${data.item.id}`).then(response => {
             this.loading = false
             this.$refs.CalendarGrid.reload()
           }).catch(response=>{

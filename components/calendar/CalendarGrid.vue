@@ -47,7 +47,8 @@
             @extendStartBefore="startExtention"
             @extendStartAfter="startExtention"
             @startMove="startMoveItem"
-            @storeItem="storeItem" />
+            @storeItem="storeItem"
+            @deleteItem="deleteItem" />
           <div
             v-for="n in maxColumn"
             :key="team.label + member.id + n"
@@ -177,6 +178,9 @@ export default {
     },
     storeItem(data){
       this.$emit('storeItem', data)
+    },
+    deleteItem(data){
+      this.$emit('deleteItem', data)
     },
     updateRowIndex(member){
       if (!member.events){
