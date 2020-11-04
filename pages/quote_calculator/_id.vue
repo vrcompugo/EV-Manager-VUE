@@ -326,6 +326,110 @@
                         </div>
                       </div>
 
+                      <div class="section">
+                        <h3>Extra Null Pakete</h3>
+                        <div class="layout horizontal wrap">
+                          <div class="flex">
+                            <v-checkbox
+                              label="Technik &amp; Service Paket"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="technik_service_packet" />
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="e.move.ZOE"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="emove.zoe" />
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="Steuerliche Beratung"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="tax_consult" />
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="Wärmepumpe"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="wwwp" />
+                            <div v-if="data.extra_options_zero.indexOf('wwwp') >= 0">
+                              <v-select
+                                label="Variante"
+                                v-model="data.extra_options_wwwp_variant" :items="[
+                                  {'value':'ecoSTAR taglio 100','label':'ecoSTAR taglio 100'},
+                                  {'value':'ecoSTAR taglio 180','label':'ecoSTAR taglio 180'},
+                                  {'value':'ecoSTAR 310 compact','label':'ecoSTAR 310 compact'}
+                                ]"
+                                @input="calculateCloud"
+                                style="max-width: 14em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                            </div>
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="Solaredge"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="solaredge" />
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="Neuer Zählerschrank"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="new_power_closet" />
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="NotstromBox SENEC"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="emergency_power_box" />
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="Wallbox"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="wallbox" />
+                            <div v-if="data.extra_options_zero.indexOf('wallbox') >= 0">
+                              <v-select
+                                label="Variante"
+                                v-model="data.extra_options_wallbox_variant" :items="[
+                                  {'value':'11kW','label':'11kW Variante'},
+                                  {'value':'22kW','label':'22kW Variante'}
+                                ]"
+                                @input="calculateCloud"
+                                style="max-width: 9em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                              <v-text-field
+                                v-model="data.extra_options_wallbox_count"
+                                @keyup.enter="calculateCloud"
+                                @blur="calculateCloud"
+                                label="Anzahl Wallboxen"
+                                class="align-right"
+                                style="max-width: 9em;"
+                                type="number"
+                                step="1"></v-text-field>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       <div class="layout horizontal wrap flex-1">
                         <div class="section">
                           <h3>Extra Consumer</h3>
@@ -1914,6 +2018,7 @@ export default {
         "consumers": [],
         "roofs": [],
         "extra_options": [],
+        "extra_options_zero": [],
         "reconstruction_extra_options": [],
         "heating_quote_extra_options": [],
         "extra_offers": [],
