@@ -293,18 +293,6 @@
                               @change="calculateCloud"
                               v-model="data.extra_options"
                               value="emergency_power_box" />
-                            <div v-if="data.extra_options.indexOf('emergency_power_box') >= 0">
-                              <v-select
-                                label="Variante"
-                                v-model="data.extra_options_emergency_power_box_variant" :items="[
-                                  {'value':'','label':'Standard'},
-                                  {'value':'pro','label':'Pro'}
-                                ]"
-                                @input="calculateCloud"
-                                style="max-width: 14em;"
-                                item-text="label"
-                                item-value="value"></v-select>
-                            </div>
                           </div>
                           <div class="flex">
                             <v-checkbox
