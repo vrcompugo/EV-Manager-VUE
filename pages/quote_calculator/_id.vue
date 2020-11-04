@@ -1218,6 +1218,16 @@
                           </div>
                           <div class="flex">
                             <v-slider
+                              v-model="data.financing_rate"
+                              @input="formChanged"
+                              min="0"
+                              max="5"
+                              step="0.01"
+                              thumb-label="always"></v-slider>
+                            <div style="margin-top: -1em; padding-left: 0.5em">Finanzierungs Zinssatz</div>
+                          </div>
+                          <div class="flex">
+                            <v-slider
                               v-model="data.runtime"
                               @input="formChanged"
                               min="30"
@@ -1911,6 +1921,7 @@ export default {
       ],
       "data": {
         "only_show_total_price": false,
+        "financing_rate": 3.79,
         "consumers": [],
         "roofs": [],
         "extra_options": [],
@@ -2152,14 +2163,6 @@ export default {
     calculateCloud(){
       this.changeRoofDirection()
       this.changePVModules()
-      if(this.data.conventional_power_cost_per_kwh !== ""){
-        if(this.data.conventional_power_cost_per_kwh < 26){
-          this.data.conventional_power_cost_per_kwh = 26
-        }
-        if(this.data.conventional_power_cost_per_kwh > 31){
-          this.data.conventional_power_cost_per_kwh = 31
-        }
-      }
       this.$axios.post(`/quote_calculator/${this.id}/calculate`, this.data).then(response => {
         this.calculated = response.data.data.calculated
         this.products = response.data.data.products
