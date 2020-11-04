@@ -602,6 +602,7 @@
                           <v-btn @click="addRoof" style="margin-right: 1em">Hinzufügen</v-btn>
                           <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
                           <v-btn @click="set_optimized_coverage">Cloud Belegung</v-btn>
+                          <v-btn @click="set_zero_coverage">ZERO Belegung</v-btn>
                         </div>
 
                       </div>
@@ -2024,6 +2025,28 @@ export default {
     set_optimized_coverage () {
       this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
       let needed_pv_count_modules = Math.ceil(Number(this.calculated.min_kwp) / this.data.module_kwp.kWp)
+      let possible_modules = 0
+      for (let roof of this.data.roofs) {
+        let flat_multiplicator = 1
+        if (roof.is_flat) {
+          flat_multiplicator = 0.925
+        }
+        roof.pv_count_modules = Math.floor(Number(roof.sqm) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
+        if (possible_modules + roof.pv_count_modules > needed_pv_count_modules) {
+          roof.pv_count_modules = needed_pv_count_modules - possible_modules
+          possible_modules = needed_pv_count_modules
+          break
+        } else {
+          possible_modules += roof.pv_count_modules
+        }
+      }
+      this.data.pv_count_modules = possible_modules
+      this.changePVModules()
+      this.calculateCloud()
+    },
+    set_zero_coverage () {
+      this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
+      let needed_pv_count_modules = Math.ceil(Number(this.calculated.min_zero_kwp) / this.data.module_kwp.kWp)
       let possible_modules = 0
       for (let roof of this.data.roofs) {
         let flat_multiplicator = 1
