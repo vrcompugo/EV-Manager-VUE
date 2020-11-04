@@ -1492,23 +1492,23 @@
                     v-model="data.only_show_total_price" />
                   <v-text-field
                     v-model="data.extra_notes"
-                    label="ergänzende Informationen"
-                    hint="Info an Innendienst"></v-text-field>
+                    label="ergänzende Angaben für den Innendienst"
+                    hint="Diese Eingabe wird nicht im Vertrag zu sehen sein, hier kann eine Information für den Innendienst eingestellt werden"></v-text-field>
                   <v-text-field
                     v-if="data.has_pv_quote"
                     v-model="data.special_conditions_pv_quote"
-                    label="Sonderkonditionen PV-Angebot"
-                    hint="Vereinbarungen sind im Kaufvertrag sichtbar"></v-text-field>
+                    label="Sonderkonditionen PV-Angebot im Kaufvertrag/Angebot sichtbar"
+                    hint="Vereinbarungen sind im Kaufvertrag/Angebot sichtbar"></v-text-field>
                   <v-text-field
                     v-if="data.has_heating_quote"
                     v-model="data.special_conditions_heating_quote"
-                    label="Sonderkonditionen Heizungsangebot"
-                    hint="Vereinbarungen sind im Kaufvertrag sichtbar"></v-text-field>
+                    label="Sonderkonditionen Heizungsangebot im Kaufvertrag/Angebot sichtbar"
+                    hint="Vereinbarungen sind im Kaufvertrag/Angebot sichtbar"></v-text-field>
                   <v-text-field
                     v-if="data.has_roof_reconstruction_quote"
                     v-model="data.special_conditions_roof_reconstruction_quote"
-                    label="Sonderkonditionen Dachsanierungsangebot"
-                    hint="Vereinbarungen sind im Kaufvertrag sichtbar"></v-text-field>
+                    label="Sonderkonditionen Dachsanierungsangebot im Kaufvertrag/Angebot sichtbar"
+                    hint="Vereinbarungen sind im Kaufvertrag/Angebot sichtbar"></v-text-field>
                 </div>
               </div>
             </div>
