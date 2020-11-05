@@ -78,6 +78,7 @@
               <div><v-checkbox v-model="data.has_pv_quote" @change="calculateCloud" label="Cloud/PV" style="margin: 0;" /></div>
               <div><v-checkbox v-model="data.has_roof_reconstruction_quote" @change="calculateCloud" label="Dachsanierung" style="margin: 0" /></div>
               <div><v-checkbox v-model="data.has_heating_quote" @change="calculateCloud" label="Heizung" style="margin: 0" /></div>
+              <div><v-checkbox v-model="data.has_bluegen_quote" @change="calculateCloud" label="BlueGen" style="margin: 0" /></div>
             </div>
             <div class="main-content flex-1">
               <div v-if="data.has_pv_quote">
@@ -1585,6 +1586,15 @@
                   </div>
                 </div>
               </div>
+              <div v-if="data.has_bluegen_quote">
+                <h2>BlueGen Brennstoffzellen</h2>
+                <v-text-field
+                  v-model="data.bluegen_cell_count"
+                  @keyup="calculateCloud"
+                  label="Anzahl Brennstoffzellen"
+                  style="margin-right: 1em"></v-text-field>
+                <v-checkbox v-model="data.add_bluegen_storage" @change="calculateCloud" label="Mit Multifunktionsspeicher" style="margin: 0" />
+              </div>
 
               <div>
                 <div class="section">
@@ -1610,6 +1620,11 @@
                   <v-text-field
                     v-if="data.has_roof_reconstruction_quote"
                     v-model="data.special_conditions_roof_reconstruction_quote"
+                    label="Sonderkonditionen Dachsanierungsangebot im Kaufvertrag/Angebot sichtbar"
+                    hint="Vereinbarungen sind im Kaufvertrag/Angebot sichtbar"></v-text-field>
+                  <v-text-field
+                    v-if="data.has_bluegen_quote"
+                    v-model="data.special_conditions_bluegen_quote"
                     label="Sonderkonditionen Dachsanierungsangebot im Kaufvertrag/Angebot sichtbar"
                     hint="Vereinbarungen sind im Kaufvertrag/Angebot sichtbar"></v-text-field>
                 </div>
@@ -1729,6 +1744,32 @@
                     <tr>
                       <td>Gesamtpreis Brutto</td>
                       <td class="align-right">{{ formatPrice(heating_quote.total) }}</td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+              <div v-if="data.has_bluegen_quote">
+                <br>
+                <hr />
+                <br>
+                <div class="h2">BlueGen-Angebot</div>
+                <div v-if="products" class="products">
+                  <v-checkbox label="Produkte anzeigen" v-model="showProductsBlueGenQuote" />
+                  <table v-if="showProductsBlueGenQuote" >
+                    <tr v-for="product in bluegen_quote.products" :key="product.id">
+                      <td>{{ formatNumber(product.quantity, null) }}</td>
+                      <td>{{ product.NAME }}</td>
+                      <td class="align-right">{{ formatPrice(product.total_price) }}</td>
+                    </tr>
+                  </table>
+                  <table>
+                    <tr>
+                      <td>Gesamtpreis Netto</td>
+                      <td class="align-right">{{ formatPrice(bluegen_quote.total_net) }}</td>
+                    </tr>
+                    <tr>
+                      <td>Gesamtpreis Brutto</td>
+                      <td class="align-right">{{ formatPrice(bluegen_quote.total) }}</td>
                     </tr>
                   </table>
                 </div>
@@ -1943,6 +1984,7 @@ export default {
       "showProducts": false,
       "showProductsHeatQuote": false,
       "showProductsRoofQuote": false,
+      "showProductsBlueGenQuote": false,
       rules: {
         required: value => !!value || 'Required.',
         required_for_order:  value => {
@@ -2049,6 +2091,9 @@ export default {
         data["contact"] = offerData.data.data.contact
         data["roof_reconstruction_quote"] = offerData.data.data.roof_reconstruction_quote
         data["heating_quote"] = offerData.data.data.heating_quote
+        if (offerData.data.data.bluegen_quote) {
+          data["bluegen_quote"] = offerData.data.data.bluegen_quote
+        }
         data["total_net"] = offerData.data.data.total_tax
         data["total"] = offerData.data.data.total
         data["select_options"] = offerData.data.data.select_options
@@ -2291,6 +2336,7 @@ export default {
         this.products = response.data.data.products
         this.roof_reconstruction_quote = response.data.data.roof_reconstruction_quote
         this.heating_quote = response.data.data.heating_quote
+        this.bluegen_quote = response.data.data.bluegen_quote
         this.total_net = response.data.data.total_net
         this.total = response.data.data.total
         this.min_storage_size = response.data.data.calculated.min_storage_size
@@ -2326,6 +2372,10 @@ export default {
 
         if (this.data["has_roof_reconstruction_quote"]) {
           const response5 = await this.$axios.put(`/quote_calculator/${this.id}/roof_reconstruction_pdf`, this.data)
+        }
+
+        if (this.data["has_bluegen_quote"]) {
+          const response_bluegen = await this.$axios.put(`/quote_calculator/${this.id}/bluegen_pdf`, this.data)
         }
 
         const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
