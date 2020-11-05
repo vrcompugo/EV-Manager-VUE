@@ -1777,6 +1777,7 @@
         </div>
         <div v-if="data.has_pv_quote" style="padding-left: 0.5em">= {{ formatNumber(calculated.min_kwp, 2) }} kWp</div>
         <div class="flex-1"></div>
+        <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
         <v-btn v-if="!is_sent && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
         <v-btn v-if="pdf_summary_link" @click="pdf_dialog = true" style="margin-left: 1em">PDFs</v-btn>
@@ -1936,6 +1937,7 @@ export default {
       "generate_wi_dialog": false,
       "order_process": false,
       "confirmData": {},
+      "contact": {},
       "confirm_progress": 0,
       "min_storage_size": 0,
       "showProducts": false,
@@ -1998,6 +2000,7 @@ export default {
       "pv_efficiancy_max": "",
       "pdf_wi_link": undefined,
       "is_sent": false,
+      "contact": {},
       "confirm_error": "",
       "min_storage_size_options_full": [
         {'value': 5, 'label': '5 kWh'},
@@ -2043,6 +2046,7 @@ export default {
         data["original_data"] = JSON.parse(JSON.stringify(offerData.data.data.data))
         data["calculated"] = offerData.data.data.calculated
         data["products"] = offerData.data.data.products
+        data["contact"] = offerData.data.data.contact
         data["roof_reconstruction_quote"] = offerData.data.data.roof_reconstruction_quote
         data["heating_quote"] = offerData.data.data.heating_quote
         data["total_net"] = offerData.data.data.total_tax
@@ -2070,6 +2074,9 @@ export default {
     },
     pv_effiancy_hint () {
       return `Mögliche Werte zwischen: ${this.pv_efficiancy_min} - ${this.pv_efficiancy_max}`
+    },
+    mapsLink () {
+      return `https://www.google.com/maps/search/${this.contact.street} ${this.contact.street_nb} ${this.contact.zip} ${this.contact.city}`
     }
   },
 
