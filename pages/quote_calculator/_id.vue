@@ -673,7 +673,7 @@
                               v-model="roof.direction" :items="[
                                 {'value':'north','label':'Nord'},
                                 {'value':'north_west_east','label':'Nord West/Ost'},
-                                {'value':'north_south','label':'Nord/Süd'},
+
                                 {'value':'west_east','label':'West/Ost'},
                                 {'value':'south_west_east','label':'Süd West/Ost'},
                                 {'value':'south','label':'Süd'}
