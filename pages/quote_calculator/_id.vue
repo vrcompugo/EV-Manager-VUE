@@ -328,7 +328,7 @@
                       </div>
 
                       <div class="section">
-                        <h3>Extra Null Pakete</h3>
+                        <h3>Extra Optionen</h3>
                         <div class="layout horizontal wrap">
                           <div class="flex">
                             <v-checkbox
