@@ -2124,6 +2124,9 @@ export default {
       return `Mögliche Werte zwischen: ${this.pv_efficiancy_min} - ${this.pv_efficiancy_max}`
     },
     mapsLink () {
+      if (!this.contact){
+        return ""
+      }
       return `https://www.google.com/maps/search/${this.contact.street} ${this.contact.street_nb} ${this.contact.zip} ${this.contact.city}`
     }
   },
