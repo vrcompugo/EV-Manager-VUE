@@ -28,6 +28,7 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    '~/plugins/dateFormat.js',
     { src: '~/plugins/ckeditor', mode: 'client' },
     '~/plugins/dateTimePicker',
     '~/plugins/confirmDialog'
