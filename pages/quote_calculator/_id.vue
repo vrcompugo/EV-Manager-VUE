@@ -234,14 +234,14 @@
                               v-model="data.extra_options"
                               value="technik_service_packet" />
                           </div>
-                          <div class="flex">
+                          <!--<div class="flex">
                             <v-checkbox
                               label="e.move.ZOE"
                               style="margin-right: 1em"
                               @change="calculateCloud"
                               v-model="data.extra_options"
                               value="emove.zoe" />
-                          </div>
+                          </div>-->
                           <div class="flex">
                             <v-checkbox
                               label="Steuerliche Beratung"
