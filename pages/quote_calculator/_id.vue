@@ -1821,6 +1821,7 @@
         </div>
         <div v-if="data.has_pv_quote" style="padding-left: 0.5em">= {{ formatNumber(calculated.min_kwp, 2) }} kWp</div>
         <div class="flex-1"></div>
+        <v-btn v-if="pdf_order_confirmation_link && checkBookkeepingRights()" :href="pdf_order_confirmation_link" style="margin-left: 1em" target="_blank">Auftragsbestätigung</v-btn>
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
         <v-btn v-if="!is_sent && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
@@ -1958,8 +1959,6 @@ import AddressForm from '~/components/address/form'
 
 export default {
 
-  auth: false,
-
   components: {
     AddressForm
   },
@@ -2082,6 +2081,9 @@ export default {
         data["pdf_quote_summary_link"] = offerData.data.data.pdf_quote_summary_link
         data["pdf_contract_summary_link"] = offerData.data.data.pdf_contract_summary_link
         data["pdf_datasheets_link"] = offerData.data.data.pdf_datasheets_link
+        if (offerData.data.data.pdf_order_confirmation_link) {
+          data["pdf_order_confirmation_link"] = offerData.data.data.pdf_order_confirmation_link
+        }
         data["is_sent"] = offerData.data.data.is_sent
         data["data"] = offerData.data.data.data
         data["data"]["module_type"] = offerData.data.data.data["module_type"]
@@ -2132,6 +2134,16 @@ export default {
   },
 
   methods: {
+    checkBookkeepingRights(){
+      let result = false
+      const departments = ["Innendienst", "After Sales ???", "After Sales Neu", "Buchhaltung", "Extern IT Unterstützung", "KeSO"]
+      for(let i=0; i<departments.length; i++){
+        if (this.$auth.user.bitrix_department.indexOf(departments[i]) >= 0){
+          return true
+        }
+      }
+      return false
+    },
     reloadProducts () {
       this.$axios.post("/quote_calculator/reload_products")
     },
@@ -2392,6 +2404,9 @@ export default {
 
         const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
         this.pdf_summary_link = response8.data.data.pdf_summary_link
+        if (response8.data.data.pdf_order_confirmation_link) {
+          this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
+        }
 
         if (this.data["has_pv_quote"]) {
           const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
