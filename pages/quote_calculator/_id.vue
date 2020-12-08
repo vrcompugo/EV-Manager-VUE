@@ -2369,10 +2369,12 @@ export default {
       this.formChanged()
     },
     async storeOffer(reason){
-      if(this.data.power_usage === undefined || this.data.power_usage === ''){
-        this.$refs["power_usage"].validate(true)
-        this.$refs["power_usage"].focus()
-        return
+      if (this.data["has_pv_quote"]) {
+        if(this.data.power_usage === undefined || this.data.power_usage === ''){
+          this.$refs["power_usage"].validate(true)
+          this.$refs["power_usage"].focus()
+          return
+        }
       }
       this.loading = true
       try {
