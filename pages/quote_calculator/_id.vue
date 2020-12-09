@@ -63,6 +63,15 @@
     border-right: 1px solid #cccccc;
     border-left: 1px solid #cccccc;
   }
+  .settings-tooltip {
+    display: none;
+    right: 0;
+    background: #ffffff;
+    box-shadow: 0 0 3px 0 rgba(0,0,0,0.5);
+    position: absolute;
+    padding: 0 0.4em;
+    white-space: nowrap;
+  }
 </style>
 
 
@@ -230,7 +239,7 @@
                             <v-checkbox
                               label="Technik &amp; Service Paket"
                               style="margin-right: 1em"
-                              @change="calculateCloud"
+                              @change="unsetSpecialOffer"
                               v-model="data.extra_options"
                               value="technik_service_packet" />
                           </div>
@@ -334,7 +343,7 @@
                             <v-checkbox
                               label="Technik &amp; Service Paket"
                               style="margin-right: 1em"
-                              @change="calculateCloud"
+                              @change="setSpecialOffer"
                               v-model="data.extra_options_zero"
                               value="technik_service_packet" />
                           </div>
@@ -1625,7 +1634,7 @@
                   <v-text-field
                     v-if="data.has_bluegen_quote"
                     v-model="data.special_conditions_bluegen_quote"
-                    label="Sonderkonditionen Dachsanierungsangebot im Kaufvertrag/Angebot sichtbar"
+                    label="Sonderkonditionen BlueGen im Kaufvertrag/Angebot sichtbar"
                     hint="Vereinbarungen sind im Kaufvertrag/Angebot sichtbar"></v-text-field>
                 </div>
               </div>
@@ -1642,7 +1651,17 @@
               </div>
             </div>
             <div v-if="!calculated.invalid_form">
-              <div style="font-size: 1.3em;">Übersicht Kosten</div>
+              <div class="layout horizontal">
+                <div style="font-size: 1.3em; flex: 1;">Übersicht Kosten</div>
+                <div style="position: relative;">
+                  <a href="#" @click="showSettingTooltip = !showSettingTooltip">
+                    <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24"><g><path d="M0,0h24v24H0V0z" fill="none"/><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></g></svg>
+                  </a>
+                  <div class="settings-tooltip" :style="showSettingTooltip && 'display: block;'">
+                    <v-checkbox label="Interner Modus" v-model="showInternals" />
+                  </div>
+                </div>
+              </div>
               <div v-if="data.has_pv_quote">
                 <br>
                 <hr />
@@ -1822,6 +1841,7 @@
         <div v-if="data.has_pv_quote" style="padding-left: 0.5em">= {{ formatNumber(calculated.min_kwp, 2) }} kWp</div>
         <div class="flex-1"></div>
         <v-btn v-if="pdf_order_confirmation_link && checkBookkeepingRights()" :href="pdf_order_confirmation_link" style="margin-left: 1em" target="_blank">Auftragsbestätigung</v-btn>
+        <v-btn @click="adjustment_dialog = true" style="margin-left: 1em">Anpassungen</v-btn>
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
         <v-btn v-if="!is_sent && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
@@ -1852,6 +1872,9 @@
           </div>
           <div>
             <v-btn v-if="pdf_datasheets_link" :href="pdf_datasheets_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Datenblätter öffnen</v-btn>
+          </div>
+          <div>
+            <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Provision öffnen</v-btn>
           </div>
         </v-card-text>
 
@@ -1914,38 +1937,362 @@
     </v-dialog>
 
     <v-dialog
-      v-model="confirm_order_dialog"
-      width="500"
-      :modal="confirm_order_dialog_modal"
+      v-model="adjustment_dialog"
+      width="800"
+      modal
     >
       <v-card>
         <v-card-title class="headline grey lighten-2" primary-title >
-          Verbindlich Bestellen
+          Anpassungen
         </v-card-title>
 
         <v-card-text>
-          <ConfirmOrderDialog v-model="confirmData" :data="data" :error="confirm_error" :progress="confirm_progress" :loading="confirmData.loading"></ConfirmOrderDialog>
+          <v-tabs class="flex-1" v-model="discount_tab">
+            <v-tab key="pv" v-if="data.has_pv_quote">Cloud/PV</v-tab>
+            <v-tab key="roof" v-if="data.has_roof_reconstruction_quote">Dachsanierung</v-tab>
+            <v-tab key="heating" v-if="data.has_heating_quote">Heizung</v-tab>
+            <v-tab key="bluegen" v-if="data.has_bluegen_quote">BlueGen</v-tab>
+          </v-tabs>
+          <v-tabs-items v-model="discount_tab">
+            <v-tab-item key="pv" v-if="data.has_pv_quote">
+              <br>
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <h3 style="font-weight: bold;">Mehrerlös</h3>
+
+                <div class="layout horizontal">
+                  <v-text-field
+                    label="in Prozent"
+                    suffix="%"
+                    type="number"
+                    style="margin-right: 1em;"
+                    v-model="data.pv_quote_price_increase_percent"
+                    @input="data.pv_quote_price_increase_euro = Math.round(calculated.unchanged_total_net * (data.pv_quote_price_increase_percent / 100) * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                  <v-text-field
+                    label="in Euro"
+                    suffix="€"
+                    type="number"
+                    disabled
+                    v-model="data.pv_quote_price_increase_euro"
+                    @input="data.pv_quote_price_increase_percent = Math.round((data.pv_quote_price_increase_euro / calculated.unchanged_total_net) * 100 * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                </div>
+              </div>
+
+              <h3 style="font-weight: bold;">Nachlass</h3>
+              <v-checkbox label="Sonderaktion Service &amp; Technik" v-model="data.pv_quote_special_offer_technik_service" @change="setSpecialOffer" />
+              <div class="layout horizontal">
+                <v-text-field
+                  label="in Prozent"
+                  suffix="%" type="number"
+                  style="margin-right: 1em;"
+                  disabled
+                  v-model="data.pv_quote_discount_percent"
+                  @input="data.pv_quote_discount_euro = Math.round(calculated.discountable_subtotal_net * (data.pv_quote_discount_percent / 100) * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+                <v-text-field
+                  label="in Euro"
+                  suffix="€"
+                  type="number"
+                  v-model="data.pv_quote_discount_euro"
+                  @input="data.pv_quote_discount_percent = Math.round((data.pv_quote_discount_euro / calculated.discountable_subtotal_net) * 100 * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+              </div>
+              <div class="layout horizontal" style="text-align: center">
+                <div class="flex">
+                  <div>Alter Gesamtpreis Netto</div>
+                  <div style="font-size: 2em">{{ formatPrice(calculated.after_increase_total_net) }}</div>
+                </div>
+                <div class="flex">
+                  <div>Neuer Gesamtpreis Netto</div>
+                  <div style="font-size: 2em">{{ formatPrice(total_net) }}</div>
+                </div>
+              </div>
+
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <br>
+                <h3 style="font-weight: bold;">Provisionskalkulation</h3>
+                <br>
+                <div class="layout horizontal" style="text-align: center">
+                  <div class="flex">
+                    <div>{{ formatNumber(calculated.effective_internal_discount_rate) }}%</div>
+                    Gesamtpreis<br>
+                    Provision
+                  </div>
+                  <div class="flex">
+                    <div>Ohne Anpassungen</div>
+                    {{ formatPrice(calculated.unchanged_total_net) }}<br>
+                    {{ formatPrice(calculated.unchanged_commission_value) }}
+                  </div>
+                  <div class="flex">
+                    <div>Gesamtprovision</div>
+                    {{ formatPrice(calculated.commission_total_net) }}<br>
+                    {{ formatPrice(calculated.commission_value) }}
+                  </div>
+                </div>
+                <small>Kein Rechtsanspruch auf die Richtigkeit dieser Provisionsdarstellung</small>
+              </div>
+            </v-tab-item>
+            <v-tab-item key="roof" v-if="data.has_roof_reconstruction_quote">
+              <br>
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <h3 style="font-weight: bold;">Mehrerlös</h3>
+
+                <div class="layout horizontal">
+                  <v-text-field
+                    label="in Prozent"
+                    suffix="%"
+                    type="number"
+                    style="margin-right: 1em;"
+                    v-model="data.roof_reconstruction_quote_price_increase_percent"
+                    @input="data.roof_reconstruction_quote_price_increase_euro = Math.round(roof_reconstruction_quote.calculated.unchanged_total_net * (data.roof_reconstruction_quote_price_increase_percent / 100) * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                  <v-text-field
+                    label="in Euro"
+                    suffix="€"
+                    type="number"
+                    disabled
+                    v-model="data.roof_reconstruction_quote_price_increase_euro"
+                    @input="data.roof_reconstruction_quote_price_increase_percent = Math.round((data.roof_reconstruction_quote_price_increase_euro / roof_reconstruction_quote.calculated.unchanged_total_net) * 100 * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                </div>
+              </div>
+
+              <h3 style="font-weight: bold;">Nachlass</h3>
+              <div class="layout horizontal">
+                <v-text-field
+                  label="in Prozent"
+                  suffix="%" type="number"
+                  style="margin-right: 1em;"
+                  disabled
+                  v-model="data.roof_reconstruction_quote_discount_percent"
+                  @input="data.roof_reconstruction_quote_discount_euro = Math.round(roof_reconstruction_quote.calculated.discountable_subtotal_net * (data.roof_reconstruction_quote_discount_percent / 100) * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+                <v-text-field
+                  label="in Euro"
+                  suffix="€"
+                  type="number"
+                  v-model="data.roof_reconstruction_quote_discount_euro"
+                  @input="data.roof_reconstruction_quote_discount_percent = Math.round((data.roof_reconstruction_quote_discount_euro / roof_reconstruction_quote.calculated.discountable_subtotal_net) * 100 * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+              </div>
+              <div class="layout horizontal" style="text-align: center">
+                <div class="flex">
+                  <div>Neuer Gesamtpreis Netto</div>
+                  <div style="font-size: 2em">{{ formatPrice(roof_reconstruction_quote.calculated.after_increase_total_net) }}</div>
+                </div>
+                <div class="flex">
+                  <div>Neuer Gesamtpreis Brutto</div>
+                  <div style="font-size: 2em">{{ formatPrice(roof_reconstruction_quote.total_net) }}</div>
+                </div>
+              </div>
+
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <br>
+                <h3 style="font-weight: bold;">Provisionskalkulation</h3>
+                <br>
+                <div class="layout horizontal" style="text-align: center">
+                  <div class="flex">
+                    <div>{{ formatNumber(roof_reconstruction_quote.calculated.effective_internal_discount_rate) }}%</div>
+                    Gesamtpreis<br>
+                    Provision
+                  </div>
+                  <div class="flex">
+                    <div>Ohne Anpassungen</div>
+                    {{ formatPrice(roof_reconstruction_quote.calculated.unchanged_total_net) }}<br>
+                    {{ formatPrice(roof_reconstruction_quote.calculated.unchanged_commission_value) }}
+                  </div>
+                  <div class="flex">
+                    <div>Gesamtprovision</div>
+                    {{ formatPrice(roof_reconstruction_quote.calculated.commission_total_net) }}<br>
+                    {{ formatPrice(roof_reconstruction_quote.calculated.commission_value) }}
+                  </div>
+                </div>
+                <small>Kein Rechtsanspruch auf die Richtigkeit dieser Provisionsdarstellung</small>
+              </div>
+            </v-tab-item>
+            <v-tab-item key="heating" v-if="data.has_heating_quote">
+              <br>
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <h3 style="font-weight: bold;">Mehrerlös</h3>
+
+                <div class="layout horizontal">
+                  <v-text-field
+                    label="in Prozent"
+                    suffix="%"
+                    type="number"
+                    style="margin-right: 1em;"
+                    v-model="data.heating_quote_price_increase_percent"
+                    @input="data.heating_quote_price_increase_euro = Math.round(heating_quote.calculated.unchanged_total_net * (data.heating_quote_price_increase_percent / 100) * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                  <v-text-field
+                    label="in Euro"
+                    suffix="€"
+                    type="number"
+                    disabled
+                    v-model="data.heating_quote_price_increase_euro"
+                    @input="data.heating_quote_price_increase_percent = Math.round((data.heating_quote_price_increase_euro / heating_quote.calculated.unchanged_total_net) * 100 * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                </div>
+              </div>
+
+              <h3 style="font-weight: bold;">Nachlass</h3>
+              <div class="layout horizontal">
+                <v-text-field
+                  label="in Prozent"
+                  suffix="%" type="number"
+                  style="margin-right: 1em;"
+                  disabled
+                  v-model="data.heating_quote_discount_percent"
+                  @input="data.heating_quote_discount_euro = Math.round(heating_quote.calculated.discountable_subtotal_net * (data.heating_quote_discount_percent / 100) * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+                <v-text-field
+                  label="in Euro"
+                  suffix="€"
+                  type="number"
+                  v-model="data.heating_quote_discount_euro"
+                  @input="data.heating_quote_discount_percent = Math.round((data.heating_quote_discount_euro / heating_quote.calculated.discountable_subtotal_net) * 100 * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+              </div>
+              <div class="layout horizontal" style="text-align: center">
+                <div class="flex">
+                  <div>Neuer Gesamtpreis Netto</div>
+                  <div style="font-size: 2em">{{ formatPrice(heating_quote.calculated.after_increase_total_net) }}</div>
+                </div>
+                <div class="flex">
+                  <div>Neuer Gesamtpreis Brutto</div>
+                  <div style="font-size: 2em">{{ formatPrice(heating_quote.total_net) }}</div>
+                </div>
+              </div>
+
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <br>
+                <h3 style="font-weight: bold;">Provisionskalkulation</h3>
+                <br>
+                <div class="layout horizontal" style="text-align: center">
+                  <div class="flex">
+                    <div>{{ formatNumber(heating_quote.calculated.effective_internal_discount_rate) }}%</div>
+                    Gesamtpreis<br>
+                    Provision
+                  </div>
+                  <div class="flex">
+                    <div>Ohne Anpassungen</div>
+                    {{ formatPrice(heating_quote.calculated.unchanged_total_net) }}<br>
+                    {{ formatPrice(heating_quote.calculated.unchanged_commission_value) }}
+                  </div>
+                  <div class="flex">
+                    <div>Gesamtprovision</div>
+                    {{ formatPrice(heating_quote.calculated.commission_total_net) }}<br>
+                    {{ formatPrice(heating_quote.calculated.commission_value) }}
+                  </div>
+                </div>
+                <small>Kein Rechtsanspruch auf die Richtigkeit dieser Provisionsdarstellung</small>
+              </div>
+            </v-tab-item>
+            <v-tab-item key="bluegen" v-if="data.has_bluegen_quote">
+              <br>
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <h3 style="font-weight: bold;">Mehrerlös</h3>
+
+                <div class="layout horizontal">
+                  <v-text-field
+                    label="in Prozent"
+                    suffix="%"
+                    type="number"
+                    style="margin-right: 1em;"
+                    v-model="data.bluegen_quote_price_increase_percent"
+                    @input="data.bluegen_quote_price_increase_euro = Math.round(bluegen_quote.calculated.unchanged_total_net * (data.bluegen_quote_price_increase_percent / 100) * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                  <v-text-field
+                    label="in Euro"
+                    suffix="€"
+                    type="number"
+                    disabled
+                    v-model="data.bluegen_quote_price_increase_euro"
+                    @input="data.bluegen_quote_price_increase_percent = Math.round((data.bluegen_quote_price_increase_euro / bluegen_quote.calculated.unchanged_total_net) * 100 * 100) / 100"
+                    @blur="calculateCloud"
+                  ></v-text-field>
+                </div>
+              </div>
+
+              <h3 style="font-weight: bold;">Nachlass</h3>
+              <div class="layout horizontal">
+                <v-text-field
+                  label="in Prozent"
+                  suffix="%" type="number"
+                  style="margin-right: 1em;"
+                  disabled
+                  v-model="data.bluegen_quote_discount_percent"
+                  @input="data.bluegen_quote_discount_euro = Math.round(bluegen_quote.calculated.discountable_subtotal_net * (data.bluegen_quote_discount_percent / 100) * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+                <v-text-field
+                  label="in Euro"
+                  suffix="€"
+                  type="number"
+                  v-model="data.bluegen_quote_discount_euro"
+                  @input="data.bluegen_quote_discount_percent = Math.round((data.bluegen_quote_discount_euro / bluegen_quote.calculated.discountable_subtotal_net) * 100 * 100) / 100"
+                  @blur="calculateCloud"
+                ></v-text-field>
+              </div>
+              <div class="layout horizontal" style="text-align: center">
+                <div class="flex">
+                  <div>Neuer Gesamtpreis Netto</div>
+                  <div style="font-size: 2em">{{ formatPrice(bluegen_quote.calculated.after_increase_total_net) }}</div>
+                </div>
+                <div class="flex">
+                  <div>Neuer Gesamtpreis Brutto</div>
+                  <div style="font-size: 2em">{{ formatPrice(bluegen_quote.total_net) }}</div>
+                </div>
+              </div>
+
+              <div v-if="showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0">
+                <br>
+                <h3 style="font-weight: bold;">Provisionskalkulation</h3>
+                <br>
+                <div class="layout horizontal" style="text-align: center">
+                  <div class="flex">
+                    <div>{{ formatNumber(bluegen_quote.calculated.effective_internal_discount_rate) }}%</div>
+                    Gesamtpreis<br>
+                    Provision
+                  </div>
+                  <div class="flex">
+                    <div>Ohne Anpassungen</div>
+                    {{ formatPrice(bluegen_quote.calculated.unchanged_total_net) }}<br>
+                    {{ formatPrice(bluegen_quote.calculated.unchanged_commission_value) }}
+                  </div>
+                  <div class="flex">
+                    <div>Gesamtprovision</div>
+                    {{ formatPrice(bluegen_quote.calculated.commission_total_net) }}<br>
+                    {{ formatPrice(bluegen_quote.calculated.commission_value) }}
+                  </div>
+                </div>
+                <small>Kein Rechtsanspruch auf die Richtigkeit dieser Provisionsdarstellung</small>
+              </div>
+            </v-tab-item>
+          </v-tabs-items>
+
         </v-card-text>
 
         <v-divider></v-divider>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="secondary"
-            text
-            @click="confirm_order_dialog = false"
-          >
-            Abbrechen
-          </v-btn>
-          <v-btn
-            color="primary"
-            text
-            @click="orderOffer"
-            :disabled="confirmData.loading"
-            :loading="confirmData.loading"
-          >
-            Verbindlich Bestellen
+          <v-btn color="primary" @click="adjustment_dialog = false">
+            OK
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1969,7 +2316,11 @@ export default {
 
   data(){
     return {
+      "discount_tab": undefined,
       "stepper": 1,
+      "showSettingTooltip": false,
+      "showInternals": false,
+      "adjustment_dialog": false,
       "original_data": undefined,
       "form_dirty": false,
       "loading": false,
@@ -2032,7 +2383,9 @@ export default {
     const data = {
       "id": params.id,
       "loading": false,
+      "showInternals": false,
       "form_dirty": false,
+      "adjustment_dialog": false,
       "confirm_order_dialog": false,
       "generate_wi_dialog": false,
       "offer_number": "new",
@@ -2078,11 +2431,14 @@ export default {
 
       if(offerData) {
         data["pdf_summary_link"] = offerData.data.data.pdf_summary_link
+        data["pdf_commission_link"] = offerData.data.data.pdf_commission_link
         data["pdf_quote_summary_link"] = offerData.data.data.pdf_quote_summary_link
         data["pdf_contract_summary_link"] = offerData.data.data.pdf_contract_summary_link
         data["pdf_datasheets_link"] = offerData.data.data.pdf_datasheets_link
         if (offerData.data.data.pdf_order_confirmation_link) {
           data["pdf_order_confirmation_link"] = offerData.data.data.pdf_order_confirmation_link
+        }else{
+          data["pdf_order_confirmation_link"] = undefined
         }
         data["is_sent"] = offerData.data.data.is_sent
         data["data"] = offerData.data.data.data
@@ -2144,10 +2500,33 @@ export default {
       }
       return false
     },
+    checkMitteRights(){
+      let result = false
+        if (this.$auth.user.bitrix_department.indexOf("energiezentrum-mitte EXTERN") >= 0){
+          return true
+        }
+      return false
+    },
     reloadProducts () {
       this.$axios.post("/quote_calculator/reload_products")
     },
     validateModules () {
+    },
+    setSpecialOffer () {
+      console.log(this.data.pv_quote_special_offer_technik_service, this.data.extra_options.indexOf('technik_service_packet') < 0)
+      if (this.data.pv_quote_special_offer_technik_service) {
+        if (this.data.extra_options.indexOf('technik_service_packet') < 0) {
+          this.data.extra_options.push('technik_service_packet')
+        }
+      }
+      this.calculateCloud()
+    },
+    unsetSpecialOffer () {
+      console.log(this.data.pv_quote_special_offer_technik_service, this.data.extra_options.indexOf('technik_service_packet') < 0)
+      if (this.data.extra_options.indexOf('technik_service_packet') < 0) {
+        this.data.pv_quote_special_offer_technik_service = false
+      }
+      this.calculateCloud()
     },
     addRoof() {
       this.data.roofs.push({ direction: 'west_east' })
@@ -2355,6 +2734,7 @@ export default {
         this.roof_reconstruction_quote = response.data.data.roof_reconstruction_quote
         this.heating_quote = response.data.data.heating_quote
         this.bluegen_quote = response.data.data.bluegen_quote
+        this.data = response.data.data.data
         this.total_net = response.data.data.total_net
         this.total = response.data.data.total
         this.min_storage_size = response.data.data.calculated.min_storage_size
@@ -2369,10 +2749,12 @@ export default {
       this.formChanged()
     },
     async storeOffer(reason){
-      if(this.data.power_usage === undefined || this.data.power_usage === ''){
-        this.$refs["power_usage"].validate(true)
-        this.$refs["power_usage"].focus()
-        return
+      if (this.data["has_pv_quote"]) {
+        if(this.data.power_usage === undefined || this.data.power_usage === ''){
+          this.$refs["power_usage"].validate(true)
+          this.$refs["power_usage"].focus()
+          return
+        }
       }
       this.loading = true
       try {
@@ -2395,6 +2777,9 @@ export default {
         if (this.data["has_bluegen_quote"]) {
           const response_bluegen = await this.$axios.put(`/quote_calculator/${this.id}/bluegen_pdf`, this.data)
         }
+
+        const response_commission = await this.$axios.put(`/quote_calculator/${this.id}/commission_pdf`, this.data)
+        this.pdf_commission_link = response_commission.data.data.pdf_commission_link
 
         const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
         this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
