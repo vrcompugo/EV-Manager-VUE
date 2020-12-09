@@ -1840,7 +1840,6 @@
         </div>
         <div v-if="data.has_pv_quote" style="padding-left: 0.5em">= {{ formatNumber(calculated.min_kwp, 2) }} kWp</div>
         <div class="flex-1"></div>
-        <v-btn v-if="pdf_order_confirmation_link && checkBookkeepingRights()" :href="pdf_order_confirmation_link" style="margin-left: 1em" target="_blank">Auftragsbestätigung</v-btn>
         <v-btn @click="adjustment_dialog = true" style="margin-left: 1em">Anpassungen</v-btn>
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
         <v-btn v-if="!is_sent && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
