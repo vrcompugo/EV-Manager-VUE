@@ -1548,7 +1548,7 @@
                       class="align-right"
                       suffix="m²"
                       type="number"
-                      step="0.01"
+                      step="1"
                       style="margin-left: 1em"></v-text-field>
                     <v-checkbox
                       label="Solarthermie anbieten"
