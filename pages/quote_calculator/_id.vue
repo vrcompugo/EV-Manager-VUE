@@ -1493,12 +1493,180 @@
                       @change="calculateCloud"
                       v-model="data.reconstruction_extra_options"
                       value="with_insulation" />
-                    <v-checkbox
-                      label="Asbest Entsorgung einrechnen"
-                      style="margin-left: 1em"
-                      @change="calculateCloud"
-                      v-model="data.reconstruction_extra_options"
-                      value="with_asbest_removable" />
+                  </div>
+                  <b>Extra Optionen</b>
+                  <div class="layout horizontal wrap" style="justify-content: flex-start">
+                    <div>
+                      <v-checkbox
+                        label="Abfallentsorgung"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="trash_management" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('trash_management') >= 0">
+                        <v-text-field
+                          label="Menge"
+                          v-model="data.reconstruction_extra_options_trash_management_amount"
+                          @input="calculateCloud"
+                          suffix="kg"
+                          style="max-width: 10em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Abnehmen des Schneefanges"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="remove_snowstop" />
+                        <div v-if="data.reconstruction_extra_options.indexOf('remove_snowstop') >= 0">
+                          <v-text-field
+                            label="Anzahl"
+                            v-model="data.reconstruction_extra_options_extra_remove_snowstop_count"
+                            @input="calculateCloud"
+                            style="max-width: 10em;"
+                            step="1"></v-text-field>
+                        </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Alte Dachrinne und Fallrohr abnehmen"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="remove_rain_pipe" />
+                        <div v-if="data.reconstruction_extra_options.indexOf('remove_rain_pipe') >= 0">
+                          <v-text-field
+                            label="Länge"
+                            v-model="data.reconstruction_extra_options_extra_remove_rain_pipe_count"
+                            @input="calculateCloud"
+                            suffix="m"
+                            style="max-width: 10em;"
+                            step="1"></v-text-field>
+                        </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Asbestzementplatten abnehmen und entsorgen"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="remove_asbest" />
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Ausstiegsfenster ausbauen und entsorgen"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="remove_exit_window" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('remove_exit_window') >= 0">
+                        <v-text-field
+                          label="Anzahl"
+                          v-model="data.reconstruction_extra_options_extra_remove_exit_window_count"
+                          @input="calculateCloud"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Kamin komplett abnehmen und entsorgen"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="remove_chimney" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('remove_chimney') >= 0">
+                        <v-text-field
+                          label="Anzahl"
+                          v-model="data.reconstruction_extra_options_extra_remove_chimney_count"
+                          @input="calculateCloud"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Neue Dachrinne aus Zinkblech"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="new_rain_pipe" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('new_rain_pipe') >= 0">
+                        <v-text-field
+                          label="Länge"
+                          v-model="data.reconstruction_extra_options_extra_new_rain_pipe_count"
+                          @input="calculateCloud"
+                          suffix="m"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Sat Anlage Versetzen"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="move_sat" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('move_sat') >= 0">
+                        <v-text-field
+                          label="Anzahl"
+                          v-model="data.reconstruction_extra_options_extra_move_sat_count"
+                          @input="calculateCloud"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Schornstein verschiefern"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="chimney_reconstruction" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('chimney_reconstruction') >= 0">
+                        <v-text-field
+                          label="Anzahl"
+                          v-model="data.reconstruction_extra_options_extra_chimney_reconstruction_count"
+                          @input="calculateCloud"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Wohndachfenster ausbauen und entsorgen"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="remove_window" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('remove_window') >= 0">
+                        <v-text-field
+                          label="Anzahl"
+                          v-model="data.reconstruction_extra_options_extra_remove_window_count"
+                          @input="calculateCloud"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="Wohndachfenster einbauen"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.reconstruction_extra_options"
+                        value="new_window" />
+                      <div v-if="data.reconstruction_extra_options.indexOf('new_window') >= 0">
+                        <v-text-field
+                          label="Anzahl"
+                          v-model="data.reconstruction_extra_options_extra_new_window_count"
+                          @input="calculateCloud"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1550,25 +1718,19 @@
                       type="number"
                       step="1"
                       style="margin-left: 1em"></v-text-field>
-                    <v-checkbox
-                      label="Solarthermie anbieten"
-                      style="margin-left: 1em"
-                      @change="calculateCloud"
-                      v-model="data.heating_quote_extra_options"
-                      value="solarthermie" />
                   </div>
                   <div class="layout horizontal wrap">
                     <v-select
                       label="Baujahr Haus (Dämmwert)"
                       v-model="data.heating_quote_house_build" :items="[
-                        {'value':'1940-196','label':'1940-1969'},
+                        {'value':'1940-1969','label':'1940-1969'},
                         {'value':'1970-1979','label':'1970-1979'},
                         {'value':'1980-1999','label':'1980-1999'},
                         {'value':'2000-2015','label':'2000-2015'},
                         {'value':'2016 und neuer','label':'2016 und neuer'}
                       ]"
                       @input="calculateCloud"
-                      style="margin-left: 1em"
+                      style="margin-left: 1em; max-width: 14em"
                       item-text="label"
                       item-value="value"></v-select>
                     <v-select
@@ -1579,7 +1741,7 @@
                         {'value':'radiator_heating','label':'Nur Heizkörper'}
                       ]"
                       @input="calculateCloud"
-                      style="margin-left: 1em"
+                      style="margin-left: 1em; max-width: 14em"
                       item-text="label"
                       item-value="value"></v-select>
                     <v-select
@@ -1589,9 +1751,105 @@
                         {'value':'separate','label':'Warmwasser wird derzeit anders hergestellt'}
                       ]"
                       @input="calculateCloud"
-                      style="margin-left: 1em"
+                      style="margin-left: 1em; max-width: 14em"
                       item-text="label"
                       item-value="value"></v-select>
+                    <v-text-field
+                      label="Anzahl Heizkörper"
+                      v-model="data.heating_quote_radiator_count"
+                      @input="calculateCloud"
+                      type="number"
+                      style="margin-left: 1em; max-width: 14em;"
+                      step="1"></v-text-field>
+                    <v-text-field
+                      label="Personen im Haushalt"
+                      v-model="data.heating_quote_people"
+                      @input="calculateCloud"
+                      style="margin-left: 1em; max-width: 14em;"
+                      type="number"
+                      step="1"></v-text-field>
+                  </div>
+                  <b>Solarthermie</b>
+                  <div class="layout horizontal wrap" style="justify-content: flex-start">
+                    <div>
+                      <v-checkbox
+                        label="vorhande Solartherme einbinden"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.heating_quote_extra_options"
+                        value="connect_existing_solarthermie" />
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="vorhande Solartherme demontieren"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.heating_quote_extra_options"
+                        value="remove_existing_solarthermie" />
+                    </div>
+                    <div>
+                      <v-checkbox
+                        label="neue Solartherme einbinden"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.heating_quote_extra_options"
+                        value="new_solarthermie" />
+                      <div v-if="data.heating_quote_extra_options.indexOf('new_solarthermie') >= 0">
+                        <v-select
+                          label="Solarthermie Set ausählen"
+                          v-model="data.heating_quote_new_solarthermie_type" :items="[
+                            {'value':'10','label':'Solarthermie Set (10)'},
+                            {'value':'11','label':'Solarthermie Set (11)'}
+                          ]"
+                          @input="calculateCloud"
+                          style="margin-left: 1em"
+                          item-text="label"
+                          item-value="value"></v-select>
+                      </div>
+                    </div>
+                  </div>
+                  <b>Extra Optionen</b>
+                  <div class="layout horizontal wrap" style="justify-content: flex-start">
+                    <div>
+                      <v-checkbox
+                        label="Ausbau der alten Heizung ohne Tanks"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.heating_quote_extra_options"
+                        value="deconstruct_old_heater" />
+                    </div>
+                    <div v-if="data.new_heating_type == 'heatpump'">
+                      <v-checkbox
+                        label="Kein Ablauf im Raum der WP vorhanden"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.heating_quote_extra_options"
+                        value="no_drain" />
+                    </div>
+                    <div v-if="data.new_heating_type == 'heatpump'">
+                      <v-checkbox
+                        label="grössere Warmwasser Anforderung"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.heating_quote_extra_options"
+                        value="extra_warm_water" />
+                      <div v-if="data.heating_quote_extra_options.indexOf('extra_warm_water') >= 0">
+                        <v-text-field
+                          label="Anzahl"
+                          v-model="data.heating_quote_extra_options_extra_warm_water_count"
+                          @input="calculateCloud"
+                          style="max-width: 14em;"
+                          step="1"></v-text-field>
+                      </div>
+                    </div>
+                    <div v-if="data.new_heating_type != 'heatpump'">
+                      <v-checkbox
+                        label="Heizungspufferspeicher"
+                        style="margin-right: 1em"
+                        @change="calculateCloud"
+                        v-model="data.heating_quote_extra_options"
+                        value="bufferstorage" />
+                    </div>
                   </div>
                 </div>
               </div>
