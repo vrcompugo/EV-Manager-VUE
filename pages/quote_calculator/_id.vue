@@ -2108,6 +2108,13 @@
       </div>
     </div>
 
+    <v-overlay v-if="loading" :value="loading">
+      <div style="width: 80vw; max-width: 600px; min-width: 280px; background-color: rgba(255,255,255,0.9); border-radius: 5px; padding: 1em; color: #333; text-align: center">
+        {{ this.loading_message }}
+        <v-progress-linear :value="this.loading_percent" color="#1976D2"></v-progress-linear>
+      </div>
+    </v-overlay>
+
     <v-dialog
       v-model="pdf_dialog"
       width="500"
@@ -2573,6 +2580,8 @@ export default {
 
   data(){
     return {
+      "loading_percent": 100,
+      "loading_message": "",
       "discount_tab": undefined,
       "stepper": 1,
       "showSettingTooltip": false,
@@ -3015,41 +3024,65 @@ export default {
       }
       this.loading = true
       try {
+        this.loading_percent = 0
+        this.loading_message = "Eingabedaten verarbeiten"
         const response = await this.$axios.put(`/quote_calculator/${this.id}`, this.data)
         this.data = response.data.data.data
 
+        this.loading_percent = 100 / 11 * 1
+        this.loading_message = "Stromverbräuche und Preissteigerungen kalkulieren"
         if (this.data["has_pv_quote"]) {
           const response3 = await this.$axios.put(`/quote_calculator/${this.id}/pv_pdf`, this.data)
+        }
+        this.loading_percent = 100 / 11 * 2
+        this.loading_message = "PV Anlagen-Produktivität berechnen"
+        if (this.data["has_pv_quote"]) {
           const response2 = await this.$axios.put(`/quote_calculator/${this.id}/cloud_pdfs`, this.data)
         }
 
+        this.loading_percent = 100 / 11 * 3
+        this.loading_message = "Heizungs PDF erzeugen"
         if (this.data["has_heating_quote"]) {
           const response4 = await this.$axios.put(`/quote_calculator/${this.id}/heating_pdf`, this.data)
         }
 
+        this.loading_percent = 100 / 11 * 4
+        this.loading_message = "Dachsanierungs PDF erzeugen"
         if (this.data["has_roof_reconstruction_quote"]) {
           const response5 = await this.$axios.put(`/quote_calculator/${this.id}/roof_reconstruction_pdf`, this.data)
         }
 
+        this.loading_percent = 100 / 11 * 5
+        this.loading_message = "BlueGen PDF erzeugen"
         if (this.data["has_bluegen_quote"]) {
           const response_bluegen = await this.$axios.put(`/quote_calculator/${this.id}/bluegen_pdf`, this.data)
         }
 
+        this.loading_percent = 100 / 11 * 6
+        this.loading_message = "Kalkulations PDF erzeugen"
         const response_commission = await this.$axios.put(`/quote_calculator/${this.id}/commission_pdf`, this.data)
         this.pdf_commission_link = response_commission.data.data.pdf_commission_link
 
+        this.loading_percent = 100 / 11 * 7
+        this.loading_message = "Angebotssammlung PDF erzeugen"
         const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
         this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
 
+        this.loading_percent = 100 / 11 * 8
+        this.loading_message = "Datenblätter PDF erzeugen"
         const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
         this.pdf_datasheets_link = response7.data.data.pdf_datasheets_link
 
+        this.loading_percent = 100 / 11 * 9
+        this.loading_message = "Energiekonzept zusammenfassen"
         const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
         this.pdf_summary_link = response8.data.data.pdf_summary_link
         if (response8.data.data.pdf_order_confirmation_link) {
           this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
         }
 
+        this.loading_percent = 100 / 11 * 10
+        this.loading_message = "Vertragsunterlagen PDF erzeugen"
         if (this.data["has_pv_quote"]) {
           const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
           this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
