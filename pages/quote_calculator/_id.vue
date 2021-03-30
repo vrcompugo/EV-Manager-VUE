@@ -2969,6 +2969,9 @@ export default {
       switch(typeof value){
         case "object":
           let result = false
+          if((value === undefined || value === null) && original !== undefined){
+            return true
+          }
           Object.keys(value).forEach(key => {
             if(original === undefined){
               result = true
