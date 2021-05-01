@@ -2140,6 +2140,19 @@
           <div>
             <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Provision öffnen</v-btn>
           </div>
+
+          <div style="border-top: 1px solid #333; margin: 1em 0"></div>
+          <div style="font-size: 1.2em">InSign Integration</div>
+          <div v-if="insignData.url">
+            Link: <a :href="insignData.url" target="_blank">Jetzt Unterzeichnen!</a><br>
+          </div>
+          <div v-if="insignData.is_sent">
+            Daten wurden an {{ insignData.email }} versendet<br>
+          </div>
+          <div class="layout horizontal center center">
+            <v-btn @click="requestInsignData" :loading="insignLoading" style="margin: 0 1em 0 0">Vorort Daten abrufen</v-btn>
+            <v-btn @click="sendInsignEmail" :loading="insignLoading" style="margin: 0">Per E-Mail senden</v-btn>
+          </div>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -2604,6 +2617,7 @@ export default {
       "showProductsHeatQuote": false,
       "showProductsRoofQuote": false,
       "showProductsBlueGenQuote": false,
+      "insignData": {},
       rules: {
         required: value => !!value || 'Required.',
         required_for_order:  value => {
@@ -2649,6 +2663,7 @@ export default {
     const data = {
       "id": params.id,
       "loading": false,
+      "insignLoading": false,
       "showInternals": false,
       "form_dirty": false,
       "adjustment_dialog": false,
@@ -3193,6 +3208,26 @@ export default {
       }).finally(() => {
           this.confirm_progress = 0
       })
+    },
+    async requestInsignData () {
+      this.insignLoading = true
+      try {
+        const response = await this.$axios.post(`/quote_calculator/${this.id}/insign/data`, this.data)
+        this.insignData = response.data.data
+      } catch (error) {
+
+      }
+      this.insignLoading = false
+    },
+    async sendInsignEmail () {
+      this.insignLoading = true
+      try {
+        const response = await this.$axios.post(`/quote_calculator/${this.id}/insign/email`, this.data)
+        this.insignData = response.data.data
+      } catch (error) {
+
+      }
+      this.insignLoading = false
     }
   }
 }
