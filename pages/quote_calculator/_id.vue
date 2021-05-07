@@ -3098,17 +3098,15 @@ export default {
         this.loading_message = "Energiekonzept zusammenfassen"
         const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
         this.pdf_summary_link = response8.data.data.pdf_summary_link
-        this.pdf_contract_summary_part1_file_id = response8.data.data.pdf_contract_summary_part1_file_id
         if (response8.data.data.pdf_order_confirmation_link) {
           this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
         }
 
         this.loading_percent = 100 / 11 * 10
         this.loading_message = "Vertragsunterlagen PDF erzeugen"
-        if (this.data["has_pv_quote"]) {
-          const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
-          this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
-        }
+        const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
+        this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
+        this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
         this.form_dirty = false
       } catch (error) {
 
