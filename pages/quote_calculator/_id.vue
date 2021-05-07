@@ -2140,18 +2140,19 @@
           <div>
             <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Provision öffnen</v-btn>
           </div>
-
-          <div style="border-top: 1px solid #333; margin: 1em 0"></div>
-          <div style="font-size: 1.2em">InSign Integration</div>
-          <div v-if="insignData.url">
-            Link: <a :href="insignData.url" target="_blank">Jetzt Unterzeichnen!</a><br>
-          </div>
-          <div v-if="insignData.is_sent">
-            Daten wurden an {{ insignData.email }} versendet<br>
-          </div>
-          <div class="layout horizontal center center">
-            <v-btn @click="requestInsignData" :loading="insignLoading" style="margin: 0 1em 0 0">Vorort Daten abrufen</v-btn>
-            <v-btn @click="sendInsignEmail" :loading="insignLoading" style="margin: 0">Per E-Mail senden</v-btn>
+          <div v-if="pdf_contract_summary_part1_file_id">
+            <div style="border-top: 1px solid #333; margin: 1em 0"></div>
+            <div style="font-size: 1.2em">InSign Integration</div>
+            <div v-if="insignData.url">
+              Link: <a :href="insignData.url" target="_blank">Jetzt Unterzeichnen!</a><br>
+            </div>
+            <div v-if="insignData.is_sent">
+              Daten wurden an {{ insignData.email }} versendet<br>
+            </div>
+            <div class="layout horizontal center center">
+              <v-btn @click="requestInsignData" :loading="insignLoading" style="margin: 0 1em 0 0">Vorort Daten abrufen</v-btn>
+              <v-btn @click="sendInsignEmail" :loading="insignLoading" style="margin: 0">Per E-Mail senden</v-btn>
+            </div>
           </div>
         </v-card-text>
 
@@ -2672,6 +2673,7 @@ export default {
       "offer_number": "new",
       "pdf_link": undefined,
       "pdf_summary_link": undefined,
+      "pdf_contract_summary_part1_file_id": undefined,
       "pdf_contract_summary_link": undefined,
       "pdf_datasheets_link": undefined,
       "pv_efficiancy_min": "",
@@ -2712,6 +2714,7 @@ export default {
 
       if(offerData) {
         data["pdf_summary_link"] = offerData.data.data.pdf_summary_link
+        data["pdf_contract_summary_part1_file_id"] = offerData.data.data.pdf_contract_summary_part1_file_id
         data["pdf_commission_link"] = offerData.data.data.pdf_commission_link
         data["pdf_quote_summary_link"] = offerData.data.data.pdf_quote_summary_link
         data["pdf_contract_summary_link"] = offerData.data.data.pdf_contract_summary_link
@@ -3095,6 +3098,7 @@ export default {
         this.loading_message = "Energiekonzept zusammenfassen"
         const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
         this.pdf_summary_link = response8.data.data.pdf_summary_link
+        this.pdf_contract_summary_part1_file_id = response8.data.data.pdf_contract_summary_part1_file_id
         if (response8.data.data.pdf_order_confirmation_link) {
           this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
         }
@@ -3186,6 +3190,7 @@ export default {
           this.$axios.get(`/quote_calculator/offer/${this.offer_number}`).then(response => {
             this.pdf_link = response.data.data.pdf_link
             this.pdf_summary_link = response.data.data.pdf_summary_link
+            this.pdf_contract_summary_part1_file_id = response.data.data.pdf_contract_summary_part1_file_id
             this.pdf_wi_link = response.data.data.pdf_wi_link
             this.is_sent = response.data.data.is_sent
             this.data = response.data.data.data
