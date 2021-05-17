@@ -243,6 +243,14 @@
                               v-model="data.extra_options"
                               value="technik_service_packet" />
                           </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="E.MW Upgrade"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options"
+                              value="emw" />
+                          </div>
                           <!--<div class="flex">
                             <v-checkbox
                               label="e.move.ZOE"
@@ -346,6 +354,14 @@
                               @change="setSpecialOffer"
                               v-model="data.extra_options_zero"
                               value="technik_service_packet" />
+                          </div>
+                          <div class="flex">
+                            <v-checkbox
+                              label="E.MW Upgrade"
+                              style="margin-right: 1em"
+                              @change="calculateCloud"
+                              v-model="data.extra_options_zero"
+                              value="emw" />
                           </div>
                           <!--<div class="flex">
                             <v-checkbox
