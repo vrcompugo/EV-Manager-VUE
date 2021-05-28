@@ -1928,6 +1928,9 @@
               <div class="layout horizontal">
                 <div style="font-size: 1.3em; flex: 1;">Übersicht Kosten</div>
                 <div style="position: relative;">
+                  <a href="#" @click="openHistoryDialog">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                  </a>
                   <a href="#" @click="showSettingTooltip = !showSettingTooltip">
                     <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24"><g><path d="M0,0h24v24H0V0z" fill="none"/><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></g></svg>
                   </a>
@@ -2592,16 +2595,47 @@
       </v-card>
     </v-dialog>
 
+
+    <v-dialog
+      v-model="showHistoryDialog"
+      width="500"
+    >
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title >
+          Angebotsversionen
+        </v-card-title>
+
+        <v-card-text>
+          <HistorySelect ref="historySelector" :histories="histories" @refresh="reload" />
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="showHistoryDialog = false"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
 <script>
+import HistorySelect from '~/components/quote_calculator/history_select'
 import AddressForm from '~/components/address/form'
 
 export default {
 
   components: {
-    AddressForm
+    AddressForm,
+    HistorySelect
   },
 
   mounted(){
@@ -2634,6 +2668,7 @@ export default {
       "showProductsHeatQuote": false,
       "showProductsRoofQuote": false,
       "showProductsBlueGenQuote": false,
+      "showHistoryDialog": false,
       "insignData": {},
       rules: {
         required: value => !!value || 'Required.',
@@ -2729,6 +2764,9 @@ export default {
       const offerData = await $axios.get(`/quote_calculator/${params.id}`)
 
       if(offerData) {
+        if (offerData.data.data.histories) {
+          data["histories"] = offerData.data.data.histories
+        }
         data["pdf_summary_link"] = offerData.data.data.pdf_summary_link
         data["pdf_contract_summary_part1_file_id"] = offerData.data.data.pdf_contract_summary_part1_file_id
         data["pdf_commission_link"] = offerData.data.data.pdf_commission_link
@@ -2790,6 +2828,17 @@ export default {
   },
 
   methods: {
+    async reload () {
+      this.showHistoryDialog = false
+      await this.$nuxt.refresh()
+      this.calculateCloud()
+    },
+    openHistoryDialog () {
+      this.showHistoryDialog = !this.showHistoryDialog;
+      if (this.$refs.historySelector) {
+        this.$refs.historySelector.refresh()
+      }
+    },
     checkBookkeepingRights(){
       let result = false
       const departments = ["Innendienst", "After Sales ???", "After Sales Neu", "Buchhaltung", "Extern IT Unterstützung", "KeSO"]
@@ -3065,7 +3114,9 @@ export default {
         this.loading_message = "Eingabedaten verarbeiten"
         const response = await this.$axios.put(`/quote_calculator/${this.id}`, this.data)
         this.data = response.data.data.data
-
+        if (response.data.data.histories) {
+          this.histories = response.data.data.histories
+        }
         this.loading_percent = 100 / 11 * 1
         this.loading_message = "Stromverbräuche und Preissteigerungen kalkulieren"
         if (this.data["has_pv_quote"]) {
