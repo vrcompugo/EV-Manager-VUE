@@ -239,7 +239,7 @@
                             <v-checkbox
                               label="Technik &amp; Service Paket"
                               style="margin-right: 1em"
-                              @change="unsetSpecialOffer"
+                              @change="calculateCloud"
                               v-model="data.extra_options"
                               value="technik_service_packet" />
                           </div>
@@ -351,7 +351,7 @@
                             <v-checkbox
                               label="Technik &amp; Service Paket"
                               style="margin-right: 1em"
-                              @change="setSpecialOffer"
+                              @change="calculateCloud"
                               v-model="data.extra_options_zero"
                               value="technik_service_packet" />
                           </div>
@@ -2279,7 +2279,7 @@
               </div>
 
               <h3 style="font-weight: bold;">Nachlass</h3>
-              <v-checkbox label="Sonderaktion Service &amp; Technik" v-model="data.pv_quote_special_offer_technik_service" @change="setSpecialOffer" />
+              <!-- <v-checkbox label="Sonderaktion Service &amp; Technik" v-model="data.pv_quote_special_offer_technik_service" @change="setSpecialOffer" /> -->
               <div class="layout horizontal">
                 <v-text-field
                   label="in Prozent"
@@ -2751,7 +2751,7 @@ export default {
         "financing_rate": 3.79,
         "consumers": [],
         "roofs": [],
-        "extra_options": [],
+        "extra_options": ["technik_service_packet"],
         "extra_options_zero": [],
         "reconstruction_extra_options": [],
         "heating_quote_extra_options": [],
