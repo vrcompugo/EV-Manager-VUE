@@ -2279,7 +2279,7 @@
               </div>
 
               <h3 style="font-weight: bold;">Nachlass</h3>
-              <!-- <v-checkbox label="Sonderaktion Service &amp; Technik" v-model="data.pv_quote_special_offer_technik_service" @change="setSpecialOffer" /> -->
+              <v-checkbox label="Sonderaktion Service &amp; Technik" v-model="data.pv_quote_special_offer_technik_service" @change="setSpecialOffer" />
               <div class="layout horizontal">
                 <v-text-field
                   label="in Prozent"
