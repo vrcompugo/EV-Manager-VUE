@@ -278,14 +278,15 @@
                               <v-select
                                 label="Variante"
                                 v-model="data.extra_options_wwwp_variant" :items="[
-                                  {'value':'ecoSTAR taglio 100','label':'ecoSTAR taglio 100'},
-                                  {'value':'ecoSTAR taglio 180','label':'ecoSTAR taglio 180'},
-                                  {'value':'ecoSTAR 310 compact','label':'ecoSTAR 310 compact'}
+                                  {'value':'NIBE L','label':'NIBE L'},
+                                  {'value':'NIBE XL','label':'NIBE XL'}
                                 ]"
                                 @input="calculateCloud"
                                 style="max-width: 14em;"
                                 item-text="label"
                                 item-value="value"></v-select>
+                              <div v-if="data.extra_options_wwwp_variant == 'Nibe L'">mind. Deckenhöhe 1,80 Meter und Maximal für 4 Personen</div>
+                              <div v-if="data.extra_options_wwwp_variant == 'Nibe XL'">Decknhöhe mind. 2,10 Meter und Maximal für 6 Personen</div>
                             </div>
                           </div>
                           <div class="flex">
