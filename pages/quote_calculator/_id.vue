@@ -3118,6 +3118,10 @@ export default {
         if (response.data.data.histories) {
           this.histories = response.data.data.histories
         }
+        if (response.data.data.select_options) {
+          this.select_options = response.data.data.select_options
+          console.log(this.select_options)
+        }
         this.loading_percent = 100 / 11 * 1
         this.loading_message = "Stromverbräuche und Preissteigerungen kalkulieren"
         if (this.data["has_pv_quote"]) {
