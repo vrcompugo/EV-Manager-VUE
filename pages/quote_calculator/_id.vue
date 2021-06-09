@@ -89,1799 +89,1819 @@
               <div><v-checkbox v-model="data.has_heating_quote" @change="calculateCloud" label="Heizung" style="margin: 0" /></div>
               <div><v-checkbox v-model="data.has_bluegen_quote" @change="calculateCloud" label="BlueGen" style="margin: 0" /></div>
             </div>
-            <div class="main-content flex-1">
-              <div v-if="data.has_pv_quote">
-                <v-stepper v-model="stepper">
-                  <v-stepper-header>
+            <v-tabs class="flex-1" v-model="tab">
+              <v-tab v-if="data.has_pv_quote">Cloud/PV</v-tab>
+              <v-tab v-if="data.has_roof_reconstruction_quote">Dachsanierung</v-tab>
+              <v-tab v-if="data.has_heating_quote">Heizung</v-tab>
+              <v-tab v-if="data.has_bluegen_quote">BlueGen</v-tab>
+              <v-tab>Allgemein</v-tab>
+            </v-tabs>
+            <v-tabs-items v-model="tab">
+              <v-tab-item key="pv" v-if="data.has_pv_quote">
+                <div class="main-content flex-1">
+                  <div v-if="data.has_pv_quote">
+                    <v-stepper v-model="stepper">
+                      <v-stepper-header>
 
-                    <v-stepper-step :complete="stepper > 1" step="1" editable>
-                      Verbrauchsdaten
-                    </v-stepper-step>
+                        <v-stepper-step :complete="stepper > 1" step="1" editable>
+                          Verbrauchsdaten
+                        </v-stepper-step>
 
-                    <v-divider></v-divider>
+                        <v-divider></v-divider>
 
-                    <v-stepper-step :complete="stepper > 3" step="3" editable>
-                      Zusatzoptionen
-                    </v-stepper-step>
+                        <v-stepper-step :complete="stepper > 3" step="3" editable>
+                          Zusatzoptionen
+                        </v-stepper-step>
 
-                    <v-divider></v-divider>
+                        <v-divider></v-divider>
 
-                    <v-stepper-step :complete="stepper > 4" step="4" editable>
-                      PV-Anlage
-                    </v-stepper-step>
+                        <v-stepper-step :complete="stepper > 4" step="4" editable>
+                          PV-Anlage
+                        </v-stepper-step>
 
-                    <v-divider></v-divider>
+                        <v-divider></v-divider>
 
-                    <v-stepper-step step="6" editable>
-                      WI-Anpassung
-                    </v-stepper-step>
-                  </v-stepper-header>
+                        <v-stepper-step step="6" editable>
+                          WI-Anpassung
+                        </v-stepper-step>
+                      </v-stepper-header>
 
-                  <v-stepper-items>
+                      <v-stepper-items>
 
-                    <v-stepper-content step="1">
-                      <div class="layout horizontal wrap">
-                        <div class="section" style="padding-bottom: 0">
-                          <div class="section">
-                            <h2>Verbrauch Lichtstrom</h2>
-                            <div class="layout horizontal">
-                              <v-text-field
-                                ref="power_meter_number"
-                                v-model="data.power_meter_number"
-                                :rules="[rules.required_for_order]"
-                                @keyup="formChanged"
-                                label="Haupt Zählernummer"
-                                style="margin-right: 1em"></v-text-field>
-                              <div class="flex">
-                                <v-text-field
-                                  ref="power_usage"
-                                  v-model="data.power_usage"
-                                  :rules="[rules.required]"
-                                  @keyup.enter="calculateCloud"
-                                  @blur="calculateCloud"
-                                  label="Verbrauch in kWh"
-                                  class="align-right"
-                                  suffix="kWh"
-                                  type="number"
-                                  step="1"></v-text-field>
-                              </div>
-                            </div>
-                            <small>mehr kWh werden mit {{ formatNumber(calculated.lightcloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small>
-                          </div>
-                        </div>
-                        <div class="section" :disabled="true">
-                          <h3>Wärmecloud</h3>
-                          <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
-                          <div class="layout horizontal">
-                            <v-text-field
-                              v-model="data.heatcloud_power_meter_number"
-                              @input="formChanged"
-                              label="Wärmecloud Zählernummer"
-                              style="margin-right: 1em"></v-text-field>
-                            <div>
-                              <v-text-field v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
-                            </div>
-                          </div>
-                          <small>mehr kWh werden mit {{ formatNumber(calculated.heatcloud_extra_price_per_kwh * 100, 2) }} Cent abgerechnet</small>
-                        </div>
-                        <div class="section" :disabled="true">
-                          <h3>E.Cloud</h3>
-                          <small><b>Voraussetzung:</b> Gasheizung</small>
-                          <v-text-field v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
-                          <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
-                        </div>
-                      </div>
-                    </v-stepper-content>
-
-                    <v-stepper-content step="2">
-                      <b>Dachflächen</b>
-                      <div v-for="(roof, index) in data.roofs" :key="index">
-                        <div class="layout horizontal center">
-                          <v-text-field
-                            v-model="roof.label"
-                            @input="formChanged"
-                            label="Bezeichnung"
-                            style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                          <v-checkbox
-                            label="ist Flachdach"
-                            style="margin: 0 1em"
-                            @change="roof.direction = 'west_east'; calculateCloud()"
-                            v-model="roof.is_flat"/>
-                          <v-select
-                            v-if="!roof.is_flat"
-                            v-model="roof.direction" :items="[
-                              {'value':'north','label':'Nord'},
-                              {'value':'north_west_east','label':'Nord West/Ost'},
-                              {'value':'north_south','label':'Nord/Süd'},
-                              {'value':'west_east','label':'West/Ost'},
-                              {'value':'south_west_east','label':'Süd West/Ost'},
-                              {'value':'south','label':'Süd'}
-                            ]"
-                            @change="calculateCloud()"
-                            style="flex: 0 1 8em;"
-                            item-text="label"
-                            item-value="value"></v-select>
-                          <v-text-field
-                            v-model="roof.sqm"
-                            @input="calculateCloud"
-                            @blur="$refs.pv_kwp.validate(true)"
-                            label="Fläche"
-                            suffix="m²"
-                            step="0.01"
-                            type="number"
-                            class="align-right"
-                            style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
-                          <v-text-field
-                            v-model="roof.pv_count_modules"
-                            @input="calculateCloud"
-                            @blur="$refs.pv_kwp.validate(true)"
-                            label="Anzahl Module"
-                            step="1"
-                            type="number"
-                            class="align-right"
-                            style="flex: 0 1 8em;"></v-text-field>
-                          <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                        </div>
-                      </div>
-                      <div>
-                        <v-btn @click="data.roofs.push({}); calculateCloud()" style="margin-right: 1em">Hinzufügen</v-btn>
-                        <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
-                        <v-btn @click="set_optimized_coverage">Optimierte Belegung</v-btn>
-                      </div>
-                    </v-stepper-content>
-
-                    <v-stepper-content step="3">
-
-                      <div class="section">
-                        <h3>Extra Pakete</h3>
-                        <div class="layout horizontal wrap">
-                          <div class="flex">
-                            <v-checkbox
-                              label="Technik &amp; Service Paket"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="technik_service_packet" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="E.MW Upgrade"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="emw" />
-                          </div>
-                          <!--<div class="flex">
-                            <v-checkbox
-                              label="e.move.ZOE"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="emove.zoe" />
-                          </div>-->
-                          <div class="flex">
-                            <v-checkbox
-                              label="Steuerliche Beratung"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="tax_consult" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Wärmepumpe"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="wwwp" />
-                            <div v-if="data.extra_options.indexOf('wwwp') >= 0">
-                              <v-select
-                                label="Variante"
-                                v-model="data.extra_options_wwwp_variant" :items="[
-                                  {'value':'NIBE L','label':'NIBE L'},
-                                  {'value':'NIBE XL','label':'NIBE XL'}
-                                ]"
-                                @input="calculateCloud"
-                                style="max-width: 14em;"
-                                item-text="label"
-                                item-value="value"></v-select>
-                              <div v-if="data.extra_options_wwwp_variant == 'Nibe L'">mind. Deckenhöhe 1,80 Meter und Maximal für 4 Personen</div>
-                              <div v-if="data.extra_options_wwwp_variant == 'Nibe XL'">Decknhöhe mind. 2,10 Meter und Maximal für 6 Personen</div>
-                            </div>
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Solaredge"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="solaredge" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Neuer Zählerschrank"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="new_power_closet" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="NotstromBox SENEC"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="emergency_power_box" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Wallbox"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options"
-                              value="wallbox" />
-                            <div v-if="data.extra_options.indexOf('wallbox') >= 0">
-                              <v-select
-                                label="Variante"
-                                v-model="data.extra_options_wallbox_variant" :items="[
-                                  {'value':'11kW','label':'11kW Variante'},
-                                  {'value':'22kW','label':'22kW Variante'}
-                                ]"
-                                @input="calculateCloud"
-                                style="max-width: 9em;"
-                                item-text="label"
-                                item-value="value"></v-select>
-                              <v-text-field
-                                v-model="data.extra_options_wallbox_count"
-                                @keyup.enter="calculateCloud"
-                                @blur="calculateCloud"
-                                label="Anzahl Wallboxen"
-                                class="align-right"
-                                style="max-width: 9em;"
-                                type="number"
-                                step="1"></v-text-field>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="section">
-                        <h3>Extra Optionen</h3>
-                        <div class="layout horizontal wrap">
-                          <div class="flex">
-                            <v-checkbox
-                              label="Technik &amp; Service Paket"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="technik_service_packet" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="E.MW Upgrade"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="emw" />
-                          </div>
-                          <!--<div class="flex">
-                            <v-checkbox
-                              label="e.move.ZOE"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="emove.zoe" />
-                          </div>-->
-                          <div class="flex">
-                            <v-checkbox
-                              label="Steuerliche Beratung"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="tax_consult" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Wärmepumpe"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="wwwp" />
-                            <div v-if="data.extra_options_zero.indexOf('wwwp') >= 0">
-                              <v-select
-                                label="Variante"
-                                v-model="data.extra_options_wwwp_variant" :items="[
-                                  {'value':'ecoSTAR taglio 100','label':'ecoSTAR taglio 100'},
-                                  {'value':'ecoSTAR taglio 180','label':'ecoSTAR taglio 180'},
-                                  {'value':'ecoSTAR 310 compact','label':'ecoSTAR 310 compact'}
-                                ]"
-                                @input="calculateCloud"
-                                style="max-width: 14em;"
-                                item-text="label"
-                                item-value="value"></v-select>
-                            </div>
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Solaredge"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="solaredge" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Neuer Zählerschrank"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="new_power_closet" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="NotstromBox SENEC"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="emergency_power_box" />
-                          </div>
-                          <div class="flex">
-                            <v-checkbox
-                              label="Wallbox"
-                              style="margin-right: 1em"
-                              @change="calculateCloud"
-                              v-model="data.extra_options_zero"
-                              value="wallbox" />
-                            <div v-if="data.extra_options_zero.indexOf('wallbox') >= 0">
-                              <v-select
-                                label="Variante"
-                                v-model="data.extra_options_wallbox_variant" :items="[
-                                  {'value':'11kW','label':'11kW Variante'},
-                                  {'value':'22kW','label':'22kW Variante'}
-                                ]"
-                                @input="calculateCloud"
-                                style="max-width: 9em;"
-                                item-text="label"
-                                item-value="value"></v-select>
-                              <v-text-field
-                                v-model="data.extra_options_wallbox_count"
-                                @keyup.enter="calculateCloud"
-                                @blur="calculateCloud"
-                                label="Anzahl Wallboxen"
-                                class="align-right"
-                                style="max-width: 9em;"
-                                type="number"
-                                step="1"></v-text-field>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="layout horizontal wrap flex-1">
-                        <div class="section">
-                          <h3>Extra Consumer</h3>
-                          <small>Falls eine Wärmecloud baulich nicht möglich ist, kann ein entsprechender Consumer angelegt werden.</small>
-                          <div v-for="(consumer, index) in data.consumers" :key="index">
-                            <div class="layout horizontal center">
-                              <v-text-field
-                                :ref="'consumer_power_meter_number_' + index"
-                                :rules="[rules.required_for_order]"
-                                v-model="consumer.power_meter_number"
-                                @input="formChanged"
-                                label="Consumer Zählernummer"
-                                style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                              <v-text-field v-model="consumer.usage" label="Verbrauch" @keyup.enter="calculateCloud" @blur="calculateCloud" class="flex-1 align-right" suffix="kWh" type="number" step="1"></v-text-field>
-                              <svg @click="data.consumers.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                            </div>
-                            <AddressForm
-                                :ref="'consumer_address_' + index"
-                                v-model="consumer.address"
-                                @input="formChanged"></AddressForm>
-                          </div>
-                          <div class="align-right">
-                            <v-btn v-if="data.consumers.length < 5" @click="data.consumers.push({'usage':0, 'address': {}}); calculateCloud()">Hinzufügen</v-btn>
-                            <small v-if="data.consumers.length >= 5">Max. 3 zusätzliche Consumer</small>
-                          </div>
-                          <small>mehr kWh werden mit {{ formatNumber(calculated.consumercloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small>
-                        </div>
-
-                        <div class="section">
-                          <h3>eMove</h3>
-                          <v-radio-group  v-model="data.emove_tarif" @change="calculateCloud">
-                            <v-radio value="none">
-                              <template v-slot:label>
-                                Kein eMove Tarif
-                              </template>
-                            </v-radio>
-                            <v-radio value="emove Tarif Hybrid" disabled>
-                              <template v-slot:label>
+                        <v-stepper-content step="1">
+                          <div class="layout horizontal wrap">
+                            <div class="section" style="padding-bottom: 0">
+                              <div class="section">
+                                <h2>Verbrauch Lichtstrom</h2>
                                 <div class="layout horizontal">
-                                  <div class="flex-1">
-                                    emove Tarif Hybrid<br>
-                                    <small>
-                                      Tanken ausserhalb der Home Area<br>
-                                      Je Tankvorgang DC oder AC 6,90€
-                                    </small>
+                                  <v-text-field
+                                    ref="power_meter_number"
+                                    v-model="data.power_meter_number"
+                                    :rules="[rules.required_for_order]"
+                                    @keyup="formChanged"
+                                    label="Haupt Zählernummer"
+                                    style="margin-right: 1em"></v-text-field>
+                                  <div class="flex">
+                                    <v-text-field
+                                      ref="power_usage"
+                                      v-model="data.power_usage"
+                                      :rules="[rules.required]"
+                                      @keyup.enter="calculateCloud"
+                                      @blur="calculateCloud"
+                                      label="Verbrauch in kWh"
+                                      class="align-right"
+                                      suffix="kWh"
+                                      type="number"
+                                      step="1"></v-text-field>
                                   </div>
-                                  <div style="padding-left: 1em">mtl. 9,99€</div>
                                 </div>
-                              </template>
-                            </v-radio>
-                            <v-radio value="emove.drive I">
-                              <template v-slot:label>
-                                <div class="layout horizontal">
-                                  <div class="flex-1">
-                                    emove.drive I<br>
-                                    <small>
-                                      empfohlen bis ca. 8.000 km / Jahr<br>
-                                      Laden Sie 500 kWh in der Home Area, und 1.000 kWh out of Home Area
-                                    </small>
-                                  </div>
-                                  <div style="padding-left: 1em">3 kWp</div>
-                                  <div style="padding-left: 1em">mtl. 9,99€</div>
-                                </div>
-                              </template>
-                            </v-radio>
-                            <v-radio value="emove.drive II">
-                              <template v-slot:label>
-                                <div class="layout horizontal">
-                                  <div class="flex-1">
-                                    emove.drive II<br>
-                                    <small>
-                                      empfohlen bis ca. 12.000 km / Jahr<br>
-                                      Laden Sie 1.000 kWh in der Home Area, und 1.000 kWh out of Home Area
-                                    </small>
-                                  </div>
-                                  <div style="padding-left: 1em">4 kWp</div>
-                                  <div style="padding-left: 1em">mtl. 14,99€</div>
-                                </div>
-                              </template>
-                            </v-radio>
-                            <v-radio value="emove.drive III">
-                              <template v-slot:label>
-                                <div class="layout horizontal">
-                                  <div class="flex-1">
-                                    emove.drive III<br>
-                                    <small>
-                                      empfohlen bis ca. 20.000 km / Jahr<br>
-                                      Laden Sie 2.000 kWh in der Home Area, und 3.000 kWh out of Home Area
-                                    </small>
-                                  </div>
-                                  <div style="padding-left: 1em">6,5 kWp</div>
-                                  <div style="padding-left: 1em">mtl. 19,99€</div>
-                                </div>
-                              </template>
-                            </v-radio>
-                            <v-radio value="emove.drive ALL">
-                              <template v-slot:label>
-                                <div class="layout horizontal">
-                                  <div class="flex-1">
-                                    emove.drive ALL<br>
-                                    <small>
-                                      empfohlen bis ca. 25.000 km / Jahr<br>
-                                      Laden Sie 2.500 kWh in der Home Area, und 6.000 kWh out of Home Area
-                                    </small>
-                                  </div>
-                                  <div style="padding-left: 1em">7 kWp</div>
-                                  <div style="padding-left: 1em">mtl. 39,99€</div>
-                                </div>
-                              </template>
-                            </v-radio>
-                          </v-radio-group>
-                        </div>
-                      </div>
-                    </v-stepper-content>
-                    <v-stepper-content step="4">
-                      <div class="section">
-                        <h2>PV-Anlage</h2>
-
-                        <div class="layout vertical flex-1">
-                          <div>
-                            <small>
-                              Benötigte PV-Anlage
-                            </small>
-                            <div class="kwp-bar layout horizontal">
-                              <div
-                                v-if="calculated.min_kwp_emove > 0"
-                                :style="`background-color: #0097A7; flex: 1 1 ${calculated.min_kwp_emove / calculated.max_kwp * 100}%`">
-                                eMove {{ formatNumber(calculated.min_kwp_emove, 2) }}kWp
-                              </div>
-                              <div
-                                v-if="calculated.min_kwp_light > 0"
-                                :style="`background-color: #FDD835; color: #333; flex: 1 1 ${calculated.min_kwp_light / calculated.max_kwp * 100}%`">
-                                Lichtstrom {{ formatNumber(calculated.min_kwp_light, 2) }}kWp
-                              </div>
-                              <div
-                                v-if="calculated.min_kwp_heatcloud > 0"
-                                :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_heatcloud / calculated.max_kwp * 100}%`">
-                                Wärmecloud {{ formatNumber(calculated.min_kwp_heatcloud, 2) }}kWp
-                              </div>
-                              <div
-                                v-if="calculated.min_kwp_ecloud > 0"
-                                :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_ecloud / calculated.max_kwp * 100}%`">
-                                eCloud {{ formatNumber(calculated.min_kwp_ecloud, 2) }}kWp
-                              </div>
-                              <div
-                                v-if="calculated.min_kwp_consumer > 0"
-                                :style="`background-color: #009688; flex: 1 1 ${calculated.min_kwp_consumer / calculated.max_kwp * 100}%`">
-                                Consumer {{ formatNumber(calculated.min_kwp_consumer, 2) }}kWp
-                              </div>
-                              <div
-                                v-if="calculated.kwp_extra > 0 && calculated.kwp_extra / calculated.max_kwp * 100 > 0.012"
-                                :style="`background-color: #43A047; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * 100}%`">
-                                Mehrverbau {{ formatNumber(calculated.kwp_extra, 2) }}kWp
-                              </div>
-                            </div>
-                          </div>
-                          <div>
-                            <small>
-                              geplante PV-Anlage
-                            </small>
-                            <div class="kwp-bar layout horizontal">
-                              <div
-                                v-if="Number(data.pv_kwp) > 0"
-                                :style="`background-color: #43A047; flex: 1 1 ${Number(data.pv_kwp) / calculated.max_kwp * 100}%`">
-                                PV-Anlage {{ formatNumber(data.pv_kwp, 2)}}kWp</div>
-                              <div
-                                v-if="Number(data.pv_kwp) === 0 || data.pv_kwp === undefined || data.pv_kwp === ''"
-                                :style="`background-color: #43A047; flex: 1 1 100%`">
-                                Benötigte PV-Anlage {{ formatNumber(calculated.min_kwp, 2)}}kWp</div>
-                              <div
-                                v-if="calculated.kwp_extra < 0 && calculated.kwp_extra / calculated.max_kwp * -100 > 0.012"
-                                :style="`background-color: #E53935; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * -100}%`">
-                                Minderverbau {{ formatNumber(-calculated.kwp_extra, 2) }}kWp
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="layout horizontal">
-                          <v-select
-                            label="Modulart"
-                            v-model="data.module_type" :items="select_options.module_type_options"
-                            @change="changeKWP"
-                            style="flex: 0 1 8em; margin-right: 1em;"
-                            item-text="label"
-                            item-value="value"></v-select>
-                          <v-text-field
-                            v-model="data.pv_count_modules"
-                            disabled="disabled"
-                            @input="changePVModules"
-                            @blur="calculateCloud"
-                            label="Anzahl Module"
-                            class="flex-1 align-right"
-                            style="margin-right: 1em;"
-                            type="number"
-                            step="1"></v-text-field>
-                          <v-text-field
-                            ref="pv_kwp"
-                            v-model="data.pv_kwp"
-                            @blur="changeKWP"
-                            label="geplante Größe"
-                            class="flex-1 align-right"
-                            suffix="kWp"
-                            type="number"
-                            step="0.01"></v-text-field>
-                          <v-text-field
-                            v-model="data.pv_sqm"
-                            disabled="disabled"
-                            label="benötigte Dachfläche"
-                            class="flex-1 align-right"
-                            style="margin-left: 1em;"
-                            suffix="m²"
-                            type="number"
-                            step="0.01"></v-text-field>
-                          <v-select
-                            v-model="data.investment_type" :items="[
-                              {'value':'financing','label':'Finanzierung'},
-                              {'value':'cash','label':'Barkauf'}
-                            ]"
-                            @input="formChanged"
-                            style="flex: 0 1 10em; margin-left: 1em;"
-                            item-text="label"
-                            item-value="value"></v-select>
-                        </div>
-                        <b>Dachflächen</b>
-
-                        <div v-for="(roof, index) in data.roofs" :key="index">
-                          <div class="layout horizontal center">
-                            <v-text-field
-                              v-model="roof.label"
-                              @input="formChanged"
-                              label="Bezeichnung"
-                              style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                            <v-checkbox
-                              label="ist Flachdach"
-                              style="margin: 0 1em"
-                              @change="roof.direction = 'west_east'; calculateCloud()"
-                              v-model="roof.is_flat"/>
-                            <v-select
-                              v-if="!roof.is_flat"
-                              v-model="roof.direction" :items="[
-                                {'value':'north','label':'Nord'},
-                                {'value':'north_west_east','label':'Nord West/Ost'},
-
-                                {'value':'west_east','label':'West/Ost'},
-                                {'value':'south_west_east','label':'Süd West/Ost'},
-                                {'value':'south','label':'Süd'}
-                              ]"
-                              @change="calculateCloud()"
-                              style="flex: 0 1 8em;"
-                              item-text="label"
-                              item-value="value"></v-select>
-                            <v-text-field
-                              v-model="roof.sqm"
-                              @input="validateModules"
-                              label="Fläche"
-                              suffix="m²"
-                              step="0.01"
-                              type="number"
-                              class="align-right"
-                              style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
-                            <v-text-field
-                              :ref="`roof_v_count_modules_${index}`"
-                              v-model="roof.pv_count_modules"
-                              @input="countModules"
-                              label="Anzahl Module"
-                              step="1"
-                              type="number"
-                              class="align-right"
-                              style="flex: 0 1 8em;"></v-text-field>
-                            <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                          </div>
-                        </div>
-                        <div>
-                          <v-btn @click="addRoof" style="margin-right: 1em">Hinzufügen</v-btn>
-                          <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
-                          <v-btn @click="set_optimized_coverage">Cloud Belegung</v-btn>
-                          <v-btn @click="set_zero_coverage">ZERO Belegung</v-btn>
-                        </div>
-
-                      </div>
-                    </v-stepper-content>
-
-                    <!--<v-stepper-content step="5">
-                      <div class="layout horizontal wrap">
-                        <div class="section" style="padding-bottom: 0">
-                          <div class="section">
-                            <h2>Verbrauch Lichtstrom</h2>
-                            <div class="layout horizontal">
-                              <v-text-field
-                                ref="power_meter_number"
-                                v-model="data.power_meter_number"
-                                :rules="[rules.required_for_order]"
-                                @keyup="formChanged"
-                                label="Haupt Zählernummer"
-                                style="margin-right: 1em"></v-text-field>
-                              <div class="flex">
-                                <v-text-field
-                                  ref="power_usage"
-                                  v-model="data.power_usage"
-                                  :rules="[rules.required]"
-                                  @keyup.enter="calculateCloud"
-                                  @blur="calculateCloud"
-                                  label="Verbrauch in kWh"
-                                  class="align-right"
-                                  suffix="kWh"
-                                  type="number"
-                                  step="1"></v-text-field>
                                 <small>mehr kWh werden mit {{ formatNumber(calculated.lightcloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small>
                               </div>
                             </div>
-                          </div>
-                        </div>
-
-                        <div class="section" :disabled="true">
-                            <h3>Wärmecloud</h3>
-                            <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
-                            <div class="layout horizontal">
-                              <v-text-field
-                                v-model="data.heatcloud_power_meter_number"
-                                @input="formChanged"
-                                label="Wärmecloud Zählernummer"
-                                style="margin-right: 1em"></v-text-field>
-                              <div>
-                                <v-text-field v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
-                                <small>mehr kWh werden mit {{ formatNumber(calculated.heatcloud_extra_price_per_kwh * 100, 2) }} Cent abgerechnet</small>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="section" :disabled="true">
-                            <h3>E.Cloud</h3>
-                            <small><b>Voraussetzung:</b> Gasheizung</small>
-                            <v-text-field v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
-                            <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
-                          </div>
-
-                      </div>
-                      <div class="section" style="padding-bottom: 0">
-
-                        <div class="section">
-                          <h3>Extra Pakete</h3>
-                          <div class="layout horizontal wrap">
-                            <div class="flex">
-                              <v-checkbox
-                                label="Technik &amp; Service Paket"
-                                style="margin-right: 1em"
-                                @change="calculateCloud"
-                                v-model="data.extra_options"
-                                value="technik_service_packet" />
-                            </div>
-                            <div class="flex">
-                              <v-checkbox
-                                label="Wärmepumpe"
-                                style="margin-right: 1em"
-                                @change="calculateCloud"
-                                v-model="data.extra_options"
-                                value="wwwp" />
-                              <div v-if="data.extra_options.indexOf('wwwp') >= 0">
-                                <v-select
-                                  label="Variante"
-                                  v-model="data.extra_options_wwwp_variant" :items="[
-                                    {'value':'ecoSTAR taglio 100','label':'ecoSTAR taglio 100'},
-                                    {'value':'ecoSTAR taglio 180','label':'ecoSTAR taglio 180'},
-                                    {'value':'ecoSTAR 310 compact','label':'ecoSTAR 310 compact'}
-                                  ]"
-                                  @input="calculateCloud"
-                                  style="max-width: 14em;"
-                                  item-text="label"
-                                  item-value="value"></v-select>
-                              </div>
-                            </div>
-                            <div class="flex">
-                              <v-checkbox
-                                label="Solaredge"
-                                style="margin-right: 1em"
-                                @change="calculateCloud"
-                                v-model="data.extra_options"
-                                value="solaredge" />
-                            </div>
-                            <div class="flex">
-                              <v-checkbox
-                                label="Neuer Zählerschrank"
-                                style="margin-right: 1em"
-                                @change="calculateCloud"
-                                v-model="data.extra_options"
-                                value="new_power_closet" />
-                            </div>
-                            <div class="flex">
-                              <v-checkbox
-                                label="NotstromBox SENEC"
-                                style="margin-right: 1em"
-                                @change="calculateCloud"
-                                v-model="data.extra_options"
-                                value="emergency_power_box" />
-                            </div>
-                            <div class="flex">
-                              <v-checkbox
-                                label="Wallbox"
-                                style="margin-right: 1em"
-                                @change="calculateCloud"
-                                v-model="data.extra_options"
-                                value="wallbox" />
-                              <div v-if="data.extra_options.indexOf('wallbox') >= 0">
-                                <v-select
-                                  label="Variante"
-                                  v-model="data.extra_options_wallbox_variant" :items="[
-                                    {'value':'11kW','label':'11kW Variante'},
-                                    {'value':'22kW','label':'22kW Variante'}
-                                  ]"
-                                  @input="calculateCloud"
-                                  style="max-width: 9em;"
-                                  item-text="label"
-                                  item-value="value"></v-select>
+                            <div class="section" :disabled="true">
+                              <h3>Wärmecloud</h3>
+                              <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
+                              <div class="layout horizontal">
                                 <v-text-field
-                                  v-model="data.extra_options_wallbox_count"
-                                  @keyup.enter="calculateCloud"
-                                  @blur="calculateCloud"
-                                  label="Anzahl Wallboxen"
-                                  class="align-right"
-                                  style="max-width: 9em;"
-                                  type="number"
-                                  step="1"></v-text-field>
+                                  v-model="data.heatcloud_power_meter_number"
+                                  @input="formChanged"
+                                  label="Wärmecloud Zählernummer"
+                                  style="margin-right: 1em"></v-text-field>
+                                <div>
+                                  <v-text-field v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                                </div>
+                              </div>
+                              <small>mehr kWh werden mit {{ formatNumber(calculated.heatcloud_extra_price_per_kwh * 100, 2) }} Cent abgerechnet</small>
+                            </div>
+                            <div class="section" :disabled="true">
+                              <h3>E.Cloud</h3>
+                              <small><b>Voraussetzung:</b> Gasheizung</small>
+                              <v-text-field v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                              <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
+                            </div>
+                          </div>
+                        </v-stepper-content>
+
+                        <v-stepper-content step="2">
+                          <b>Dachflächen</b>
+                          <div v-for="(roof, index) in data.roofs" :key="index">
+                            <div class="layout horizontal center">
+                              <v-text-field
+                                v-model="roof.label"
+                                @input="formChanged"
+                                label="Bezeichnung"
+                                style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                              <v-checkbox
+                                label="ist Flachdach"
+                                style="margin: 0 1em"
+                                @change="roof.direction = 'west_east'; calculateCloud()"
+                                v-model="roof.is_flat"/>
+                              <v-select
+                                v-if="!roof.is_flat"
+                                v-model="roof.direction" :items="[
+                                  {'value':'north','label':'Nord'},
+                                  {'value':'north_west_east','label':'Nord West/Ost'},
+                                  {'value':'north_south','label':'Nord/Süd'},
+                                  {'value':'west_east','label':'West/Ost'},
+                                  {'value':'south_west_east','label':'Süd West/Ost'},
+                                  {'value':'south','label':'Süd'}
+                                ]"
+                                @change="calculateCloud()"
+                                style="flex: 0 1 8em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                              <v-text-field
+                                v-model="roof.sqm"
+                                @input="calculateCloud"
+                                @blur="$refs.pv_kwp.validate(true)"
+                                label="Fläche"
+                                suffix="m²"
+                                step="0.01"
+                                type="number"
+                                class="align-right"
+                                style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
+                              <v-text-field
+                                v-model="roof.pv_count_modules"
+                                @input="calculateCloud"
+                                @blur="$refs.pv_kwp.validate(true)"
+                                label="Anzahl Module"
+                                step="1"
+                                type="number"
+                                class="align-right"
+                                style="flex: 0 1 8em;"></v-text-field>
+                              <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            </div>
+                          </div>
+                          <div>
+                            <v-btn @click="data.roofs.push({}); calculateCloud()" style="margin-right: 1em">Hinzufügen</v-btn>
+                            <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
+                            <v-btn @click="set_optimized_coverage">Optimierte Belegung</v-btn>
+                          </div>
+                        </v-stepper-content>
+
+                        <v-stepper-content step="3">
+
+                          <div class="section">
+                            <h3>Extra Pakete</h3>
+                            <div class="layout horizontal wrap">
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Technik &amp; Service Paket"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="technik_service_packet" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="E.MW Upgrade"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="emw" />
+                              </div>
+                              <!--<div class="flex">
+                                <v-checkbox
+                                  label="e.move.ZOE"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="emove.zoe" />
+                              </div>-->
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Steuerliche Beratung"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="tax_consult" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Wärmepumpe"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="wwwp" />
+                                <div v-if="data.extra_options.indexOf('wwwp') >= 0">
+                                  <v-select
+                                    label="Variante"
+                                    v-model="data.extra_options_wwwp_variant" :items="[
+                                      {'value':'NIBE L','label':'NIBE L'},
+                                      {'value':'NIBE XL','label':'NIBE XL'}
+                                    ]"
+                                    @input="calculateCloud"
+                                    style="max-width: 14em;"
+                                    item-text="label"
+                                    item-value="value"></v-select>
+                                  <div v-if="data.extra_options_wwwp_variant == 'Nibe L'">mind. Deckenhöhe 1,80 Meter und Maximal für 4 Personen</div>
+                                  <div v-if="data.extra_options_wwwp_variant == 'Nibe XL'">Decknhöhe mind. 2,10 Meter und Maximal für 6 Personen</div>
+                                </div>
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Solaredge"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="solaredge" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Neuer Zählerschrank"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="new_power_closet" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="NotstromBox SENEC"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="emergency_power_box" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Wallbox"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options"
+                                  value="wallbox" />
+                                <div v-if="data.extra_options.indexOf('wallbox') >= 0">
+                                  <v-select
+                                    label="Variante"
+                                    v-model="data.extra_options_wallbox_variant" :items="[
+                                      {'value':'11kW','label':'11kW Variante'},
+                                      {'value':'22kW','label':'22kW Variante'}
+                                    ]"
+                                    @input="calculateCloud"
+                                    style="max-width: 9em;"
+                                    item-text="label"
+                                    item-value="value"></v-select>
+                                  <v-text-field
+                                    v-model="data.extra_options_wallbox_count"
+                                    @keyup.enter="calculateCloud"
+                                    @blur="calculateCloud"
+                                    label="Anzahl Wallboxen"
+                                    class="align-right"
+                                    style="max-width: 9em;"
+                                    type="number"
+                                    step="1"></v-text-field>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div class="layout horizontal wrap flex-1">
                           <div class="section">
-                            <h3>Extra Consumer</h3>
-                            <small>Falls eine Wärmecloud baulich nicht möglich ist, kann ein entsprechender Consumer angelegt werden.</small>
-                            <div v-for="(consumer, index) in data.consumers" :key="index">
+                            <h3>Extra Optionen</h3>
+                            <div class="layout horizontal wrap">
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Technik &amp; Service Paket"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="technik_service_packet" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="E.MW Upgrade"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="emw" />
+                              </div>
+                              <!--<div class="flex">
+                                <v-checkbox
+                                  label="e.move.ZOE"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="emove.zoe" />
+                              </div>-->
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Steuerliche Beratung"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="tax_consult" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Wärmepumpe"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="wwwp" />
+                                <div v-if="data.extra_options_zero.indexOf('wwwp') >= 0">
+                                  <v-select
+                                    label="Variante"
+                                    v-model="data.extra_options_wwwp_variant" :items="[
+                                      {'value':'ecoSTAR taglio 100','label':'ecoSTAR taglio 100'},
+                                      {'value':'ecoSTAR taglio 180','label':'ecoSTAR taglio 180'},
+                                      {'value':'ecoSTAR 310 compact','label':'ecoSTAR 310 compact'}
+                                    ]"
+                                    @input="calculateCloud"
+                                    style="max-width: 14em;"
+                                    item-text="label"
+                                    item-value="value"></v-select>
+                                </div>
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Solaredge"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="solaredge" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Neuer Zählerschrank"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="new_power_closet" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="NotstromBox SENEC"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="emergency_power_box" />
+                              </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Wallbox"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.extra_options_zero"
+                                  value="wallbox" />
+                                <div v-if="data.extra_options_zero.indexOf('wallbox') >= 0">
+                                  <v-select
+                                    label="Variante"
+                                    v-model="data.extra_options_wallbox_variant" :items="[
+                                      {'value':'11kW','label':'11kW Variante'},
+                                      {'value':'22kW','label':'22kW Variante'}
+                                    ]"
+                                    @input="calculateCloud"
+                                    style="max-width: 9em;"
+                                    item-text="label"
+                                    item-value="value"></v-select>
+                                  <v-text-field
+                                    v-model="data.extra_options_wallbox_count"
+                                    @keyup.enter="calculateCloud"
+                                    @blur="calculateCloud"
+                                    label="Anzahl Wallboxen"
+                                    class="align-right"
+                                    style="max-width: 9em;"
+                                    type="number"
+                                    step="1"></v-text-field>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="layout horizontal wrap flex-1">
+                            <div class="section">
+                              <h3>Extra Consumer</h3>
+                              <small>Falls eine Wärmecloud baulich nicht möglich ist, kann ein entsprechender Consumer angelegt werden.</small>
+                              <div v-for="(consumer, index) in data.consumers" :key="index">
+                                <div class="layout horizontal center">
+                                  <v-text-field
+                                    :ref="'consumer_power_meter_number_' + index"
+                                    :rules="[rules.required_for_order]"
+                                    v-model="consumer.power_meter_number"
+                                    @input="formChanged"
+                                    label="Consumer Zählernummer"
+                                    style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                                  <v-text-field v-model="consumer.usage" label="Verbrauch" @keyup.enter="calculateCloud" @blur="calculateCloud" class="flex-1 align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                                  <svg @click="data.consumers.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                                </div>
+                                <AddressForm
+                                    :ref="'consumer_address_' + index"
+                                    v-model="consumer.address"
+                                    @input="formChanged"></AddressForm>
+                              </div>
+                              <div class="align-right">
+                                <v-btn v-if="data.consumers.length < 5" @click="data.consumers.push({'usage':0, 'address': {}}); calculateCloud()">Hinzufügen</v-btn>
+                                <small v-if="data.consumers.length >= 5">Max. 3 zusätzliche Consumer</small>
+                              </div>
+                              <small>mehr kWh werden mit {{ formatNumber(calculated.consumercloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small>
+                            </div>
+
+                            <div class="section">
+                              <h3>eMove</h3>
+                              <v-radio-group  v-model="data.emove_tarif" @change="calculateCloud">
+                                <v-radio value="none">
+                                  <template v-slot:label>
+                                    Kein eMove Tarif
+                                  </template>
+                                </v-radio>
+                                <v-radio value="emove Tarif Hybrid" disabled>
+                                  <template v-slot:label>
+                                    <div class="layout horizontal">
+                                      <div class="flex-1">
+                                        emove Tarif Hybrid<br>
+                                        <small>
+                                          Tanken ausserhalb der Home Area<br>
+                                          Je Tankvorgang DC oder AC 6,90€
+                                        </small>
+                                      </div>
+                                      <div style="padding-left: 1em">mtl. 9,99€</div>
+                                    </div>
+                                  </template>
+                                </v-radio>
+                                <v-radio value="emove.drive I">
+                                  <template v-slot:label>
+                                    <div class="layout horizontal">
+                                      <div class="flex-1">
+                                        emove.drive I<br>
+                                        <small>
+                                          empfohlen bis ca. 8.000 km / Jahr<br>
+                                          Laden Sie 500 kWh in der Home Area, und 1.000 kWh out of Home Area
+                                        </small>
+                                      </div>
+                                      <div style="padding-left: 1em">3 kWp</div>
+                                      <div style="padding-left: 1em">mtl. 9,99€</div>
+                                    </div>
+                                  </template>
+                                </v-radio>
+                                <v-radio value="emove.drive II">
+                                  <template v-slot:label>
+                                    <div class="layout horizontal">
+                                      <div class="flex-1">
+                                        emove.drive II<br>
+                                        <small>
+                                          empfohlen bis ca. 12.000 km / Jahr<br>
+                                          Laden Sie 1.000 kWh in der Home Area, und 1.000 kWh out of Home Area
+                                        </small>
+                                      </div>
+                                      <div style="padding-left: 1em">4 kWp</div>
+                                      <div style="padding-left: 1em">mtl. 14,99€</div>
+                                    </div>
+                                  </template>
+                                </v-radio>
+                                <v-radio value="emove.drive III">
+                                  <template v-slot:label>
+                                    <div class="layout horizontal">
+                                      <div class="flex-1">
+                                        emove.drive III<br>
+                                        <small>
+                                          empfohlen bis ca. 20.000 km / Jahr<br>
+                                          Laden Sie 2.000 kWh in der Home Area, und 3.000 kWh out of Home Area
+                                        </small>
+                                      </div>
+                                      <div style="padding-left: 1em">6,5 kWp</div>
+                                      <div style="padding-left: 1em">mtl. 19,99€</div>
+                                    </div>
+                                  </template>
+                                </v-radio>
+                                <v-radio value="emove.drive ALL">
+                                  <template v-slot:label>
+                                    <div class="layout horizontal">
+                                      <div class="flex-1">
+                                        emove.drive ALL<br>
+                                        <small>
+                                          empfohlen bis ca. 25.000 km / Jahr<br>
+                                          Laden Sie 2.500 kWh in der Home Area, und 6.000 kWh out of Home Area
+                                        </small>
+                                      </div>
+                                      <div style="padding-left: 1em">7 kWp</div>
+                                      <div style="padding-left: 1em">mtl. 39,99€</div>
+                                    </div>
+                                  </template>
+                                </v-radio>
+                              </v-radio-group>
+                            </div>
+                          </div>
+                        </v-stepper-content>
+                        <v-stepper-content step="4">
+                          <div class="section">
+                            <h2>PV-Anlage</h2>
+
+                            <div class="layout vertical flex-1">
+                              <div>
+                                <small>
+                                  Benötigte PV-Anlage
+                                </small>
+                                <div class="kwp-bar layout horizontal">
+                                  <div
+                                    v-if="calculated.min_kwp_emove > 0"
+                                    :style="`background-color: #0097A7; flex: 1 1 ${calculated.min_kwp_emove / calculated.max_kwp * 100}%`">
+                                    eMove {{ formatNumber(calculated.min_kwp_emove, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_light > 0"
+                                    :style="`background-color: #FDD835; color: #333; flex: 1 1 ${calculated.min_kwp_light / calculated.max_kwp * 100}%`">
+                                    Lichtstrom {{ formatNumber(calculated.min_kwp_light, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_heatcloud > 0"
+                                    :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_heatcloud / calculated.max_kwp * 100}%`">
+                                    Wärmecloud {{ formatNumber(calculated.min_kwp_heatcloud, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_ecloud > 0"
+                                    :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_ecloud / calculated.max_kwp * 100}%`">
+                                    eCloud {{ formatNumber(calculated.min_kwp_ecloud, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_consumer > 0"
+                                    :style="`background-color: #009688; flex: 1 1 ${calculated.min_kwp_consumer / calculated.max_kwp * 100}%`">
+                                    Consumer {{ formatNumber(calculated.min_kwp_consumer, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.kwp_extra > 0 && calculated.kwp_extra / calculated.max_kwp * 100 > 0.012"
+                                    :style="`background-color: #43A047; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * 100}%`">
+                                    Mehrverbau {{ formatNumber(calculated.kwp_extra, 2) }}kWp
+                                  </div>
+                                </div>
+                              </div>
+                              <div>
+                                <small>
+                                  geplante PV-Anlage
+                                </small>
+                                <div class="kwp-bar layout horizontal">
+                                  <div
+                                    v-if="Number(data.pv_kwp) > 0"
+                                    :style="`background-color: #43A047; flex: 1 1 ${Number(data.pv_kwp) / calculated.max_kwp * 100}%`">
+                                    PV-Anlage {{ formatNumber(data.pv_kwp, 2)}}kWp</div>
+                                  <div
+                                    v-if="Number(data.pv_kwp) === 0 || data.pv_kwp === undefined || data.pv_kwp === ''"
+                                    :style="`background-color: #43A047; flex: 1 1 100%`">
+                                    Benötigte PV-Anlage {{ formatNumber(calculated.min_kwp, 2)}}kWp</div>
+                                  <div
+                                    v-if="calculated.kwp_extra < 0 && calculated.kwp_extra / calculated.max_kwp * -100 > 0.012"
+                                    :style="`background-color: #E53935; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * -100}%`">
+                                    Minderverbau {{ formatNumber(-calculated.kwp_extra, 2) }}kWp
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="layout horizontal">
+                              <v-select
+                                label="Modulart"
+                                v-model="data.module_type" :items="select_options.module_type_options"
+                                @change="changeKWP"
+                                style="flex: 0 1 8em; margin-right: 1em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                              <v-text-field
+                                v-model="data.pv_count_modules"
+                                disabled="disabled"
+                                @input="changePVModules"
+                                @blur="calculateCloud"
+                                label="Anzahl Module"
+                                class="flex-1 align-right"
+                                style="margin-right: 1em;"
+                                type="number"
+                                step="1"></v-text-field>
+                              <v-text-field
+                                ref="pv_kwp"
+                                v-model="data.pv_kwp"
+                                @blur="changeKWP"
+                                label="geplante Größe"
+                                class="flex-1 align-right"
+                                suffix="kWp"
+                                type="number"
+                                step="0.01"></v-text-field>
+                              <v-text-field
+                                v-model="data.pv_sqm"
+                                disabled="disabled"
+                                label="benötigte Dachfläche"
+                                class="flex-1 align-right"
+                                style="margin-left: 1em;"
+                                suffix="m²"
+                                type="number"
+                                step="0.01"></v-text-field>
+                              <v-select
+                                v-model="data.investment_type" :items="[
+                                  {'value':'financing','label':'Finanzierung'},
+                                  {'value':'cash','label':'Barkauf'}
+                                ]"
+                                @input="formChanged"
+                                style="flex: 0 1 10em; margin-left: 1em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                            </div>
+                            <b>Dachflächen</b>
+
+                            <div v-for="(roof, index) in data.roofs" :key="index">
                               <div class="layout horizontal center">
                                 <v-text-field
-                                  :ref="'consumer_power_meter_number_' + index"
-                                  :rules="[rules.required_for_order]"
-                                  v-model="consumer.power_meter_number"
+                                  v-model="roof.label"
                                   @input="formChanged"
-                                  label="Consumer Zählernummer"
+                                  label="Bezeichnung"
                                   style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                                <v-text-field v-model="consumer.usage" label="Verbrauch" @keyup.enter="calculateCloud" @blur="calculateCloud" class="flex-1 align-right" suffix="kWh" type="number" step="1"></v-text-field>
-                                <svg @click="data.consumers.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                                <v-checkbox
+                                  label="ist Flachdach"
+                                  style="margin: 0 1em"
+                                  @change="roof.direction = 'west_east'; calculateCloud()"
+                                  v-model="roof.is_flat"/>
+                                <v-select
+                                  v-if="!roof.is_flat"
+                                  v-model="roof.direction" :items="[
+                                    {'value':'north','label':'Nord'},
+                                    {'value':'north_west_east','label':'Nord West/Ost'},
+
+                                    {'value':'west_east','label':'West/Ost'},
+                                    {'value':'south_west_east','label':'Süd West/Ost'},
+                                    {'value':'south','label':'Süd'}
+                                  ]"
+                                  @change="calculateCloud()"
+                                  style="flex: 0 1 8em;"
+                                  item-text="label"
+                                  item-value="value"></v-select>
+                                <v-text-field
+                                  v-model="roof.sqm"
+                                  @input="validateModules"
+                                  label="Fläche"
+                                  suffix="m²"
+                                  step="0.01"
+                                  type="number"
+                                  class="align-right"
+                                  style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
+                                <v-text-field
+                                  :ref="`roof_v_count_modules_${index}`"
+                                  v-model="roof.pv_count_modules"
+                                  @input="countModules"
+                                  label="Anzahl Module"
+                                  step="1"
+                                  type="number"
+                                  class="align-right"
+                                  style="flex: 0 1 8em;"></v-text-field>
+                                <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                               </div>
-                              <AddressForm
-                                  :ref="'consumer_address_' + index"
-                                  v-model="consumer.address"
-                                  @input="formChanged"></AddressForm>
                             </div>
-                            <div class="align-right">
-                              <v-btn v-if="data.consumers.length < 5" @click="data.consumers.push({'usage':0, 'address': {}}); calculateCloud()">Hinzufügen</v-btn>
-                              <small v-if="data.consumers.length >= 5">Max. 3 zusätzliche Consumer</small>
+                            <div>
+                              <v-btn @click="addRoof" style="margin-right: 1em">Hinzufügen</v-btn>
+                              <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
+                              <v-btn @click="set_optimized_coverage">Cloud Belegung</v-btn>
+                              <v-btn @click="set_zero_coverage">ZERO Belegung</v-btn>
                             </div>
-                            <small>mehr kWh werden mit {{ formatNumber(calculated.consumercloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small>
+
+                          </div>
+                        </v-stepper-content>
+
+                        <!--<v-stepper-content step="5">
+                          <div class="layout horizontal wrap">
+                            <div class="section" style="padding-bottom: 0">
+                              <div class="section">
+                                <h2>Verbrauch Lichtstrom</h2>
+                                <div class="layout horizontal">
+                                  <v-text-field
+                                    ref="power_meter_number"
+                                    v-model="data.power_meter_number"
+                                    :rules="[rules.required_for_order]"
+                                    @keyup="formChanged"
+                                    label="Haupt Zählernummer"
+                                    style="margin-right: 1em"></v-text-field>
+                                  <div class="flex">
+                                    <v-text-field
+                                      ref="power_usage"
+                                      v-model="data.power_usage"
+                                      :rules="[rules.required]"
+                                      @keyup.enter="calculateCloud"
+                                      @blur="calculateCloud"
+                                      label="Verbrauch in kWh"
+                                      class="align-right"
+                                      suffix="kWh"
+                                      type="number"
+                                      step="1"></v-text-field>
+                                    <small>mehr kWh werden mit {{ formatNumber(calculated.lightcloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="section" :disabled="true">
+                                <h3>Wärmecloud</h3>
+                                <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
+                                <div class="layout horizontal">
+                                  <v-text-field
+                                    v-model="data.heatcloud_power_meter_number"
+                                    @input="formChanged"
+                                    label="Wärmecloud Zählernummer"
+                                    style="margin-right: 1em"></v-text-field>
+                                  <div>
+                                    <v-text-field v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                                    <small>mehr kWh werden mit {{ formatNumber(calculated.heatcloud_extra_price_per_kwh * 100, 2) }} Cent abgerechnet</small>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="section" :disabled="true">
+                                <h3>E.Cloud</h3>
+                                <small><b>Voraussetzung:</b> Gasheizung</small>
+                                <v-text-field v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                                <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
+                              </div>
+
+                          </div>
+                          <div class="section" style="padding-bottom: 0">
+
+                            <div class="section">
+                              <h3>Extra Pakete</h3>
+                              <div class="layout horizontal wrap">
+                                <div class="flex">
+                                  <v-checkbox
+                                    label="Technik &amp; Service Paket"
+                                    style="margin-right: 1em"
+                                    @change="calculateCloud"
+                                    v-model="data.extra_options"
+                                    value="technik_service_packet" />
+                                </div>
+                                <div class="flex">
+                                  <v-checkbox
+                                    label="Wärmepumpe"
+                                    style="margin-right: 1em"
+                                    @change="calculateCloud"
+                                    v-model="data.extra_options"
+                                    value="wwwp" />
+                                  <div v-if="data.extra_options.indexOf('wwwp') >= 0">
+                                    <v-select
+                                      label="Variante"
+                                      v-model="data.extra_options_wwwp_variant" :items="[
+                                        {'value':'ecoSTAR taglio 100','label':'ecoSTAR taglio 100'},
+                                        {'value':'ecoSTAR taglio 180','label':'ecoSTAR taglio 180'},
+                                        {'value':'ecoSTAR 310 compact','label':'ecoSTAR 310 compact'}
+                                      ]"
+                                      @input="calculateCloud"
+                                      style="max-width: 14em;"
+                                      item-text="label"
+                                      item-value="value"></v-select>
+                                  </div>
+                                </div>
+                                <div class="flex">
+                                  <v-checkbox
+                                    label="Solaredge"
+                                    style="margin-right: 1em"
+                                    @change="calculateCloud"
+                                    v-model="data.extra_options"
+                                    value="solaredge" />
+                                </div>
+                                <div class="flex">
+                                  <v-checkbox
+                                    label="Neuer Zählerschrank"
+                                    style="margin-right: 1em"
+                                    @change="calculateCloud"
+                                    v-model="data.extra_options"
+                                    value="new_power_closet" />
+                                </div>
+                                <div class="flex">
+                                  <v-checkbox
+                                    label="NotstromBox SENEC"
+                                    style="margin-right: 1em"
+                                    @change="calculateCloud"
+                                    v-model="data.extra_options"
+                                    value="emergency_power_box" />
+                                </div>
+                                <div class="flex">
+                                  <v-checkbox
+                                    label="Wallbox"
+                                    style="margin-right: 1em"
+                                    @change="calculateCloud"
+                                    v-model="data.extra_options"
+                                    value="wallbox" />
+                                  <div v-if="data.extra_options.indexOf('wallbox') >= 0">
+                                    <v-select
+                                      label="Variante"
+                                      v-model="data.extra_options_wallbox_variant" :items="[
+                                        {'value':'11kW','label':'11kW Variante'},
+                                        {'value':'22kW','label':'22kW Variante'}
+                                      ]"
+                                      @input="calculateCloud"
+                                      style="max-width: 9em;"
+                                      item-text="label"
+                                      item-value="value"></v-select>
+                                    <v-text-field
+                                      v-model="data.extra_options_wallbox_count"
+                                      @keyup.enter="calculateCloud"
+                                      @blur="calculateCloud"
+                                      label="Anzahl Wallboxen"
+                                      class="align-right"
+                                      style="max-width: 9em;"
+                                      type="number"
+                                      step="1"></v-text-field>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="layout horizontal wrap flex-1">
+                              <div class="section">
+                                <h3>Extra Consumer</h3>
+                                <small>Falls eine Wärmecloud baulich nicht möglich ist, kann ein entsprechender Consumer angelegt werden.</small>
+                                <div v-for="(consumer, index) in data.consumers" :key="index">
+                                  <div class="layout horizontal center">
+                                    <v-text-field
+                                      :ref="'consumer_power_meter_number_' + index"
+                                      :rules="[rules.required_for_order]"
+                                      v-model="consumer.power_meter_number"
+                                      @input="formChanged"
+                                      label="Consumer Zählernummer"
+                                      style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                                    <v-text-field v-model="consumer.usage" label="Verbrauch" @keyup.enter="calculateCloud" @blur="calculateCloud" class="flex-1 align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                                    <svg @click="data.consumers.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                                  </div>
+                                  <AddressForm
+                                      :ref="'consumer_address_' + index"
+                                      v-model="consumer.address"
+                                      @input="formChanged"></AddressForm>
+                                </div>
+                                <div class="align-right">
+                                  <v-btn v-if="data.consumers.length < 5" @click="data.consumers.push({'usage':0, 'address': {}}); calculateCloud()">Hinzufügen</v-btn>
+                                  <small v-if="data.consumers.length >= 5">Max. 3 zusätzliche Consumer</small>
+                                </div>
+                                <small>mehr kWh werden mit {{ formatNumber(calculated.consumercloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small>
+                              </div>
+
+                              <div class="section">
+                                <h3>eMove</h3>
+                                <v-radio-group  v-model="data.emove_tarif" @change="calculateCloud">
+                                  <v-radio value="none">
+                                    <template v-slot:label>
+                                      Kein eMove Tarif
+                                    </template>
+                                  </v-radio>
+                                  <v-radio value="emove Tarif Hybrid" disabled>
+                                    <template v-slot:label>
+                                      <div class="layout horizontal">
+                                        <div class="flex-1">
+                                          emove Tarif Hybrid<br>
+                                          <small>
+                                            Tanken ausserhalb der Home Area<br>
+                                            Je Tankvorgang DC oder AC 6,90€
+                                          </small>
+                                        </div>
+                                        <div style="padding-left: 1em">mtl. 9,99€</div>
+                                      </div>
+                                    </template>
+                                  </v-radio>
+                                  <v-radio value="emove.drive I">
+                                    <template v-slot:label>
+                                      <div class="layout horizontal">
+                                        <div class="flex-1">
+                                          emove.drive I<br>
+                                          <small>
+                                            empfohlen bis ca. 8.000 km / Jahr<br>
+                                            Laden Sie 500 kWh in der Home Area, und 1.000 kWh out of Home Area
+                                          </small>
+                                        </div>
+                                        <div style="padding-left: 1em">3 kWp</div>
+                                        <div style="padding-left: 1em">mtl. 9,99€</div>
+                                      </div>
+                                    </template>
+                                  </v-radio>
+                                  <v-radio value="emove.drive II">
+                                    <template v-slot:label>
+                                      <div class="layout horizontal">
+                                        <div class="flex-1">
+                                          emove.drive II<br>
+                                          <small>
+                                            empfohlen bis ca. 12.000 km / Jahr<br>
+                                            Laden Sie 1.000 kWh in der Home Area, und 1.000 kWh out of Home Area
+                                          </small>
+                                        </div>
+                                        <div style="padding-left: 1em">4 kWp</div>
+                                        <div style="padding-left: 1em">mtl. 14,99€</div>
+                                      </div>
+                                    </template>
+                                  </v-radio>
+                                  <v-radio value="emove.drive III">
+                                    <template v-slot:label>
+                                      <div class="layout horizontal">
+                                        <div class="flex-1">
+                                          emove.drive III<br>
+                                          <small>
+                                            empfohlen bis ca. 20.000 km / Jahr<br>
+                                            Laden Sie 2.000 kWh in der Home Area, und 3.000 kWh out of Home Area
+                                          </small>
+                                        </div>
+                                        <div style="padding-left: 1em">6,5 kWp</div>
+                                        <div style="padding-left: 1em">mtl. 19,99€</div>
+                                      </div>
+                                    </template>
+                                  </v-radio>
+                                  <v-radio value="emove.drive ALL">
+                                    <template v-slot:label>
+                                      <div class="layout horizontal">
+                                        <div class="flex-1">
+                                          emove.drive ALL<br>
+                                          <small>
+                                            empfohlen bis ca. 25.000 km / Jahr<br>
+                                            Laden Sie 2.500 kWh in der Home Area, und 6.000 kWh out of Home Area
+                                          </small>
+                                        </div>
+                                        <div style="padding-left: 1em">7 kWp</div>
+                                        <div style="padding-left: 1em">mtl. 39,99€</div>
+                                      </div>
+                                    </template>
+                                  </v-radio>
+                                </v-radio-group>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="section">
+                            <h2>PV-Anlage</h2>
+
+                            <div class="layout vertical flex-1">
+                              <div>
+                                <small>
+                                  Benötigte PV-Anlage
+                                </small>
+                                <div class="kwp-bar layout horizontal">
+                                  <div
+                                    v-if="calculated.min_kwp_emove > 0"
+                                    :style="`background-color: #0097A7; flex: 1 1 ${calculated.min_kwp_emove / calculated.max_kwp * 100}%`">
+                                    eMove {{ formatNumber(calculated.min_kwp_emove, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_light > 0"
+                                    :style="`background-color: #FDD835; color: #333; flex: 1 1 ${calculated.min_kwp_light / calculated.max_kwp * 100}%`">
+                                    Lichtstrom {{ formatNumber(calculated.min_kwp_light, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_heatcloud > 0"
+                                    :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_heatcloud / calculated.max_kwp * 100}%`">
+                                    Wärmecloud {{ formatNumber(calculated.min_kwp_heatcloud, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_ecloud > 0"
+                                    :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_ecloud / calculated.max_kwp * 100}%`">
+                                    eCloud {{ formatNumber(calculated.min_kwp_ecloud, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.min_kwp_consumer > 0"
+                                    :style="`background-color: #009688; flex: 1 1 ${calculated.min_kwp_consumer / calculated.max_kwp * 100}%`">
+                                    Consumer {{ formatNumber(calculated.min_kwp_consumer, 2) }}kWp
+                                  </div>
+                                  <div
+                                    v-if="calculated.kwp_extra > 0 && calculated.kwp_extra / calculated.max_kwp * 100 > 0.012"
+                                    :style="`background-color: #43A047; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * 100}%`">
+                                    Mehrverbau {{ formatNumber(calculated.kwp_extra, 2) }}kWp
+                                  </div>
+                                </div>
+                              </div>
+                              <div>
+                                <small>
+                                  geplante PV-Anlage
+                                </small>
+                                <div class="kwp-bar layout horizontal">
+                                  <div
+                                    v-if="Number(data.pv_kwp) > 0"
+                                    :style="`background-color: #43A047; flex: 1 1 ${Number(data.pv_kwp) / calculated.max_kwp * 100}%`">
+                                    PV-Anlage {{ formatNumber(data.pv_kwp, 2)}}kWp</div>
+                                  <div
+                                    v-if="Number(data.pv_kwp) === 0 || data.pv_kwp === undefined || data.pv_kwp === ''"
+                                    :style="`background-color: #43A047; flex: 1 1 100%`">
+                                    Benötigte PV-Anlage {{ formatNumber(calculated.min_kwp, 2)}}kWp</div>
+                                  <div
+                                    v-if="calculated.kwp_extra < 0 && calculated.kwp_extra / calculated.max_kwp * -100 > 0.012"
+                                    :style="`background-color: #E53935; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * -100}%`">
+                                    Minderverbau {{ formatNumber(-calculated.kwp_extra, 2) }}kWp
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="layout horizontal">
+                              <v-select
+                                label="Modulart"
+                                v-model="data.module_type" :items="select_options.module_type_options"
+                                @change="changeKWP"
+                                style="flex: 0 1 8em; margin-right: 1em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                              <v-text-field
+                                v-model="data.pv_count_modules"
+                                disabled="disabled"
+                                @input="changePVModules"
+                                @blur="calculateCloud"
+                                label="Anzahl Module"
+                                class="flex-1 align-right"
+                                style="margin-right: 1em;"
+                                type="number"
+                                step="1"></v-text-field>
+                              <v-text-field
+                                ref="pv_kwp"
+                                v-model="data.pv_kwp"
+                                @blur="changeKWP"
+                                label="geplante Größe"
+                                class="flex-1 align-right"
+                                :rules="[rules.pv_kwp_limit]"
+                                suffix="kWp"
+                                type="number"
+                                step="0.01"></v-text-field>
+                              <v-text-field
+                                v-model="data.pv_sqm"
+                                disabled="disabled"
+                                label="benötigte Dachfläche"
+                                class="flex-1 align-right"
+                                style="margin-left: 1em;"
+                                suffix="m²"
+                                type="number"
+                                step="0.01"></v-text-field>
+                              <v-select
+                                v-model="data.investment_type" :items="[
+                                  {'value':'financing','label':'Finanzierung'},
+                                  {'value':'cash','label':'Barkauf'}
+                                ]"
+                                @input="formChanged"
+                                style="flex: 0 1 10em; margin-left: 1em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                            </div>
+                            <b>Dachflächen</b>
+
+                            <div v-for="(roof, index) in data.roofs" :key="index">
+                              <div class="layout horizontal center">
+                                <v-text-field
+                                  v-model="roof.label"
+                                  @input="formChanged"
+                                  label="Bezeichnung"
+                                  style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                                <v-checkbox
+                                  label="ist Flachdach"
+                                  style="margin: 0 1em"
+                                  @change="roof.direction = 'west_east'; calculateCloud()"
+                                  v-model="roof.is_flat"/>
+                                <v-select
+                                  v-if="!roof.is_flat"
+                                  v-model="roof.direction" :items="[
+                                    {'value':'north','label':'Nord'},
+                                    {'value':'north_west_east','label':'Nord West/Ost'},
+                                    {'value':'north_south','label':'Nord/Süd'},
+                                    {'value':'west_east','label':'West/Ost'},
+                                    {'value':'south_west_east','label':'Süd West/Ost'},
+                                    {'value':'south','label':'Süd'}
+                                  ]"
+                                  @change="calculateCloud()"
+                                  style="flex: 0 1 8em;"
+                                  item-text="label"
+                                  item-value="value"></v-select>
+                                <v-text-field
+                                  v-model="roof.sqm"
+                                  @input="calculateCloud"
+                                  @blur="$refs.pv_kwp.validate(true)"
+                                  label="Fläche"
+                                  suffix="m²"
+                                  step="0.01"
+                                  type="number"
+                                  class="align-right"
+                                  style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
+                                <v-text-field
+                                  v-model="roof.pv_count_modules"
+                                  @input="calculateCloud"
+                                  @blur="$refs.pv_kwp.validate(true)"
+                                  label="Anzahl Module"
+                                  step="1"
+                                  type="number"
+                                  class="align-right"
+                                  style="flex: 0 1 8em;"></v-text-field>
+                                <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                              </div>
+                            </div>
+                            <div>
+                              <v-btn @click="addRoof" style="margin-right: 1em">Hinzufügen</v-btn>
+                              <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
+                              <v-btn @click="set_optimized_coverage">Cloud Belegung</v-btn>
+                            </div>
+
                           </div>
 
                           <div class="section">
-                            <h3>eMove</h3>
-                            <v-radio-group  v-model="data.emove_tarif" @change="calculateCloud">
-                              <v-radio value="none">
-                                <template v-slot:label>
-                                  Kein eMove Tarif
-                                </template>
-                              </v-radio>
-                              <v-radio value="emove Tarif Hybrid" disabled>
-                                <template v-slot:label>
-                                  <div class="layout horizontal">
-                                    <div class="flex-1">
-                                      emove Tarif Hybrid<br>
-                                      <small>
-                                        Tanken ausserhalb der Home Area<br>
-                                        Je Tankvorgang DC oder AC 6,90€
-                                      </small>
-                                    </div>
-                                    <div style="padding-left: 1em">mtl. 9,99€</div>
-                                  </div>
-                                </template>
-                              </v-radio>
-                              <v-radio value="emove.drive I">
-                                <template v-slot:label>
-                                  <div class="layout horizontal">
-                                    <div class="flex-1">
-                                      emove.drive I<br>
-                                      <small>
-                                        empfohlen bis ca. 8.000 km / Jahr<br>
-                                        Laden Sie 500 kWh in der Home Area, und 1.000 kWh out of Home Area
-                                      </small>
-                                    </div>
-                                    <div style="padding-left: 1em">3 kWp</div>
-                                    <div style="padding-left: 1em">mtl. 9,99€</div>
-                                  </div>
-                                </template>
-                              </v-radio>
-                              <v-radio value="emove.drive II">
-                                <template v-slot:label>
-                                  <div class="layout horizontal">
-                                    <div class="flex-1">
-                                      emove.drive II<br>
-                                      <small>
-                                        empfohlen bis ca. 12.000 km / Jahr<br>
-                                        Laden Sie 1.000 kWh in der Home Area, und 1.000 kWh out of Home Area
-                                      </small>
-                                    </div>
-                                    <div style="padding-left: 1em">4 kWp</div>
-                                    <div style="padding-left: 1em">mtl. 14,99€</div>
-                                  </div>
-                                </template>
-                              </v-radio>
-                              <v-radio value="emove.drive III">
-                                <template v-slot:label>
-                                  <div class="layout horizontal">
-                                    <div class="flex-1">
-                                      emove.drive III<br>
-                                      <small>
-                                        empfohlen bis ca. 20.000 km / Jahr<br>
-                                        Laden Sie 2.000 kWh in der Home Area, und 3.000 kWh out of Home Area
-                                      </small>
-                                    </div>
-                                    <div style="padding-left: 1em">6,5 kWp</div>
-                                    <div style="padding-left: 1em">mtl. 19,99€</div>
-                                  </div>
-                                </template>
-                              </v-radio>
-                              <v-radio value="emove.drive ALL">
-                                <template v-slot:label>
-                                  <div class="layout horizontal">
-                                    <div class="flex-1">
-                                      emove.drive ALL<br>
-                                      <small>
-                                        empfohlen bis ca. 25.000 km / Jahr<br>
-                                        Laden Sie 2.500 kWh in der Home Area, und 6.000 kWh out of Home Area
-                                      </small>
-                                    </div>
-                                    <div style="padding-left: 1em">7 kWp</div>
-                                    <div style="padding-left: 1em">mtl. 39,99€</div>
-                                  </div>
-                                </template>
-                              </v-radio>
-                            </v-radio-group>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="section">
-                        <h2>PV-Anlage</h2>
-
-                        <div class="layout vertical flex-1">
-                          <div>
-                            <small>
-                              Benötigte PV-Anlage
-                            </small>
-                            <div class="kwp-bar layout horizontal">
-                              <div
-                                v-if="calculated.min_kwp_emove > 0"
-                                :style="`background-color: #0097A7; flex: 1 1 ${calculated.min_kwp_emove / calculated.max_kwp * 100}%`">
-                                eMove {{ formatNumber(calculated.min_kwp_emove, 2) }}kWp
+                            <h2>Anpassungen WI</h2>
+                            <div
+                              class="layout horizontal"
+                              style="padding-top: 2em">
+                              <div class="flex">
+                                <v-slider
+                                  v-model="data.price_increase_rate"
+                                  @input="formChanged"
+                                  min="4.75"
+                                  max="7.75"
+                                  step="0.25"
+                                  thumb-label="always"></v-slider>
+                                <div style="margin-top: -1em; padding-left: 0.5em">Preissteigerung</div>
                               </div>
-                              <div
-                                v-if="calculated.min_kwp_light > 0"
-                                :style="`background-color: #FDD835; color: #333; flex: 1 1 ${calculated.min_kwp_light / calculated.max_kwp * 100}%`">
-                                Lichtstrom {{ formatNumber(calculated.min_kwp_light, 2) }}kWp
+                              <div class="flex">
+                                <v-slider
+                                  v-model="data.inflation_rate"
+                                  @input="formChanged"
+                                  min="1.5"
+                                  max="3.5"
+                                  step="0.25"
+                                  thumb-label="always"></v-slider>
+                                <div style="margin-top: -1em; padding-left: 0.5em">Inflation</div>
                               </div>
-                              <div
-                                v-if="calculated.min_kwp_heatcloud > 0"
-                                :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_heatcloud / calculated.max_kwp * 100}%`">
-                                Wärmecloud {{ formatNumber(calculated.min_kwp_heatcloud, 2) }}kWp
+                            </div>
+                            <br>
+                            <div class="layout horizontal">
+                              <v-text-field
+                                ref="conventional_power_usage_per_year"
+                                v-model="data.conventional_power_usage_per_year"
+                                @input="calculatePowerCost('usage')"
+                                @blur="calculateCloud"
+                                label="Stromverbrauch lt. Rechnung/Jahr"
+                                class="align-right"
+                                :rules="[rules.required]"
+                                suffix="kWh"
+                                type="number"
+                                step="0.01"
+                                style="margin-right: 1em"></v-text-field>
+                              <v-text-field
+                                ref="conventional_power_cost_per_year"
+                                v-model="data.conventional_power_cost_per_year"
+                                @input="calculatePowerCost('cost_year')"
+                                @blur="calculateCloud"
+                                :rules="[rules.required]"
+                                label="Butto Stromkosten lt. Rechnung/Jahr"
+                                class="align-right"
+                                suffix="€"
+                                type="number"
+                                step="0.01"
+                                style="margin-right: 1em"></v-text-field>
+                              <v-text-field
+                                v-model="data.conventional_power_cost_per_kwh"
+                                @input="calculatePowerCost('cost_kwh')"
+                                @blur="calculateCloud"
+                                label="Strompreis pro kWh"
+                                class="align-right"
+                                suffix="Cent"
+                                type="number"
+                                disabled
+                                step="0.5"></v-text-field>
+                            </div>
+                            <div v-if="data.heater_usage > 0">
+                              <br>
+                              <div class="layout horizontal">
+                                <v-text-field
+                                  ref="conventional_heat_usage_per_year"
+                                  v-model="data.conventional_heat_usage_per_year"
+                                  @input="calculateHeatCost('usage')"
+                                  @blur="calculateCloud"
+                                  label="Wärmestromverbrauch lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="kWh"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="conventional_heat_cost_per_year"
+                                  v-model="data.conventional_heat_cost_per_year"
+                                  @input="calculateHeatCost('cost_year')"
+                                  @blur="calculateCloud"
+                                  label="Butto Wärmestromkosten lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="€"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="gas_usage"
+                                  v-model="data.conventional_heat_cost_per_kwh"
+                                  @input="calculateHeatCost('cost_kwh')"
+                                  @blur="calculateCloud"
+                                  label="Wärmestrompreis pro kWh"
+                                  class="align-right"
+                                  suffix="Cent"
+                                  type="number"
+                                  disabled
+                                  step="0.5"></v-text-field>
                               </div>
-                              <div
-                                v-if="calculated.min_kwp_ecloud > 0"
-                                :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_ecloud / calculated.max_kwp * 100}%`">
-                                eCloud {{ formatNumber(calculated.min_kwp_ecloud, 2) }}kWp
-                              </div>
-                              <div
-                                v-if="calculated.min_kwp_consumer > 0"
-                                :style="`background-color: #009688; flex: 1 1 ${calculated.min_kwp_consumer / calculated.max_kwp * 100}%`">
-                                Consumer {{ formatNumber(calculated.min_kwp_consumer, 2) }}kWp
-                              </div>
-                              <div
-                                v-if="calculated.kwp_extra > 0 && calculated.kwp_extra / calculated.max_kwp * 100 > 0.012"
-                                :style="`background-color: #43A047; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * 100}%`">
-                                Mehrverbau {{ formatNumber(calculated.kwp_extra, 2) }}kWp
+                            </div>
+                            <div v-if="data.ecloud_usage > 0">
+                              <br>
+                              <div class="layout horizontal">
+                                <v-text-field
+                                  ref="conventional_gas_usage_per_year"
+                                  v-model="data.conventional_gas_usage_per_year"
+                                  @input="calculateGasCost('usage')"
+                                  @blur="calculateCloud"
+                                  label="Gasverbrauch lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="kWh"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="conventional_gas_cost_per_year"
+                                  v-model="data.conventional_gas_cost_per_year"
+                                  @input="calculateGasCost('cost_year')"
+                                  @blur="calculateCloud"
+                                  label="Butto Gaskosten lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="€"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="gas_usage"
+                                  v-model="data.conventional_gas_cost_per_kwh"
+                                  @input="calculateGasCost('cost_kwh')"
+                                  @blur="calculateCloud"
+                                  label="Gaspreis pro kWh"
+                                  class="align-right"
+                                  suffix="Cent"
+                                  type="number"
+                                  disabled
+                                  step="0.5"></v-text-field>
                               </div>
                             </div>
                           </div>
-                          <div>
-                            <small>
-                              geplante PV-Anlage
-                            </small>
-                            <div class="kwp-bar layout horizontal">
-                              <div
-                                v-if="Number(data.pv_kwp) > 0"
-                                :style="`background-color: #43A047; flex: 1 1 ${Number(data.pv_kwp) / calculated.max_kwp * 100}%`">
-                                PV-Anlage {{ formatNumber(data.pv_kwp, 2)}}kWp</div>
-                              <div
-                                v-if="Number(data.pv_kwp) === 0 || data.pv_kwp === undefined || data.pv_kwp === ''"
-                                :style="`background-color: #43A047; flex: 1 1 100%`">
-                                Benötigte PV-Anlage {{ formatNumber(calculated.min_kwp, 2)}}kWp</div>
-                              <div
-                                v-if="calculated.kwp_extra < 0 && calculated.kwp_extra / calculated.max_kwp * -100 > 0.012"
-                                :style="`background-color: #E53935; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * -100}%`">
-                                Minderverbau {{ formatNumber(-calculated.kwp_extra, 2) }}kWp
+                        </v-stepper-content>-->
+
+                        <v-stepper-content step="6">
+                          <div class="section">
+                            <h2>Anpassungen WI</h2>
+                            <div
+                              class="layout horizontal"
+                              style="padding-top: 2em">
+                              <div class="flex">
+                                <v-slider
+                                  v-model="data.price_increase_rate"
+                                  @input="formChanged"
+                                  min="4.75"
+                                  max="7.75"
+                                  step="0.25"
+                                  thumb-label="always"></v-slider>
+                                <div style="margin-top: -1em; padding-left: 0.5em">Preissteigerung</div>
+                              </div>
+                              <div class="flex">
+                                <v-slider
+                                  v-model="data.inflation_rate"
+                                  @input="formChanged"
+                                  min="1.5"
+                                  max="3.5"
+                                  step="0.25"
+                                  thumb-label="always"></v-slider>
+                                <div style="margin-top: -1em; padding-left: 0.5em">Inflation</div>
+                              </div>
+                              <div class="flex">
+                                <v-slider
+                                  v-model="data.financing_rate"
+                                  @input="formChanged"
+                                  min="0"
+                                  max="5"
+                                  step="0.01"
+                                  thumb-label="always"></v-slider>
+                                <div style="margin-top: -1em; padding-left: 0.5em">Finanzierungs Zinssatz</div>
+                              </div>
+                              <div class="flex">
+                                <v-slider
+                                  v-model="data.runtime"
+                                  @input="formChanged"
+                                  min="30"
+                                  max="35"
+                                  step="5"
+                                  thumb-label="always"></v-slider>
+                                <div style="margin-top: -1em; padding-left: 0.5em">Prognose für </div>
+                              </div>
+                            </div>
+                            <br>
+                            <div class="layout horizontal">
+                              <v-text-field
+                                ref="conventional_power_usage_per_year"
+                                v-model="data.conventional_power_usage_per_year"
+                                @input="calculatePowerCost('usage')"
+                                @blur="calculateCloud"
+                                label="Stromverbrauch lt. Rechnung/Jahr"
+                                class="align-right"
+                                :rules="[rules.required]"
+                                suffix="kWh"
+                                type="number"
+                                step="0.01"
+                                style="margin-right: 1em"></v-text-field>
+                              <v-text-field
+                                ref="conventional_power_cost_per_year"
+                                v-model="data.conventional_power_cost_per_year"
+                                @input="calculatePowerCost('cost_year')"
+                                @blur="calculateCloud"
+                                :rules="[rules.required]"
+                                label="Butto Stromkosten lt. Rechnung/Jahr"
+                                class="align-right"
+                                suffix="€"
+                                type="number"
+                                step="0.01"
+                                style="margin-right: 1em"></v-text-field>
+                              <v-text-field
+                                v-model="data.conventional_power_cost_per_kwh"
+                                @input="calculatePowerCost('cost_kwh')"
+                                @blur="calculateCloud"
+                                label="Strompreis pro kWh"
+                                class="align-right"
+                                suffix="Cent"
+                                type="number"
+                                disabled
+                                step="0.5"></v-text-field>
+                            </div>
+                            <div v-if="data.heater_usage > 0">
+                              <br>
+                              <div class="layout horizontal">
+                                <v-text-field
+                                  ref="conventional_heat_usage_per_year"
+                                  v-model="data.conventional_heat_usage_per_year"
+                                  @input="calculateHeatCost('usage')"
+                                  @blur="calculateCloud"
+                                  label="Wärmestromverbrauch lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="kWh"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="conventional_heat_cost_per_year"
+                                  v-model="data.conventional_heat_cost_per_year"
+                                  @input="calculateHeatCost('cost_year')"
+                                  @blur="calculateCloud"
+                                  label="Butto Wärmestromkosten lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="€"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="gas_usage"
+                                  v-model="data.conventional_heat_cost_per_kwh"
+                                  @input="calculateHeatCost('cost_kwh')"
+                                  @blur="calculateCloud"
+                                  label="Wärmestrompreis pro kWh"
+                                  class="align-right"
+                                  suffix="Cent"
+                                  type="number"
+                                  disabled
+                                  step="0.5"></v-text-field>
+                              </div>
+                            </div>
+                            <div v-if="data.ecloud_usage > 0">
+                              <br>
+                              <div class="layout horizontal">
+                                <v-text-field
+                                  ref="conventional_gas_usage_per_year"
+                                  v-model="data.conventional_gas_usage_per_year"
+                                  @input="calculateGasCost('usage')"
+                                  @blur="calculateCloud"
+                                  label="Gasverbrauch lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="kWh"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="conventional_gas_cost_per_year"
+                                  v-model="data.conventional_gas_cost_per_year"
+                                  @input="calculateGasCost('cost_year')"
+                                  @blur="calculateCloud"
+                                  label="Butto Gaskosten lt. Rechnung/Jahr"
+                                  class="align-right"
+                                  :rules="[rules.required]"
+                                  suffix="€"
+                                  type="number"
+                                  step="0.01"
+                                  style="margin-right: 1em"></v-text-field>
+                                <v-text-field
+                                  ref="gas_usage"
+                                  v-model="data.conventional_gas_cost_per_kwh"
+                                  @input="calculateGasCost('cost_kwh')"
+                                  @blur="calculateCloud"
+                                  label="Gaspreis pro kWh"
+                                  class="align-right"
+                                  suffix="Cent"
+                                  type="number"
+                                  disabled
+                                  step="0.5"></v-text-field>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <div class="layout horizontal">
-                          <v-select
-                            label="Modulart"
-                            v-model="data.module_type" :items="select_options.module_type_options"
-                            @change="changeKWP"
-                            style="flex: 0 1 8em; margin-right: 1em;"
-                            item-text="label"
-                            item-value="value"></v-select>
-                          <v-text-field
-                            v-model="data.pv_count_modules"
-                            disabled="disabled"
-                            @input="changePVModules"
-                            @blur="calculateCloud"
-                            label="Anzahl Module"
-                            class="flex-1 align-right"
-                            style="margin-right: 1em;"
-                            type="number"
-                            step="1"></v-text-field>
-                          <v-text-field
-                            ref="pv_kwp"
-                            v-model="data.pv_kwp"
-                            @blur="changeKWP"
-                            label="geplante Größe"
-                            class="flex-1 align-right"
-                            :rules="[rules.pv_kwp_limit]"
-                            suffix="kWp"
-                            type="number"
-                            step="0.01"></v-text-field>
-                          <v-text-field
-                            v-model="data.pv_sqm"
-                            disabled="disabled"
-                            label="benötigte Dachfläche"
-                            class="flex-1 align-right"
-                            style="margin-left: 1em;"
-                            suffix="m²"
-                            type="number"
-                            step="0.01"></v-text-field>
-                          <v-select
-                            v-model="data.investment_type" :items="[
-                              {'value':'financing','label':'Finanzierung'},
-                              {'value':'cash','label':'Barkauf'}
-                            ]"
-                            @input="formChanged"
-                            style="flex: 0 1 10em; margin-left: 1em;"
-                            item-text="label"
-                            item-value="value"></v-select>
-                        </div>
-                        <b>Dachflächen</b>
-
-                        <div v-for="(roof, index) in data.roofs" :key="index">
-                          <div class="layout horizontal center">
-                            <v-text-field
-                              v-model="roof.label"
-                              @input="formChanged"
-                              label="Bezeichnung"
-                              style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                            <v-checkbox
-                              label="ist Flachdach"
-                              style="margin: 0 1em"
-                              @change="roof.direction = 'west_east'; calculateCloud()"
-                              v-model="roof.is_flat"/>
-                            <v-select
-                              v-if="!roof.is_flat"
-                              v-model="roof.direction" :items="[
-                                {'value':'north','label':'Nord'},
-                                {'value':'north_west_east','label':'Nord West/Ost'},
-                                {'value':'north_south','label':'Nord/Süd'},
-                                {'value':'west_east','label':'West/Ost'},
-                                {'value':'south_west_east','label':'Süd West/Ost'},
-                                {'value':'south','label':'Süd'}
-                              ]"
-                              @change="calculateCloud()"
-                              style="flex: 0 1 8em;"
-                              item-text="label"
-                              item-value="value"></v-select>
-                            <v-text-field
-                              v-model="roof.sqm"
-                              @input="calculateCloud"
-                              @blur="$refs.pv_kwp.validate(true)"
-                              label="Fläche"
-                              suffix="m²"
-                              step="0.01"
-                              type="number"
-                              class="align-right"
-                              style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
-                            <v-text-field
-                              v-model="roof.pv_count_modules"
-                              @input="calculateCloud"
-                              @blur="$refs.pv_kwp.validate(true)"
-                              label="Anzahl Module"
-                              step="1"
-                              type="number"
-                              class="align-right"
-                              style="flex: 0 1 8em;"></v-text-field>
-                            <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                          </div>
-                        </div>
-                        <div>
-                          <v-btn @click="addRoof" style="margin-right: 1em">Hinzufügen</v-btn>
-                          <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
-                          <v-btn @click="set_optimized_coverage">Cloud Belegung</v-btn>
-                        </div>
-
-                      </div>
-
-                      <div class="section">
-                        <h2>Anpassungen WI</h2>
-                        <div
-                          class="layout horizontal"
-                          style="padding-top: 2em">
-                          <div class="flex">
-                            <v-slider
-                              v-model="data.price_increase_rate"
-                              @input="formChanged"
-                              min="4.75"
-                              max="7.75"
-                              step="0.25"
-                              thumb-label="always"></v-slider>
-                            <div style="margin-top: -1em; padding-left: 0.5em">Preissteigerung</div>
-                          </div>
-                          <div class="flex">
-                            <v-slider
-                              v-model="data.inflation_rate"
-                              @input="formChanged"
-                              min="1.5"
-                              max="3.5"
-                              step="0.25"
-                              thumb-label="always"></v-slider>
-                            <div style="margin-top: -1em; padding-left: 0.5em">Inflation</div>
-                          </div>
-                        </div>
-                        <br>
-                        <div class="layout horizontal">
-                          <v-text-field
-                            ref="conventional_power_usage_per_year"
-                            v-model="data.conventional_power_usage_per_year"
-                            @input="calculatePowerCost('usage')"
-                            @blur="calculateCloud"
-                            label="Stromverbrauch lt. Rechnung/Jahr"
-                            class="align-right"
-                            :rules="[rules.required]"
-                            suffix="kWh"
-                            type="number"
-                            step="0.01"
-                            style="margin-right: 1em"></v-text-field>
-                          <v-text-field
-                            ref="conventional_power_cost_per_year"
-                            v-model="data.conventional_power_cost_per_year"
-                            @input="calculatePowerCost('cost_year')"
-                            @blur="calculateCloud"
-                            :rules="[rules.required]"
-                            label="Butto Stromkosten lt. Rechnung/Jahr"
-                            class="align-right"
-                            suffix="€"
-                            type="number"
-                            step="0.01"
-                            style="margin-right: 1em"></v-text-field>
-                          <v-text-field
-                            v-model="data.conventional_power_cost_per_kwh"
-                            @input="calculatePowerCost('cost_kwh')"
-                            @blur="calculateCloud"
-                            label="Strompreis pro kWh"
-                            class="align-right"
-                            suffix="Cent"
-                            type="number"
-                            disabled
-                            step="0.5"></v-text-field>
-                        </div>
-                        <div v-if="data.heater_usage > 0">
-                          <br>
-                          <div class="layout horizontal">
-                            <v-text-field
-                              ref="conventional_heat_usage_per_year"
-                              v-model="data.conventional_heat_usage_per_year"
-                              @input="calculateHeatCost('usage')"
-                              @blur="calculateCloud"
-                              label="Wärmestromverbrauch lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="kWh"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="conventional_heat_cost_per_year"
-                              v-model="data.conventional_heat_cost_per_year"
-                              @input="calculateHeatCost('cost_year')"
-                              @blur="calculateCloud"
-                              label="Butto Wärmestromkosten lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="€"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="gas_usage"
-                              v-model="data.conventional_heat_cost_per_kwh"
-                              @input="calculateHeatCost('cost_kwh')"
-                              @blur="calculateCloud"
-                              label="Wärmestrompreis pro kWh"
-                              class="align-right"
-                              suffix="Cent"
-                              type="number"
-                              disabled
-                              step="0.5"></v-text-field>
-                          </div>
-                        </div>
-                        <div v-if="data.ecloud_usage > 0">
-                          <br>
-                          <div class="layout horizontal">
-                            <v-text-field
-                              ref="conventional_gas_usage_per_year"
-                              v-model="data.conventional_gas_usage_per_year"
-                              @input="calculateGasCost('usage')"
-                              @blur="calculateCloud"
-                              label="Gasverbrauch lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="kWh"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="conventional_gas_cost_per_year"
-                              v-model="data.conventional_gas_cost_per_year"
-                              @input="calculateGasCost('cost_year')"
-                              @blur="calculateCloud"
-                              label="Butto Gaskosten lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="€"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="gas_usage"
-                              v-model="data.conventional_gas_cost_per_kwh"
-                              @input="calculateGasCost('cost_kwh')"
-                              @blur="calculateCloud"
-                              label="Gaspreis pro kWh"
-                              class="align-right"
-                              suffix="Cent"
-                              type="number"
-                              disabled
-                              step="0.5"></v-text-field>
-                          </div>
-                        </div>
-                      </div>
-                    </v-stepper-content>-->
-
-                    <v-stepper-content step="6">
-                      <div class="section">
-                        <h2>Anpassungen WI</h2>
-                        <div
-                          class="layout horizontal"
-                          style="padding-top: 2em">
-                          <div class="flex">
-                            <v-slider
-                              v-model="data.price_increase_rate"
-                              @input="formChanged"
-                              min="4.75"
-                              max="7.75"
-                              step="0.25"
-                              thumb-label="always"></v-slider>
-                            <div style="margin-top: -1em; padding-left: 0.5em">Preissteigerung</div>
-                          </div>
-                          <div class="flex">
-                            <v-slider
-                              v-model="data.inflation_rate"
-                              @input="formChanged"
-                              min="1.5"
-                              max="3.5"
-                              step="0.25"
-                              thumb-label="always"></v-slider>
-                            <div style="margin-top: -1em; padding-left: 0.5em">Inflation</div>
-                          </div>
-                          <div class="flex">
-                            <v-slider
-                              v-model="data.financing_rate"
-                              @input="formChanged"
-                              min="0"
-                              max="5"
-                              step="0.01"
-                              thumb-label="always"></v-slider>
-                            <div style="margin-top: -1em; padding-left: 0.5em">Finanzierungs Zinssatz</div>
-                          </div>
-                          <div class="flex">
-                            <v-slider
-                              v-model="data.runtime"
-                              @input="formChanged"
-                              min="30"
-                              max="35"
-                              step="5"
-                              thumb-label="always"></v-slider>
-                            <div style="margin-top: -1em; padding-left: 0.5em">Prognose für </div>
-                          </div>
-                        </div>
-                        <br>
-                        <div class="layout horizontal">
-                          <v-text-field
-                            ref="conventional_power_usage_per_year"
-                            v-model="data.conventional_power_usage_per_year"
-                            @input="calculatePowerCost('usage')"
-                            @blur="calculateCloud"
-                            label="Stromverbrauch lt. Rechnung/Jahr"
-                            class="align-right"
-                            :rules="[rules.required]"
-                            suffix="kWh"
-                            type="number"
-                            step="0.01"
-                            style="margin-right: 1em"></v-text-field>
-                          <v-text-field
-                            ref="conventional_power_cost_per_year"
-                            v-model="data.conventional_power_cost_per_year"
-                            @input="calculatePowerCost('cost_year')"
-                            @blur="calculateCloud"
-                            :rules="[rules.required]"
-                            label="Butto Stromkosten lt. Rechnung/Jahr"
-                            class="align-right"
-                            suffix="€"
-                            type="number"
-                            step="0.01"
-                            style="margin-right: 1em"></v-text-field>
-                          <v-text-field
-                            v-model="data.conventional_power_cost_per_kwh"
-                            @input="calculatePowerCost('cost_kwh')"
-                            @blur="calculateCloud"
-                            label="Strompreis pro kWh"
-                            class="align-right"
-                            suffix="Cent"
-                            type="number"
-                            disabled
-                            step="0.5"></v-text-field>
-                        </div>
-                        <div v-if="data.heater_usage > 0">
-                          <br>
-                          <div class="layout horizontal">
-                            <v-text-field
-                              ref="conventional_heat_usage_per_year"
-                              v-model="data.conventional_heat_usage_per_year"
-                              @input="calculateHeatCost('usage')"
-                              @blur="calculateCloud"
-                              label="Wärmestromverbrauch lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="kWh"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="conventional_heat_cost_per_year"
-                              v-model="data.conventional_heat_cost_per_year"
-                              @input="calculateHeatCost('cost_year')"
-                              @blur="calculateCloud"
-                              label="Butto Wärmestromkosten lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="€"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="gas_usage"
-                              v-model="data.conventional_heat_cost_per_kwh"
-                              @input="calculateHeatCost('cost_kwh')"
-                              @blur="calculateCloud"
-                              label="Wärmestrompreis pro kWh"
-                              class="align-right"
-                              suffix="Cent"
-                              type="number"
-                              disabled
-                              step="0.5"></v-text-field>
-                          </div>
-                        </div>
-                        <div v-if="data.ecloud_usage > 0">
-                          <br>
-                          <div class="layout horizontal">
-                            <v-text-field
-                              ref="conventional_gas_usage_per_year"
-                              v-model="data.conventional_gas_usage_per_year"
-                              @input="calculateGasCost('usage')"
-                              @blur="calculateCloud"
-                              label="Gasverbrauch lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="kWh"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="conventional_gas_cost_per_year"
-                              v-model="data.conventional_gas_cost_per_year"
-                              @input="calculateGasCost('cost_year')"
-                              @blur="calculateCloud"
-                              label="Butto Gaskosten lt. Rechnung/Jahr"
-                              class="align-right"
-                              :rules="[rules.required]"
-                              suffix="€"
-                              type="number"
-                              step="0.01"
-                              style="margin-right: 1em"></v-text-field>
-                            <v-text-field
-                              ref="gas_usage"
-                              v-model="data.conventional_gas_cost_per_kwh"
-                              @input="calculateGasCost('cost_kwh')"
-                              @blur="calculateCloud"
-                              label="Gaspreis pro kWh"
-                              class="align-right"
-                              suffix="Cent"
-                              type="number"
-                              disabled
-                              step="0.5"></v-text-field>
-                          </div>
-                        </div>
-                      </div>
-                    </v-stepper-content>
-                  </v-stepper-items>
-                </v-stepper>
-                <br>
-                <br>
-              </div>
-              <div v-if="data.has_roof_reconstruction_quote">
-                <div class="section">
-                  <h2>Dachsanierung</h2>
-                  <div class="layout horizontal wrap">
-                    <v-text-field
-                      v-model="data.reconstruction_sqm"
-                      @blur="calculateCloud"
-                      label="zu sanierende Dachfläche"
-                      class="align-right"
-                      suffix="m²"
-                      type="number"
-                      step="0.01"
-                      style="margin-left: 1em"></v-text-field>
-                    <v-select
-                      label="Dachtyp"
-                      v-model="data.reconstruction_roof_type" :items="[
-                        {'value':'flat','label':'Flachdach'},
-                        {'value':'saddle','label':'Satteldach'}
-                      ]"
-                      @input="calculateCloud"
-                      style="margin-left: 1em"
-                      item-text="label"
-                      item-value="value"></v-select>
-                    <v-checkbox
-                      label="mit Dämmung"
-                      style="margin-left: 1em"
-                      @change="calculateCloud"
-                      v-model="data.reconstruction_extra_options"
-                      value="with_insulation" />
-                  </div>
-                  <b>Extra Optionen</b>
-                  <div class="layout horizontal wrap" style="justify-content: flex-start">
-                    <div>
-                      <v-checkbox
-                        label="Abfallentsorgung"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="trash_management" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('trash_management') >= 0">
-                        <v-text-field
-                          label="Menge"
-                          v-model="data.reconstruction_extra_options_trash_management_amount"
-                          @input="calculateCloud"
-                          suffix="kg"
-                          style="max-width: 10em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Abnehmen des Schneefanges"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="remove_snowstop" />
-                        <div v-if="data.reconstruction_extra_options.indexOf('remove_snowstop') >= 0">
-                          <v-text-field
-                            label="Anzahl"
-                            v-model="data.reconstruction_extra_options_extra_remove_snowstop_count"
-                            @input="calculateCloud"
-                            style="max-width: 10em;"
-                            step="1"></v-text-field>
-                        </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Alte Dachrinne und Fallrohr abnehmen"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="remove_rain_pipe" />
-                        <div v-if="data.reconstruction_extra_options.indexOf('remove_rain_pipe') >= 0">
-                          <v-text-field
-                            label="Länge"
-                            v-model="data.reconstruction_extra_options_extra_remove_rain_pipe_count"
-                            @input="calculateCloud"
-                            suffix="m"
-                            style="max-width: 10em;"
-                            step="1"></v-text-field>
-                        </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Asbestzementplatten abnehmen und entsorgen"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="remove_asbest" />
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Ausstiegsfenster ausbauen und entsorgen"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="remove_exit_window" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('remove_exit_window') >= 0">
-                        <v-text-field
-                          label="Anzahl"
-                          v-model="data.reconstruction_extra_options_extra_remove_exit_window_count"
-                          @input="calculateCloud"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Kamin komplett abnehmen und entsorgen"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="remove_chimney" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('remove_chimney') >= 0">
-                        <v-text-field
-                          label="Anzahl"
-                          v-model="data.reconstruction_extra_options_extra_remove_chimney_count"
-                          @input="calculateCloud"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Neue Dachrinne aus Zinkblech"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="new_rain_pipe" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('new_rain_pipe') >= 0">
-                        <v-text-field
-                          label="Länge"
-                          v-model="data.reconstruction_extra_options_extra_new_rain_pipe_count"
-                          @input="calculateCloud"
-                          suffix="m"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Sat Anlage Versetzen"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="move_sat" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('move_sat') >= 0">
-                        <v-text-field
-                          label="Anzahl"
-                          v-model="data.reconstruction_extra_options_extra_move_sat_count"
-                          @input="calculateCloud"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Schornstein verschiefern"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="chimney_reconstruction" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('chimney_reconstruction') >= 0">
-                        <v-text-field
-                          label="Anzahl"
-                          v-model="data.reconstruction_extra_options_extra_chimney_reconstruction_count"
-                          @input="calculateCloud"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Wohndachfenster ausbauen und entsorgen"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="remove_window" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('remove_window') >= 0">
-                        <v-text-field
-                          label="Anzahl"
-                          v-model="data.reconstruction_extra_options_extra_remove_window_count"
-                          @input="calculateCloud"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="Wohndachfenster einbauen"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.reconstruction_extra_options"
-                        value="new_window" />
-                      <div v-if="data.reconstruction_extra_options.indexOf('new_window') >= 0">
-                        <v-text-field
-                          label="Anzahl"
-                          v-model="data.reconstruction_extra_options_extra_new_window_count"
-                          @input="calculateCloud"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
-                      </div>
-                    </div>
+                        </v-stepper-content>
+                      </v-stepper-items>
+                    </v-stepper>
+                    <br>
+                    <br>
                   </div>
                 </div>
-              </div>
-              <div v-if="data.has_heating_quote">
-                <div class="section">
-                  <h2>Heizungsanlage</h2>
-                  <div class="layout horizontal wrap">
-                    <v-select
-                      label="Alter Heizungstyp"
-                      v-model="data.old_heating_type" :items="[
-                        {'value':'flat','label':'Gas'},
-                        {'value':'oil','label':'Öl'},
-                        {'value':'heatpump','label':'Wärmepumpe'},
-                        {'value':'pellez','label':'Pellet'},
-                        {'value':'electro','label':'Elektro'},
-                        {'value':'nightofen','label':'Nachtspeicheröfen'},
-                        {'value':'other','label':'Sonstige'},
-                      ]"
-                      @input="calculateCloud"
-                      style="margin-left: 1em"
-                      item-text="label"
-                      item-value="value"></v-select>
-                    <v-select
-                      label="Gewünschter Heizungstyp"
-                      v-model="data.new_heating_type" :items="[
-                        {'value':'oil','label':'Öl'},
-                        {'value':'gas','label':'Gas'},
-                        {'value':'heatpump','label':'Wärmepumpe'}
-                      ]"
-                      @input="calculateCloud"
-                      style="margin-left: 1em"
-                      item-text="label"
-                      item-value="value"></v-select>
-                    <v-text-field
-                      v-model="data.heating_quote_usage"
-                      @blur="calculateCloud"
-                      label="Verbrauch in der letzten Heizperiode"
-                      class="align-right"
-                      suffix="kWh"
-                      type="number"
-                      step="0.01"
-                      style="margin-left: 1em"></v-text-field>
-                    <v-text-field
-                      v-model="data.heating_quote_sqm"
-                      @blur="calculateCloud"
-                      label="Zu beheizende Fläche"
-                      class="align-right"
-                      suffix="m²"
-                      type="number"
-                      step="1"
-                      style="margin-left: 1em"></v-text-field>
-                  </div>
-                  <div class="layout horizontal wrap">
-                    <v-select
-                      label="Baujahr Haus (Dämmwert)"
-                      v-model="data.heating_quote_house_build" :items="[
-                        {'value':'1940-1969','label':'1940-1969'},
-                        {'value':'1970-1979','label':'1970-1979'},
-                        {'value':'1980-1999','label':'1980-1999'},
-                        {'value':'2000-2015','label':'2000-2015'},
-                        {'value':'2016 und neuer','label':'2016 und neuer'}
-                      ]"
-                      @input="calculateCloud"
-                      style="margin-left: 1em; max-width: 14em"
-                      item-text="label"
-                      item-value="value"></v-select>
-                    <v-select
-                      label="Heizkörpertyp"
-                      v-model="data.heating_quote_radiator_type" :items="[
-                        {'value':'floor_heating','label':'Fussbodenheizug ausschliesslich'},
-                        {'value':'mixed','label':'Fussbodenheizung und Heizkörper'},
-                        {'value':'radiator_heating','label':'Nur Heizkörper'}
-                      ]"
-                      @input="calculateCloud"
-                      style="margin-left: 1em; max-width: 14em"
-                      item-text="label"
-                      item-value="value"></v-select>
-                    <v-select
-                      label="Warmwasser Aufbereitung"
-                      v-model="data.heating_quote_warm_water_type" :items="[
-                        {'value':'heater','label':'Heizung macht Warmwasser'},
-                        {'value':'separate','label':'Warmwasser wird derzeit anders hergestellt'}
-                      ]"
-                      @input="calculateCloud"
-                      style="margin-left: 1em; max-width: 14em"
-                      item-text="label"
-                      item-value="value"></v-select>
-                    <v-text-field
-                      label="Anzahl Heizkörper"
-                      v-model="data.heating_quote_radiator_count"
-                      @input="calculateCloud"
-                      type="number"
-                      style="margin-left: 1em; max-width: 14em;"
-                      step="1"></v-text-field>
-                    <v-text-field
-                      label="Personen im Haushalt"
-                      v-model="data.heating_quote_people"
-                      @input="calculateCloud"
-                      style="margin-left: 1em; max-width: 14em;"
-                      type="number"
-                      step="1"></v-text-field>
-                  </div>
-                  <b>Solarthermie</b>
-                  <div class="layout horizontal wrap" style="justify-content: flex-start">
-                    <div>
-                      <v-checkbox
-                        label="vorhande Solartherme einbinden"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.heating_quote_extra_options"
-                        value="connect_existing_solarthermie" />
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="vorhande Solartherme demontieren"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.heating_quote_extra_options"
-                        value="remove_existing_solarthermie" />
-                    </div>
-                    <div>
-                      <v-checkbox
-                        label="neue Solartherme einbinden"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.heating_quote_extra_options"
-                        value="new_solarthermie" />
-                      <div v-if="data.heating_quote_extra_options.indexOf('new_solarthermie') >= 0">
+              </v-tab-item>
+              <v-tab-item key="roof_reconstruction" v-if="data.has_roof_reconstruction_quote">
+                <div class="main-content flex-1">
+                  <div v-if="data.has_roof_reconstruction_quote">
+                    <div class="main-content flex-1">
+                      <h2>Dachsanierung</h2>
+                      <div class="layout horizontal wrap">
+                        <v-text-field
+                          v-model="data.reconstruction_sqm"
+                          @blur="calculateCloud"
+                          label="zu sanierende Dachfläche"
+                          class="align-right"
+                          suffix="m²"
+                          type="number"
+                          step="0.01"
+                          style="margin-left: 1em"></v-text-field>
                         <v-select
-                          label="Solarthermie Set ausählen"
-                          v-model="data.heating_quote_new_solarthermie_type" :items="[
-                            {'value':'10','label':'Solarthermie Set (10)'},
-                            {'value':'11','label':'Solarthermie Set (11)'}
+                          label="Dachtyp"
+                          v-model="data.reconstruction_roof_type" :items="[
+                            {'value':'flat','label':'Flachdach'},
+                            {'value':'saddle','label':'Satteldach'}
                           ]"
                           @input="calculateCloud"
                           style="margin-left: 1em"
                           item-text="label"
                           item-value="value"></v-select>
+                        <v-checkbox
+                          label="mit Dämmung"
+                          style="margin-left: 1em"
+                          @change="calculateCloud"
+                          v-model="data.reconstruction_extra_options"
+                          value="with_insulation" />
                       </div>
-                    </div>
-                  </div>
-                  <b>Extra Optionen</b>
-                  <div class="layout horizontal wrap" style="justify-content: flex-start">
-                    <div>
-                      <v-checkbox
-                        label="Ausbau der alten Heizung ohne Tanks"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.heating_quote_extra_options"
-                        value="deconstruct_old_heater" />
-                    </div>
-                    <div v-if="data.new_heating_type == 'heatpump'">
-                      <v-checkbox
-                        label="Kein Ablauf im Raum der WP vorhanden"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.heating_quote_extra_options"
-                        value="no_drain" />
-                    </div>
-                    <div v-if="data.new_heating_type == 'heatpump'">
-                      <v-checkbox
-                        label="grössere Warmwasser Anforderung"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.heating_quote_extra_options"
-                        value="extra_warm_water" />
-                      <div v-if="data.heating_quote_extra_options.indexOf('extra_warm_water') >= 0">
-                        <v-text-field
-                          label="Anzahl"
-                          v-model="data.heating_quote_extra_options_extra_warm_water_count"
-                          @input="calculateCloud"
-                          style="max-width: 14em;"
-                          step="1"></v-text-field>
+                      <b>Extra Optionen</b>
+                      <div class="layout horizontal wrap" style="justify-content: flex-start">
+                        <div>
+                          <v-checkbox
+                            label="Abfallentsorgung"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="trash_management" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('trash_management') >= 0">
+                            <v-text-field
+                              label="Menge"
+                              v-model="data.reconstruction_extra_options_trash_management_amount"
+                              @input="calculateCloud"
+                              suffix="kg"
+                              style="max-width: 10em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Abnehmen des Schneefanges"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="remove_snowstop" />
+                            <div v-if="data.reconstruction_extra_options.indexOf('remove_snowstop') >= 0">
+                              <v-text-field
+                                label="Anzahl"
+                                v-model="data.reconstruction_extra_options_extra_remove_snowstop_count"
+                                @input="calculateCloud"
+                                style="max-width: 10em;"
+                                step="1"></v-text-field>
+                            </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Alte Dachrinne und Fallrohr abnehmen"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="remove_rain_pipe" />
+                            <div v-if="data.reconstruction_extra_options.indexOf('remove_rain_pipe') >= 0">
+                              <v-text-field
+                                label="Länge"
+                                v-model="data.reconstruction_extra_options_extra_remove_rain_pipe_count"
+                                @input="calculateCloud"
+                                suffix="m"
+                                style="max-width: 10em;"
+                                step="1"></v-text-field>
+                            </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Asbestzementplatten abnehmen und entsorgen"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="remove_asbest" />
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Ausstiegsfenster ausbauen und entsorgen"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="remove_exit_window" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('remove_exit_window') >= 0">
+                            <v-text-field
+                              label="Anzahl"
+                              v-model="data.reconstruction_extra_options_extra_remove_exit_window_count"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Kamin komplett abnehmen und entsorgen"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="remove_chimney" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('remove_chimney') >= 0">
+                            <v-text-field
+                              label="Anzahl"
+                              v-model="data.reconstruction_extra_options_extra_remove_chimney_count"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Neue Dachrinne aus Zinkblech"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="new_rain_pipe" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('new_rain_pipe') >= 0">
+                            <v-text-field
+                              label="Länge"
+                              v-model="data.reconstruction_extra_options_extra_new_rain_pipe_count"
+                              @input="calculateCloud"
+                              suffix="m"
+                              style="max-width: 14em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Sat Anlage Versetzen"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="move_sat" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('move_sat') >= 0">
+                            <v-text-field
+                              label="Anzahl"
+                              v-model="data.reconstruction_extra_options_extra_move_sat_count"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Schornstein verschiefern"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="chimney_reconstruction" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('chimney_reconstruction') >= 0">
+                            <v-text-field
+                              label="Anzahl"
+                              v-model="data.reconstruction_extra_options_extra_chimney_reconstruction_count"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Wohndachfenster ausbauen und entsorgen"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="remove_window" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('remove_window') >= 0">
+                            <v-text-field
+                              label="Anzahl"
+                              v-model="data.reconstruction_extra_options_extra_remove_window_count"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
+                        <div>
+                          <v-checkbox
+                            label="Wohndachfenster einbauen"
+                            style="margin-right: 1em"
+                            @change="calculateCloud"
+                            v-model="data.reconstruction_extra_options"
+                            value="new_window" />
+                          <div v-if="data.reconstruction_extra_options.indexOf('new_window') >= 0">
+                            <v-text-field
+                              label="Anzahl"
+                              v-model="data.reconstruction_extra_options_extra_new_window_count"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              step="1"></v-text-field>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div v-if="data.new_heating_type != 'heatpump'">
-                      <v-checkbox
-                        label="Heizungspufferspeicher"
-                        style="margin-right: 1em"
-                        @change="calculateCloud"
-                        v-model="data.heating_quote_extra_options"
-                        value="bufferstorage" />
                     </div>
                   </div>
                 </div>
-              </div>
-              <div v-if="data.has_bluegen_quote">
-                <h2>BlueGen Brennstoffzellen</h2>
-                <v-text-field
-                  v-model="data.bluegen_cell_count"
-                  @keyup="calculateCloud"
-                  label="Anzahl Brennstoffzellen"
-                  style="margin-right: 1em"></v-text-field>
-                <v-checkbox v-model="data.add_bluegen_storage" @change="calculateCloud" label="Mit Multifunktionsspeicher" style="margin: 0" />
-              </div>
-
-              <div>
-                <div class="section">
+              </v-tab-item>
+              <v-tab-item key="heating" v-if="data.has_heating_quote">
+                <div class="main-content flex-1">
+                  <div v-if="data.has_heating_quote">
+                    <h2>Heizungsanlage</h2>
+                    <div class="layout horizontal wrap">
+                      <v-select
+                        label="Alter Heizungstyp"
+                        v-model="data.old_heating_type" :items="[
+                          {'value':'flat','label':'Gas'},
+                          {'value':'oil','label':'Öl'},
+                          {'value':'heatpump','label':'Wärmepumpe'},
+                          {'value':'pellez','label':'Pellet'},
+                          {'value':'electro','label':'Elektro'},
+                          {'value':'nightofen','label':'Nachtspeicheröfen'},
+                          {'value':'other','label':'Sonstige'},
+                        ]"
+                        @input="calculateCloud"
+                        style="margin-left: 1em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
+                        label="Gewünschter Heizungstyp"
+                        v-model="data.new_heating_type" :items="[
+                          {'value':'oil','label':'Öl'},
+                          {'value':'gas','label':'Gas'},
+                          {'value':'heatpump','label':'Wärmepumpe'}
+                        ]"
+                        @input="calculateCloud"
+                        style="margin-left: 1em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-text-field
+                        v-model="data.heating_quote_usage"
+                        @blur="calculateCloud"
+                        label="Verbrauch in der letzten Heizperiode"
+                        class="align-right"
+                        suffix="kWh"
+                        type="number"
+                        step="0.01"
+                        style="margin-left: 1em"></v-text-field>
+                      <v-text-field
+                        v-model="data.heating_quote_sqm"
+                        @blur="calculateCloud"
+                        label="Zu beheizende Fläche"
+                        class="align-right"
+                        suffix="m²"
+                        type="number"
+                        step="1"
+                        style="margin-left: 1em"></v-text-field>
+                    </div>
+                    <div class="layout horizontal wrap">
+                      <v-select
+                        label="Baujahr Haus (Dämmwert)"
+                        v-model="data.heating_quote_house_build" :items="[
+                          {'value':'1940-1969','label':'1940-1969'},
+                          {'value':'1970-1979','label':'1970-1979'},
+                          {'value':'1980-1999','label':'1980-1999'},
+                          {'value':'2000-2015','label':'2000-2015'},
+                          {'value':'2016 und neuer','label':'2016 und neuer'}
+                        ]"
+                        @input="calculateCloud"
+                        style="margin-left: 1em; max-width: 14em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
+                        label="Heizkörpertyp"
+                        v-model="data.heating_quote_radiator_type" :items="[
+                          {'value':'floor_heating','label':'Fussbodenheizug ausschliesslich'},
+                          {'value':'mixed','label':'Fussbodenheizung und Heizkörper'},
+                          {'value':'radiator_heating','label':'Nur Heizkörper'}
+                        ]"
+                        @input="calculateCloud"
+                        style="margin-left: 1em; max-width: 14em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
+                        label="Warmwasser Aufbereitung"
+                        v-model="data.heating_quote_warm_water_type" :items="[
+                          {'value':'heater','label':'Heizung macht Warmwasser'},
+                          {'value':'separate','label':'Warmwasser wird derzeit anders hergestellt'}
+                        ]"
+                        @input="calculateCloud"
+                        style="margin-left: 1em; max-width: 14em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-text-field
+                        label="Anzahl Heizkörper"
+                        v-model="data.heating_quote_radiator_count"
+                        @input="calculateCloud"
+                        type="number"
+                        style="margin-left: 1em; max-width: 14em;"
+                        step="1"></v-text-field>
+                      <v-text-field
+                        label="Personen im Haushalt"
+                        v-model="data.heating_quote_people"
+                        @input="calculateCloud"
+                        style="margin-left: 1em; max-width: 14em;"
+                        type="number"
+                        step="1"></v-text-field>
+                    </div>
+                    <b>Solarthermie</b>
+                    <div class="layout horizontal wrap" style="justify-content: flex-start">
+                      <div>
+                        <v-checkbox
+                          label="vorhande Solartherme einbinden"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="connect_existing_solarthermie" />
+                      </div>
+                      <div>
+                        <v-checkbox
+                          label="vorhande Solartherme demontieren"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="remove_existing_solarthermie" />
+                      </div>
+                      <div>
+                        <v-checkbox
+                          label="neue Solartherme einbinden"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="new_solarthermie" />
+                        <div v-if="data.heating_quote_extra_options.indexOf('new_solarthermie') >= 0">
+                          <v-select
+                            label="Solarthermie Set ausählen"
+                            v-model="data.heating_quote_new_solarthermie_type" :items="[
+                              {'value':'10','label':'Solarthermie Set (10)'},
+                              {'value':'11','label':'Solarthermie Set (11)'}
+                            ]"
+                            @input="calculateCloud"
+                            style="margin-left: 1em"
+                            item-text="label"
+                            item-value="value"></v-select>
+                        </div>
+                      </div>
+                    </div>
+                    <b>Extra Optionen</b>
+                    <div class="layout horizontal wrap" style="justify-content: flex-start">
+                      <div>
+                        <v-checkbox
+                          label="Ausbau der alten Heizung ohne Tanks"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="deconstruct_old_heater" />
+                      </div>
+                      <div v-if="data.new_heating_type == 'heatpump'">
+                        <v-checkbox
+                          label="Kein Ablauf im Raum der WP vorhanden"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="no_drain" />
+                      </div>
+                      <div v-if="data.new_heating_type == 'heatpump'">
+                        <v-checkbox
+                          label="grössere Warmwasser Anforderung"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="extra_warm_water" />
+                        <div v-if="data.heating_quote_extra_options.indexOf('extra_warm_water') >= 0">
+                          <v-text-field
+                            label="Anzahl"
+                            v-model="data.heating_quote_extra_options_extra_warm_water_count"
+                            @input="calculateCloud"
+                            style="max-width: 14em;"
+                            step="1"></v-text-field>
+                        </div>
+                      </div>
+                      <div v-if="data.new_heating_type != 'heatpump'">
+                        <v-checkbox
+                          label="Heizungspufferspeicher"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="bufferstorage" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </v-tab-item>
+              <v-tab-item key="bluegen" v-if="data.has_bluegen_quote">
+                <div class="main-content flex-1">
+                  <div v-if="data.has_bluegen_quote">
+                    <h2>BlueGen Brennstoffzellen</h2>
+                    <v-text-field
+                      v-model="data.bluegen_cell_count"
+                      @keyup="calculateCloud"
+                      label="Anzahl Brennstoffzellen"
+                      style="margin-right: 1em"></v-text-field>
+                    <v-checkbox v-model="data.add_bluegen_storage" @change="calculateCloud" label="Mit Multifunktionsspeicher" style="margin: 0" />
+                  </div>
+                </div>
+              </v-tab-item>
+              <v-tab-item key="general">
+                <div class="main-content flex-1">
                   <h2>Allgemeine Angaben</h2>
                   <v-checkbox
                     label="Nur Gesamtpreis in Angeboten anzeigen"
@@ -1912,8 +1932,8 @@
                     label="Sonderkonditionen BlueGen im Kaufvertrag/Angebot sichtbar"
                     hint="Vereinbarungen sind im Kaufvertrag/Angebot sichtbar"></v-text-field>
                 </div>
-              </div>
-            </div>
+              </v-tab-item>
+            </v-tabs-items>
           </div>
         </div>
 
@@ -2645,6 +2665,7 @@ export default {
 
   data(){
     return {
+      "tab": 0,
       "loading_percent": 100,
       "loading_message": "",
       "discount_tab": undefined,
