@@ -2773,7 +2773,7 @@ export default {
         "financing_rate": 3.79,
         "consumers": [],
         "roofs": [],
-        "extra_options": ["technik_service_packet"],
+        "extra_options": ["technik_service_packet", "solaredge"],
         "extra_options_zero": [],
         "reconstruction_extra_options": [],
         "heating_quote_extra_options": [],
