@@ -50,7 +50,9 @@
     <div v-if="deal.id">
       <h2>Cloud Abo</h2>
       Cloud Angebotsnummer: {{ deal.cloud_number }}<br>
-      Cloud Vertragsnummer: {{ deal.cloud_contract_number }}<br>
+      Cloud Vertragsnummer: {{ deal.cloud_contract_number }}
+      <v-btn @click="createContractNumber" v-if="deal.cloud_contract_number === undefined || deal.cloud_contract_number === null || deal.cloud_contract_number === ''" small>Vertragsnummer erzeugen</v-btn>
+      <br>
       Hauptauftrag: <a :href="deal.link" target="_blank">{{ deal.title }}</a><br>
       Lieferbegin: {{ deal.cloud_delivery_start | dateTimeFormat }}<br>
       <br>
@@ -269,6 +271,11 @@ export default {
   methods: {
     async reload () {
       this.fetch()
+    },
+    createContractNumber () {
+      this.$store.dispatch('fakturia/createContractNumber', {
+        dealId: deal.id
+      })
     },
     setMaster (deal) {
       this.$store.dispatch('fakturia/setMasterDeal', {

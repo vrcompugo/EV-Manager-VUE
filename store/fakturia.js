@@ -11,6 +11,10 @@ export const state = () => ({
       const response = await this.$axios.get(`/fakturia/${dealId}`)
       commit('setDealData', response.data.data)
     },
+    async createContractNumber ({ commit }, { dealId }) {
+      const response = await this.$axios.post(`/fakturia/${dealId}/create_contract_number`)
+      commit('setDealData', response.data.data)
+    },
     async setMasterDeal ({ commit }, { dealId }) {
       const response = await this.$axios.post(`/fakturia/${dealId}/to_master`)
       commit('setDealData', response.data.data)
