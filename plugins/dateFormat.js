@@ -34,3 +34,11 @@ Vue.filter('dateTimeFormat', function (value) {
     return ''
   }
 })
+
+Vue.filter('dateFormat', function (value) {
+  if (value && value !== 'None') {
+    return dateFormat(value)
+  } else {
+    return ''
+  }
+})

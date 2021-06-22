@@ -29,6 +29,7 @@ export default {
   */
   plugins: [
     '~/plugins/dateFormat.js',
+    '~/plugins/formatNumber.js',
     { src: '~/plugins/ckeditor', mode: 'client' },
     '~/plugins/dateTimePicker',
     '~/plugins/confirmDialog'
