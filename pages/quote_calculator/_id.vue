@@ -1725,9 +1725,10 @@
                       <v-select
                         label="Gewünschter Heizungstyp"
                         v-model="data.new_heating_type" :items="[
-                          {'value':'oil','label':'Öl'},
-                          {'value':'gas','label':'Gas'},
-                          {'value':'heatpump','label':'Wärmepumpe'}
+                          {'value': 'oil', 'label': 'Öl'},
+                          {'value': 'gas', 'label': 'Gas'},
+                          {'value': 'heatpump', 'label':' Wärmepumpe'},
+                          {'value': 'hybrid_gas', 'label':' Hybrid Gas/WP'}
                         ]"
                         @input="calculateCloud"
                         style="margin-left: 1em"
@@ -1851,7 +1852,7 @@
                           v-model="data.heating_quote_extra_options"
                           value="deconstruct_old_heater" />
                       </div>
-                      <div v-if="data.new_heating_type == 'heatpump'">
+                      <div v-if="data.new_heating_type == 'heatpump' || data.new_heating_type == 'hybrid_gas'">
                         <v-checkbox
                           label="Kein Ablauf im Raum der WP vorhanden"
                           style="margin-right: 1em"
@@ -1859,7 +1860,7 @@
                           v-model="data.heating_quote_extra_options"
                           value="no_drain" />
                       </div>
-                      <div v-if="data.new_heating_type == 'heatpump'">
+                      <div v-if="data.new_heating_type == 'heatpump' || data.new_heating_type == 'hybrid_gas'">
                         <v-checkbox
                           label="grössere Warmwasser Anforderung"
                           style="margin-right: 1em"
@@ -1875,7 +1876,7 @@
                             step="1"></v-text-field>
                         </div>
                       </div>
-                      <div v-if="data.new_heating_type != 'heatpump'">
+                      <div v-if="data.new_heating_type != 'heatpump' || data.new_heating_type == 'hybrid_gas'">
                         <v-checkbox
                           label="Heizungspufferspeicher"
                           style="margin-right: 1em"
