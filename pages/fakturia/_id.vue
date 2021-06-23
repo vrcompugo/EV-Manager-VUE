@@ -172,6 +172,7 @@
       <div style="padding-bottom: 2em">
         <br>
         <b>Fakturia:</b><br>
+
         Vertragsnummer: {{ deal.fakturia.contract_number }}<br>
         Vertragsabschluss: {{ deal.fakturia.delivery_begin | dateFormat }}<br>
         Kündigungsdatum: -<br>
@@ -196,7 +197,10 @@
             <div style="text-align: right;"><div v-if="item.total_price != 0">{{ item.total_price | formatPrice }}</div></div>
           </div>
         </div>
-        <v-btn v-if="deal.cloud_delivery_start && (deal.fakturia_contract_number === undefined || deal.fakturia_contract_number === '')" @click="exportFakturia">An Fakturia senden</v-btn>
+        <v-btn v-if="deal.fakturia_contract_number" :href="`https://backoffice.fakturia.de/secure/tenant/Contract/ContractEdit.html?preload=${deal.fakturia_contract_number}`" target="_blank">
+          In Fakturia öffnen
+        </v-btn>
+        <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">An Fakturia senden</v-btn>
       </div>
 
       <v-dialog v-model="editDialog" width="800">
