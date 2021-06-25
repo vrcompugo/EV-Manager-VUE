@@ -1,9 +1,11 @@
-<style>
-
+<style lang="scss" scoped>
+    .main {
+        padding: 1em;
+    }
 </style>
 
 <template>
-    <div><CostEstimateForm /></div>
+    <div class="main"><CostEstimateForm /></div>
 </template>
 
 <script>

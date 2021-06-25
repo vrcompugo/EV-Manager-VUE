@@ -6,6 +6,13 @@
     left: auto;
     right: 0
   }
+  table {
+    margin-right: 3em;
+  }
+  table th,
+  table td {
+    padding-right: 1em;
+  }
 </style>
 
 <template>
@@ -114,8 +121,8 @@
         @input="calculate"
         disabled />
     </div>
-    <div class="layout horizontal">
-      <div class="flex">
+    <div class="layout horizontal" style="justify-content: flex-start">
+      <div>
         <table>
           <tr>
             <th></th>
@@ -131,7 +138,7 @@
           </tr>
         </table>
       </div>
-      <div class="flex">
+      <div>
         <table>
           <tr>
             <th></th>
@@ -147,7 +154,7 @@
           </tr>
         </table>
       </div>
-      <div class="flex">
+      <div>
         <table>
           <tr>
             <th></th>
