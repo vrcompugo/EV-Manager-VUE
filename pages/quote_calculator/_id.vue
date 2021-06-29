@@ -72,6 +72,9 @@
     padding: 0 0.4em;
     white-space: nowrap;
   }
+  table th {
+    text-align: left;
+  }
 </style>
 
 
@@ -242,6 +245,18 @@
                         <v-stepper-content step="3">
 
                           <div class="section">
+                            <h3>Cloud Optionen</h3>
+                            <v-select
+                              label="Cloud Laufzeit"
+                              v-model="data.price_guarantee" :items="[
+                                {'value':'12_years','label':'12 Jahre'},
+                                {'value':'2_years','label':'2 Jahre'}
+                              ]"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              item-text="label"
+                              item-value="value"></v-select>
+
                             <h3>Extra Pakete</h3>
                             <div class="layout horizontal wrap">
                               <div class="flex">
@@ -1329,7 +1344,7 @@
                                 <v-slider
                                   v-model="data.price_increase_rate"
                                   @input="formChanged"
-                                  min="4.75"
+                                  min="3.75"
                                   max="7.75"
                                   step="0.25"
                                   thumb-label="always"></v-slider>
@@ -1339,9 +1354,9 @@
                                 <v-slider
                                   v-model="data.inflation_rate"
                                   @input="formChanged"
-                                  min="1.5"
+                                  min="1.0"
                                   max="3.5"
-                                  step="0.25"
+                                  step="0.1"
                                   thumb-label="always"></v-slider>
                                 <div style="margin-top: -1em; padding-left: 0.5em">Inflation</div>
                               </div>
@@ -1359,7 +1374,7 @@
                                 <v-slider
                                   v-model="data.runtime"
                                   @input="formChanged"
-                                  min="30"
+                                  min="25"
                                   max="35"
                                   step="5"
                                   thumb-label="always"></v-slider>
@@ -2144,6 +2159,7 @@
         <v-btn v-if="!is_sent && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
         <v-btn v-if="pdf_summary_link" @click="pdf_dialog = true" style="margin-left: 1em">PDFs</v-btn>
+        <v-btn @click="links_dialog = true" style="margin-left: 1em">Links</v-btn>
         <v-btn v-if="!is_sent && pdf_link" :disabled="form_dirty" @click.stop="openOrderConfirmDialog" style="margin-left: 1em">Verbindlich Bestellen</v-btn>
         <v-btn v-if="is_sent" disabled style="margin-left: 1em">Bereits bestellt</v-btn>
       </div>
@@ -2155,6 +2171,59 @@
         <v-progress-linear :value="this.loading_percent" color="#1976D2"></v-progress-linear>
       </div>
     </v-overlay>
+
+    <v-dialog
+      v-model="links_dialog"
+      width="500"
+    >
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title >
+          PDFs
+        </v-card-title>
+
+        <v-card-text>
+          <table>
+            <tr>
+              <th>Link</th>
+              <th>Hinweise</th>
+            </tr>
+            <tr>
+              <td><a href="https://senec.com/de/bestellstrecke" target="_blank">Standard-Cloud</a></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><a href="https://pvspeicher.htw-berlin.de/unabhaengigkeitsrechner/" target="_blank">Autarkierechner</a></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><a href="https://mein-senec.de/auth/login" target="_blank">Speicher-Monitoring</a></td>
+              <td>Zugangsdaten: demo2@senec.com / demo</td>
+            </tr>
+            <tr>
+              <td><a href="https://monitoring.solaredge.com/solaredge-web/p/site/28898/#/dashboard" target="_blank">SolarEdge-Monitoring</a></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><a :href="`/vue/extras/cost-estimate?token=${token}`" target="_blank">Kostenrechner</a></td>
+              <td></td>
+            </tr>
+          </table>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="links_dialog = false"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-dialog
       v-model="pdf_dialog"
@@ -2666,6 +2735,7 @@ export default {
 
   data(){
     return {
+      "token": "",
       "tab": 0,
       "loading_percent": 100,
       "loading_message": "",
@@ -2679,6 +2749,7 @@ export default {
       "loading": false,
       "uploads_dialog": false,
       "pdf_dialog": false,
+      "links_dialog": false,
       "confirm_order_dialog": false,
       "confirm_order_dialog_modal": false,
       "generate_wi_dialog": false,
@@ -2732,11 +2803,12 @@ export default {
     }
   },
 
-  async asyncData({ $axios, params }) {
+  async asyncData({ $axios, params, route }) {
     //if(!context.$auth.user){
     //}
     const data = {
       "id": params.id,
+      "token": route.query.token,
       "loading": false,
       "insignLoading": false,
       "showInternals": false,
@@ -3075,8 +3147,12 @@ export default {
       switch(typeof value){
         case "object":
           let result = false
-          if((value === undefined || value === null) && original !== undefined){
-            return true
+          if(value === undefined || value === null) {
+            if (original !== undefined){
+              return true
+            } else {
+              return false
+            }
           }
           Object.keys(value).forEach(key => {
             if(original === undefined){
