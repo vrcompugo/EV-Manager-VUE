@@ -50,7 +50,7 @@ export default {
   methods: {
     checkBookkeepingRights(){
       let result = false
-      const departments = ["Innendienst", "After Sales ???", "After Sales Neu", "Buchhaltung", "Extern IT Unterstützung", "KeSO"]
+      const departments = ["Innendienst", "After Sales ???", "After Sales Neu", "Buchhaltung", "Extern IT Unterstützung", "KeSO", "Termine & Planung"]
       for(let i=0; i<departments.length; i++){
         if (this.$auth.user.bitrix_department.indexOf(departments[i]) >= 0){
           return true
