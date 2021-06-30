@@ -19,8 +19,8 @@ export const state = () => ({
       const response = await this.$axios.post(`/fakturia/${dealId}/to_master`)
       commit('setDealData', response.data.data)
     },
-    async assignSubDeal ({ commit }, { dealId, subDealId, itemIndex }) {
-      const response = await this.$axios.post(`/fakturia/${dealId}/item/${itemIndex}/deal`, { sub_deal_id: subDealId })
+    async assignSubDeal ({ commit }, { dealId, subDealId, listIndex, itemIndex }) {
+      const response = await this.$axios.post(`/fakturia/${dealId}/item/${listIndex}/${itemIndex}/deal`, { sub_deal_id: subDealId })
       commit('setDealData', response.data.data)
     },
     async storeItem ({ commit }, { deal, listIndex, index, newUsage, newUsageOutside }) {

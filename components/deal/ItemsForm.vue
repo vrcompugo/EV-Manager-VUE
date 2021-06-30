@@ -40,7 +40,7 @@
           </div>
           <div>
             <small>
-              <div v-if="item.label"><v-text-field v-model="item.label" @input="formChanged"  /></div>
+              <div><v-text-field v-model="item.label" @input="formChanged"  /></div>
               <v-textarea v-model="item.description" @input="formChanged" />
             </small>
           </div>

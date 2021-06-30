@@ -101,7 +101,7 @@
                               <th>Cloudtyp</th>
                             </tr>
                             <tr v-for="subdeal in deal.unassigend_deals" :key="subdeal.id">
-                              <td><a href="#" @click.prevent="assignSubDeal(subdeal.id, index)">{{ subdeal.title }}</a></td>
+                              <td><a href="#" @click.prevent="assignSubDeal(subdeal.id, listIndex, index)">{{ subdeal.title }}</a></td>
                               <td>{{ subdeal.is_cloud_consumer }}</td>
                               <td>{{ subdeal.is_cloud_ecloud }}</td>
                               <td>{{ subdeal.is_cloud_heatcloud }}</td>
@@ -136,7 +136,7 @@
                 </div>
                 <div style="text-align: right;"><div v-if="item.total_price != 0">{{ item.total_price | formatPrice }}</div></div>
               </div>
-              <div v-if="(new Date(list.start)) >= (new Date())" style="text-align: right">
+              <div v-if="list.start === null || list.start === undefined || (new Date(list.start)) >= (new Date())" style="text-align: right">
                 <v-btn @click="deleteItemsList(listIndex)">Löschen</v-btn>
               </div>
             </v-expansion-panel-content>
@@ -260,7 +260,7 @@ export default {
     return {
       newItemsList: undefined,
       editDialog: false,
-      edited_items: {},
+      edited_items: '',
       edited2_items: '',
       loading: false,
       newUsage: 0,
@@ -286,18 +286,23 @@ export default {
         dealId: deal.id
       })
     },
-    assignSubDeal (subDealId, itemIndex) {
+    assignSubDeal (subDealId, listIndex, itemIndex) {
       this.$store.dispatch('fakturia/assignSubDeal', {
         dealId: this.deal.id,
         subDealId: subDealId,
+        listIndex: listIndex,
         itemIndex: itemIndex
       })
     },
     editDeal () {
+      let items = []
+      if (this.deal.item_lists.length > 0) {
+        items = cloneDeep(this.deal.item_lists[this.deal.item_lists.length - 1].items)
+      }
       this.newItemsList = {
         start: '',
         end: '',
-        items: cloneDeep(this.deal.item_lists[this.deal.item_lists.length - 1].items)
+        items: items
       }
       this.editDialog = true
       if (this.$refs.itemsForm) {
@@ -305,16 +310,13 @@ export default {
       }
     },
     startEditItem (listIndex, index) {
-      if (this.edited_items[listIndex]) {
-        this.edited_items[listIndex] = []
-      }
-      this.edited_items[listIndex].push(index)
+      this.edited_items = `${listIndex}-${index}`
     },
     isEditItem (listIndex, index) {
-      return this.edited_items[listIndex] && this.edited_items[listIndex].indexOf(index) >= 0
+      return this.edited_items === `${listIndex}-${index}`
     },
     stopEditItem (listIndex, index) {
-      this.edited_items[listIndex].splice(this.edited_items.indexOf(index), 1)
+      this.edited_items = ''
     },
     startEditItem2 (listIndex, index) {
       this.newUsage = this.deal.item_lists[listIndex].items[index].usage
