@@ -181,6 +181,7 @@
         IBAN: {{ deal.fakturia.iban }}<br>
         BIC: {{ deal.fakturia.bic }}<br>
         Inhaber: {{ deal.fakturia.owner }}<br>
+        Lastschriftmandat gültig seit: {{ deal.sepa_mandate_since | dateFormat }}
         <br>
         <div class="cloud_products">
           <div v-for="(item, index) in deal.fakturia.items_to_update" :key="index" class="product">
@@ -200,6 +201,31 @@
         <v-btn v-if="deal.fakturia_contract_number" :href="`https://backoffice.fakturia.de/secure/tenant/Contract/ContractEdit.html?preload=${deal.fakturia_contract_number}`" target="_blank">
           In Fakturia öffnen
         </v-btn>
+        <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">An Fakturia senden</v-btn>
+      </div>
+      <div style="padding-bottom: 2em">
+        <br>
+        <h2>Jahres-Abrechnung:</h2>
+        <b>Vorauszahlungen 2021:</b><br>
+        ...<br>
+        <br>
+        <b>Verbräuchsdaten 2021:</b><br>
+        ...<br>
+        <br>
+        <b>Prognose 2021:</b><br>
+        ...<br>
+        <br>
+
+        <b>Vorauszahlungen 2020:</b><br>
+        ...<br>
+        <br>
+        <b>Verbräuchsdaten 2020:</b><br>
+        ...<br>
+        <br>
+        <b>Abrechnung 2020:</b><br>
+        ...<br>
+
+        <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">Abrechnung 2020 erzeugen</v-btn>
         <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">An Fakturia senden</v-btn>
       </div>
 
