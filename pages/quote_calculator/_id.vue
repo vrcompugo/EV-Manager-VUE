@@ -1923,6 +1923,11 @@
                     label="Nur Gesamtpreis in Angeboten anzeigen"
                     style="margin-left: 1em"
                     v-model="data.only_show_total_price" />
+                  <v-checkbox
+                    label="Gewerbliches Angebot erzeugen"
+                    style="margin-left: 1em"
+                    v-model="data.is_commercial" />
+                  <div v-if="data.is_commercial" class="warning" style="padding: 1em">Achtung! Beim Kontakt muss die Adresse der Firma angegeben sein. Nicht der Aufbauort. Bei Abweisung bitte im Kommentar vermerken.</div>
                   <v-text-field
                     v-model="data.extra_notes"
                     label="ergänzende Angaben für den Innendienst"
