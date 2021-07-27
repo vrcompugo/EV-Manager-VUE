@@ -245,17 +245,64 @@
                         <v-stepper-content step="3">
 
                           <div class="section">
-                            <h3>Cloud Optionen</h3>
-                            <v-select
-                              label="Cloud Laufzeit"
-                              v-model="data.price_guarantee" :items="[
-                                {'value':'12_years','label':'12 Jahre'},
-                                {'value':'2_years','label':'2 Jahre'}
-                              ]"
-                              @input="calculateCloud"
-                              style="max-width: 14em;"
-                              item-text="label"
-                              item-value="value"></v-select>
+                            <div class="layout horizontal wrap">
+                              <div>
+                                <h3>Cloud Optionen</h3>
+                                <v-select
+                                  label="Cloud Laufzeit"
+                                  v-model="data.price_guarantee" :items="[
+                                    {'value':'12_years','label':'12 Jahre'},
+                                    {'value':'2_years','label':'2 Jahre'}
+                                  ]"
+                                  @input="calculateCloud"
+                                  style="max-width: 14em;"
+                                  item-text="label"
+                                  item-value="value"></v-select>
+                              </div>
+                              <div>
+                                <h3>Cloud.Refresh</h3>
+                                <v-checkbox
+                                  label="Kunde hat Altanlage"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.has_old_pv" />
+                                <div v-if="data.has_old_pv">
+                                  <v-menu
+                                    ref="datepickerMenu"
+                                    v-model="datepickerMenu"
+                                    :close-on-content-click="false"
+                                    transition="scale-transition"
+                                    offset-y
+                                    min-width="auto"
+                                  >
+                                    <template v-slot:activator="{ on, attrs }">
+                                      <v-text-field
+                                        v-model="data.old_pv_build_date"
+                                        type="date"
+                                        label="Wann ist die Anlage in Betrieb gegangen"
+                                        prepend-icon="mdi-calendar"
+                                        readonly
+                                        v-bind="attrs"
+                                        v-on="on"
+                                      ></v-text-field>
+                                    </template>
+                                    <v-date-picker
+                                      v-model="data.old_pv_build_date"
+                                      :active-picker.sync="activePicker"
+                                      min="1950-01-01"
+                                      @change="datePickerSave"
+                                    ></v-date-picker>
+                                  </v-menu>
+                                  <v-text-field
+                                    v-model="data.old_pv_kwp"
+                                    @blur="calculateCloud"
+                                    label="Nennleistung der alten Anlage laut Einspeisevertrag"
+                                    type="number"
+                                    suffix="kWp"
+                                    style="width: 26em; margin-right: 1em"></v-text-field>
+                                </div>
+                              </div>
+                            </div>
 
                             <h3>Extra Pakete</h3>
                             <div class="layout horizontal wrap">
@@ -605,6 +652,11 @@
                                   Benötigte PV-Anlage
                                 </small>
                                 <div class="kwp-bar layout horizontal">
+                                  <div
+                                    v-if="calculated.min_kwp_refresh > 0"
+                                    :style="`background-color: #43A047; flex: 1 1 ${calculated.min_kwp_refresh / calculated.max_kwp * 100}%`">
+                                    Refresh {{ formatNumber(calculated.min_kwp_refresh, 2) }}kWp
+                                  </div>
                                   <div
                                     v-if="calculated.min_kwp_emove > 0"
                                     :style="`background-color: #0097A7; flex: 1 1 ${calculated.min_kwp_emove / calculated.max_kwp * 100}%`">
@@ -2127,6 +2179,11 @@
         <v-btn @click="reloadProducts" style="margin-right: 1em">P</v-btn>
         <div class="kwp-bar layout horizontal" v-if="data.has_pv_quote">
           <div
+            v-if="calculated.min_kwp_refresh > 0"
+            :style="`background-color: #43A047; flex: 1 1 ${calculated.min_kwp_refresh / calculated.max_kwp * 100}%`">
+            Refresh {{ formatNumber(calculated.min_kwp_refresh, 2) }}kWp
+          </div>
+          <div
             v-if="calculated.min_kwp_emove > 0"
             :style="`background-color: #0097A7; flex: 1 1 ${calculated.min_kwp_emove / calculated.max_kwp * 100}%`">
             eMove {{ formatNumber(calculated.min_kwp_emove, 2) }}kWp
@@ -2740,6 +2797,8 @@ export default {
 
   data(){
     return {
+      "activePicker": null,
+      "datepickerMenu": false,
       "token": "",
       "tab": 0,
       "loading_percent": 100,
@@ -2909,6 +2968,12 @@ export default {
       data["calculated"]["errors"].push(result.message)
     }
     return data
+  },
+
+  watch: {
+    datepickerMenu (val) {
+      val && setTimeout(() => (this.activePicker = 'YEAR'))
+    },
   },
 
   computed: {
@@ -3406,6 +3471,10 @@ export default {
 
       }
       this.insignLoading = false
+    },
+    datePickerSave (date) {
+      this.$refs.datepickerMenu.save(date)
+      this.calculateCloud()
     }
   }
 }
