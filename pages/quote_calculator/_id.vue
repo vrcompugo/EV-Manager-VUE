@@ -267,7 +267,7 @@
                                   v-model="data.extra_options"
                                   value="technik_service_packet" />
                               </div>
-                              <div class="flex">
+                              <!--<div class="flex">
                                 <v-checkbox
                                   label="E.MW Upgrade"
                                   style="margin-right: 1em"
@@ -275,7 +275,7 @@
                                   v-model="data.extra_options"
                                   value="emw" />
                               </div>
-                              <!--<div class="flex">
+                              <div class="flex">
                                 <v-checkbox
                                   label="e.move.ZOE"
                                   style="margin-right: 1em"
@@ -380,7 +380,7 @@
                                   v-model="data.extra_options_zero"
                                   value="technik_service_packet" />
                               </div>
-                              <div class="flex">
+                              <!--<div class="flex">
                                 <v-checkbox
                                   label="E.MW Upgrade"
                                   style="margin-right: 1em"
@@ -388,7 +388,7 @@
                                   v-model="data.extra_options_zero"
                                   value="emw" />
                               </div>
-                              <!--<div class="flex">
+                              <div class="flex">
                                 <v-checkbox
                                   label="e.move.ZOE"
                                   style="margin-right: 1em"
