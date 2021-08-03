@@ -2828,7 +2828,7 @@ export default {
       "id": params.id,
       "token": route.query.token,
       "loading": false,
-      "quote_datetime": undefined,
+      "quote_datetime": new Date(),
       "insignLoading": false,
       "showInternals": false,
       "form_dirty": false,
