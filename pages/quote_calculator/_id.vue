@@ -267,7 +267,7 @@
                                   v-model="data.extra_options"
                                   value="technik_service_packet" />
                               </div>
-                              <div class="flex">
+                              <!--<div class="flex">
                                 <v-checkbox
                                   label="E.MW Upgrade"
                                   style="margin-right: 1em"
@@ -275,7 +275,7 @@
                                   v-model="data.extra_options"
                                   value="emw" />
                               </div>
-                              <!--<div class="flex">
+                              <div class="flex">
                                 <v-checkbox
                                   label="e.move.ZOE"
                                   style="margin-right: 1em"
@@ -380,7 +380,7 @@
                                   v-model="data.extra_options_zero"
                                   value="technik_service_packet" />
                               </div>
-                              <div class="flex">
+                              <!--<div class="flex">
                                 <v-checkbox
                                   label="E.MW Upgrade"
                                   style="margin-right: 1em"
@@ -388,7 +388,7 @@
                                   v-model="data.extra_options_zero"
                                   value="emw" />
                               </div>
-                              <!--<div class="flex">
+                              <div class="flex">
                                 <v-checkbox
                                   label="e.move.ZOE"
                                   style="margin-right: 1em"
@@ -2256,17 +2256,22 @@
             <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Provision öffnen</v-btn>
           </div>
           <div v-if="pdf_contract_summary_part1_file_id">
-            <div style="border-top: 1px solid #333; margin: 1em 0"></div>
-            <div style="font-size: 1.2em">InSign Integration</div>
-            <div v-if="insignData.url">
-              Link: <a :href="insignData.url" target="_blank">Jetzt Unterzeichnen!</a><br>
+            <div v-if="(new Date(quote_datetime)) > (new Date()) - 60 * 60 * 1000 * 24 * 14">
+              <div style="border-top: 1px solid #333; margin: 1em 0"></div>
+              <div style="font-size: 1.2em">InSign Integration</div>
+              <div v-if="insignData.url">
+                Link: <a :href="insignData.url" target="_blank">Jetzt Unterzeichnen!</a><br>
+              </div>
+              <div v-if="insignData.is_sent">
+                Daten wurden an {{ insignData.email }} versendet<br>
+              </div>
+              <div class="layout horizontal center center">
+                <v-btn @click="requestInsignData" :loading="insignLoading" style="margin: 0 1em 0 0">Vorort Daten abrufen</v-btn>
+                <v-btn @click="sendInsignEmail" :loading="insignLoading" style="margin: 0">Per E-Mail senden</v-btn>
+              </div>
             </div>
-            <div v-if="insignData.is_sent">
-              Daten wurden an {{ insignData.email }} versendet<br>
-            </div>
-            <div class="layout horizontal center center">
-              <v-btn @click="requestInsignData" :loading="insignLoading" style="margin: 0 1em 0 0">Vorort Daten abrufen</v-btn>
-              <v-btn @click="sendInsignEmail" :loading="insignLoading" style="margin: 0">Per E-Mail senden</v-btn>
+            <div v-else>
+              Angebot zu alt für automatische Bearbeitung
             </div>
           </div>
         </v-card-text>
@@ -2815,6 +2820,7 @@ export default {
       "id": params.id,
       "token": route.query.token,
       "loading": false,
+      "quote_datetime": undefined,
       "insignLoading": false,
       "showInternals": false,
       "form_dirty": false,
@@ -2888,6 +2894,7 @@ export default {
         data["calculated"] = offerData.data.data.calculated
         data["products"] = offerData.data.data.products
         data["contact"] = offerData.data.data.contact
+        data["quote_datetime"] = offerData.data.data.quote_datetime
         data["roof_reconstruction_quote"] = offerData.data.data.roof_reconstruction_quote
         data["heating_quote"] = offerData.data.data.heating_quote
         if (offerData.data.data.bluegen_quote) {
@@ -3221,6 +3228,7 @@ export default {
         if (response.data.data.histories) {
           this.histories = response.data.data.histories
         }
+        this.quote_datetime = response.data.data.quote_datetime
         if (response.data.data.select_options) {
           this.select_options = response.data.data.select_options
           console.log(this.select_options)
