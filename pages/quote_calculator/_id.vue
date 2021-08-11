@@ -763,6 +763,13 @@
                                 style="flex: 0 1 10em; margin-left: 1em;"
                                 item-text="label"
                                 item-value="value"></v-select>
+                              <v-select
+                                v-model="data.overwrite_storage_size" :items="possible_storage_sizes"
+                                label="Speichergröße überschreiben"
+                                @change="calculateCloud"
+                                style="flex: 0 1 8em; margin-left: 1em;"
+                                item-text="label"
+                                item-value="value"></v-select>
                             </div>
                             <b>Dachflächen</b>
 
@@ -3004,6 +3011,19 @@ export default {
         return ""
       }
       return `https://www.google.com/maps/search/${this.contact.street} ${this.contact.street_nb} ${this.contact.zip} ${this.contact.city}`
+    },
+    possible_storage_sizes () {
+      const list = [{'value': 0 ,'label': `Automatische Auswahl`}]
+      let possible_sizes = [5, 7.5, 10, 15, 17.5, 20]
+      let min = 5
+      if (this.calculated["min_storage_size"]){
+        min = this.calculated["min_storage_size"]
+      }
+      possible_sizes = possible_sizes.filter(i => i >= min)
+      for(let i=0; i<possible_sizes.length; i=i+1) {
+        list.push({'value': possible_sizes[i] ,'label': `${possible_sizes[i]} kWh`})
+      }
+      return list
     }
   },
 
