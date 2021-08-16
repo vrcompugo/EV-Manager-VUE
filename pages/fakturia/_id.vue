@@ -305,7 +305,9 @@ export default {
 
   methods: {
     async reload () {
-      this.fetch()
+      await store.dispatch('fakturia/loadDealData', {
+        dealId: this.deal.id
+      })
     },
     async createContractNumber () {
       await this.$store.dispatch('fakturia/createContractNumber', {
