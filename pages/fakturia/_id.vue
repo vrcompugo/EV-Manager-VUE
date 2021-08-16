@@ -56,184 +56,184 @@
       Hauptauftrag: <a :href="deal.link" target="_blank">{{ deal.title }}</a><br>
       Lieferbegin: {{ deal.cloud_delivery_start | dateTimeFormat }}<br>
       <br>
-      <b>Posten</b><br>
-      <div class="cloud_products">
-        <v-expansion-panels>
-          <v-expansion-panel v-for="(list, listIndex) in deal.item_lists" :key="listIndex">
-            <v-expansion-panel-header>
-              Gültig von {{ list.start | dateFormat }}
-              <span v-if="deal.item_lists.length - 1 > listIndex" style="padding-left: 0.3em">bis {{ deal.item_lists[listIndex + 1].start | dateFormat }}</span>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <div v-for="(item, index) in list.items" :key="index" class="product">
-                <div>{{ index + 1 }}</div>
-                <div>
-                  {{ item.type }}
-                  <div v-if="item.deal">
-                    <v-icon color="green" large>mdi-check</v-icon>
+      <div v-if="deal.cloud_contract_number !== undefined && deal.cloud_contract_number !== null && deal.cloud_contract_number !== ''">
+        <b>Posten</b><br>
+        <div class="cloud_products">
+          <v-expansion-panels>
+            <v-expansion-panel v-for="(list, listIndex) in deal.item_lists" :key="listIndex">
+              <v-expansion-panel-header>
+                Gültig von {{ list.start | dateFormat }}
+                <span v-if="deal.item_lists && deal.item_lists.length - 1 > listIndex" style="padding-left: 0.3em">bis {{ deal.item_lists[listIndex + 1].start | dateFormat }}</span>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <div v-for="(item, index) in list.items" :key="index" class="product">
+                  <div>{{ index + 1 }}</div>
+                  <div>
+                    {{ item.type }}
+                    <div v-if="item.deal">
+                      <v-icon color="green" large>mdi-check</v-icon>
+                    </div>
+                    <div v-if="!item.deal && item.type != 'text' && item.type != 'emove'">
+                      <v-icon color="red" large>mdi-close</v-icon>
+                    </div>
                   </div>
-                  <div v-if="!item.deal && item.type != 'text' && item.type != 'emove'">
-                    <v-icon color="red" large>mdi-close</v-icon>
+                  <div>
+                    <small>
+                      <div v-if="item.label"><b>{{ item.label }}</b></div>
+                      <div v-html="item.description"></div>
+                    </small>
                   </div>
-                </div>
-                <div>
-                  <small>
-                    <div v-if="item.label"><b>{{ item.label }}</b></div>
-                    <div v-html="item.description"></div>
-                  </small>
-                </div>
-                <div>
-                  <div v-if="item.deal">
-                    Bitrix-Auftrag: <a :href="item.deal.link" target="_blank">{{ item.deal.title }}</a>
-                  </div>
-                  <div v-if="!item.deal && item.type != 'text' && item.type != 'emove'">
-                    Kein Bitrix Auftrag gefunden. <v-btn small @click="startEditItem(listIndex, index)">Jetzt auswählen</v-btn>
-                    <div v-if="isEditItem(listIndex, index)">
-                      <b>Aufträge ohne Zuordnung:</b><br>
-                      <div v-if="deal.unassigend_deals.length > 0">
-                        <div class="cloud_deals">
-                          <table>
-                            <tr>
-                              <th>Bezeichnung</th>
-                              <th>Ist Consumer</th>
-                              <th>Ist eCloud</th>
-                              <th>Ist Wärmecloud</th>
-                              <th>Cloudtyp</th>
-                            </tr>
-                            <tr v-for="subdeal in deal.unassigend_deals" :key="subdeal.id">
-                              <td><a href="#" @click.prevent="assignSubDeal(subdeal.id, listIndex, index)">{{ subdeal.title }}</a></td>
-                              <td>{{ subdeal.is_cloud_consumer }}</td>
-                              <td>{{ subdeal.is_cloud_ecloud }}</td>
-                              <td>{{ subdeal.is_cloud_heatcloud }}</td>
-                              <td>{{ subdeal.cloud_type }}</td>
-                            </tr>
-                          </table>
+                  <div>
+                    <div v-if="item.deal">
+                      Bitrix-Auftrag: <a :href="item.deal.link" target="_blank">{{ item.deal.title }}</a>
+                    </div>
+                    <div v-if="!item.deal && item.type != 'text' && item.type != 'emove'">
+                      Kein Bitrix Auftrag gefunden. <v-btn small @click="startEditItem(listIndex, index)">Jetzt auswählen</v-btn>
+                      <div v-if="isEditItem(listIndex, index)">
+                        <b>Aufträge ohne Zuordnung:</b><br>
+                        <div v-if="deal.unassigend_deals && deal.unassigend_deals.length > 0">
+                          <div class="cloud_deals">
+                            <table>
+                              <tr>
+                                <th>Bezeichnung</th>
+                                <th>Ist Consumer</th>
+                                <th>Ist eCloud</th>
+                                <th>Ist Wärmecloud</th>
+                                <th>Cloudtyp</th>
+                              </tr>
+                              <tr v-for="subdeal in deal.unassigend_deals" :key="subdeal.id">
+                                <td><a href="#" @click.prevent="assignSubDeal(subdeal.id, listIndex, index)">{{ subdeal.title }}</a></td>
+                                <td>{{ subdeal.is_cloud_consumer }}</td>
+                                <td>{{ subdeal.is_cloud_ecloud }}</td>
+                                <td>{{ subdeal.is_cloud_heatcloud }}</td>
+                                <td>{{ subdeal.cloud_type }}</td>
+                              </tr>
+                            </table>
+                          </div>
+                        </div>
+                        <div v-else>
+                          Kein Weiteren Aufträge gefunden
+                        </div>
+                        <div style="text-align: right">
+                          <v-btn small @click="stopEditItem(listIndex, index)">Abbrechen</v-btn>
                         </div>
                       </div>
-                      <div v-else>
-                        Kein Weiteren Aufträge gefunden
+                    </div>
+                    <div v-if="item.type != 'text'">
+                      <div v-if="!isEditItem2(listIndex, index)">
+                        <div>
+                          abgedeckter Jahresverbrauch: {{ item.usage }} kWh <v-icon @click="startEditItem2(listIndex, index)">mdi-pencil</v-icon>
+                        </div>
+                        <div v-if="item.type == 'emove'">
+                          abgedeckter Jahresverbrauch (out of Home): {{ item.usage_outside }} kWh <v-icon @click="startEditItem2(listIndex, index)">mdi-pencil</v-icon>
+                        </div>
                       </div>
-                      <div style="text-align: right">
-                        <v-btn small @click="stopEditItem(listIndex, index)">Abbrechen</v-btn>
+                      <div v-if="isEditItem2(listIndex, index)" class="layout horizontal">
+                        <v-text-field label="abgedeckter Jahresverbrauch" v-model="newUsage" suffix="kWh" class="flex" />
+                        <v-text-field v-if="item.type == 'emove'" label="abgedeckter Jahresverbrauch (out of Home)" v-model="newUsageOutside" suffix="kWh" style="margin-left: 1em" />
+                        <v-icon @click="stopEditItem2(listIndex, index)" style="margin-left: 1em">mdi-content-save</v-icon>
                       </div>
                     </div>
                   </div>
-                  <div v-if="item.type != 'text'">
-                    <div v-if="!isEditItem2(listIndex, index)">
-                      <div>
-                        abgedeckter Jahresverbrauch: {{ item.usage }} kWh <v-icon @click="startEditItem2(listIndex, index)">mdi-pencil</v-icon>
-                      </div>
-                      <div v-if="item.type == 'emove'">
-                        abgedeckter Jahresverbrauch (out of Home): {{ item.usage_outside }} kWh <v-icon @click="startEditItem2(listIndex, index)">mdi-pencil</v-icon>
-                      </div>
-                    </div>
-                    <div v-if="isEditItem2(listIndex, index)" class="layout horizontal">
-                      <v-text-field label="abgedeckter Jahresverbrauch" v-model="newUsage" suffix="kWh" class="flex" />
-                      <v-text-field v-if="item.type == 'emove'" label="abgedeckter Jahresverbrauch (out of Home)" v-model="newUsageOutside" suffix="kWh" style="margin-left: 1em" />
-                      <v-icon @click="stopEditItem2(listIndex, index)" style="margin-left: 1em">mdi-content-save</v-icon>
-                    </div>
-                  </div>
+                  <div style="text-align: right;"><div v-if="item.total_price != 0">{{ item.total_price | formatPrice }}</div></div>
                 </div>
-                <div style="text-align: right;"><div v-if="item.total_price != 0">{{ item.total_price | formatPrice }}</div></div>
-              </div>
-              <div v-if="list.start === null || list.start === undefined || (new Date(list.start)) >= (new Date())" style="text-align: right">
-                <v-btn @click="deleteItemsList(listIndex)">Löschen</v-btn>
-              </div>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </div>
-      <div v-if="!deal.fakturia_id">
-        <v-btn @click="editDeal">Bearbeiten</v-btn>
-      </div>
-      <br>
-      <div v-if="deal.unassigend_deals.length > 0">
-        <b>Aufträge ohne Zuordnung:</b><br>
-        <div class="cloud_deals">
-          <table>
-            <tr>
-              <th>Bezeichnung</th>
-              <th>Ist Consumer</th>
-              <th>Ist eCloud</th>
-              <th>Ist Wärmecloud</th>
-              <th>Cloudtyp</th>
-            </tr>
-            <tr v-for="subdeal in deal.unassigend_deals" :key="subdeal.id">
-              <td><a :href="subdeal.link" target="_blank">{{ subdeal.title }}</a></td>
-              <td>{{ subdeal.is_cloud_consumer }}</td>
-              <td>{{ subdeal.is_cloud_ecloud }}</td>
-              <td>{{ subdeal.is_cloud_heatcloud }}</td>
-              <td>{{ subdeal.cloud_type }}</td>
-            </tr>
-          </table>
+                <div v-if="list.start === null || list.start === undefined || (new Date(list.start)) >= (new Date())" style="text-align: right">
+                  <v-btn @click="deleteItemsList(listIndex)">Löschen</v-btn>
+                </div>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </div>
-      </div>
-      <br>
-      <div style="padding-bottom: 2em">
-        <br>
-        <b>Fakturia:</b><br>
-
-        Vertragsnummer: {{ deal.fakturia.contract_number }}<br>
-        Vertragsabschluss: {{ deal.fakturia.delivery_begin | dateFormat }}<br>
-        Kündigungsdatum: -<br>
-        Vertragsende: -<br>
-        Zahlungsinterval: 1 Monat<br>
-        IBAN: {{ deal.fakturia.iban }}<br>
-        BIC: {{ deal.fakturia.bic }}<br>
-        Inhaber: {{ deal.fakturia.owner }}<br>
-        Lastschriftmandat gültig seit: {{ deal.sepa_mandate_since | dateFormat }}
-        <br>
-        <div class="cloud_products">
-          <div v-for="(item, index) in deal.fakturia.items_to_update" :key="index" class="product">
-            <div>{{ index + 1 }}</div>
-            <div>{{ item.type }}</div>
-            <div>
-              <small>
-                <div v-if="item.label"><b>{{ item.label }}</b></div>
-                <div v-html="item.description"></div>
-              </small>
-            </div>
-            <div>
-            </div>
-            <div style="text-align: right;"><div v-if="item.total_price != 0">{{ item.total_price | formatPrice }}</div></div>
-          </div>
+        <div v-if="!deal.fakturia_id">
+          <v-btn @click="editDeal">Bearbeiten</v-btn>
         </div>
-        <v-btn v-if="deal.fakturia_contract_number" :href="`https://backoffice.fakturia.de/secure/tenant/Contract/ContractEdit.html?preload=${deal.fakturia_contract_number}`" target="_blank">
-          In Fakturia öffnen
-        </v-btn>
-        <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">An Fakturia senden</v-btn>
-      </div>
-      <div style="padding-bottom: 2em">
         <br>
-        <h2>Jahres-Abrechnung:</h2>
-        <b>Vorauszahlungen 2021:</b><br>
-        <div v-for="(item, index) in deal.fakturia.invoices" :key="index" class="invoice">
-          <div class="layout horizontal">
-            <div style="flex: 0 0 10em">{{ item.number }}</div>
-            <div>{{ item.amountGross | formatPrice }}</div>
+        <div v-if="deal.unassigend_deals && deal.unassigend_deals.length > 0">
+          <b>Aufträge ohne Zuordnung:</b><br>
+          <div class="cloud_deals">
+            <table>
+              <tr>
+                <th>Bezeichnung</th>
+                <th>Ist Consumer</th>
+                <th>Ist eCloud</th>
+                <th>Ist Wärmecloud</th>
+                <th>Cloudtyp</th>
+              </tr>
+              <tr v-for="subdeal in deal.unassigend_deals" :key="subdeal.id">
+                <td><a :href="subdeal.link" target="_blank">{{ subdeal.title }}</a></td>
+                <td>{{ subdeal.is_cloud_consumer }}</td>
+                <td>{{ subdeal.is_cloud_ecloud }}</td>
+                <td>{{ subdeal.is_cloud_heatcloud }}</td>
+                <td>{{ subdeal.cloud_type }}</td>
+              </tr>
+            </table>
           </div>
         </div>
         <br>
-        <b>Verbräuchsdaten 2021:</b><br>
-        ...<br>
-        <br>
-        <b>Prognose 2021:</b><br>
-        ...<br>
-        <br>
+        <div style="padding-bottom: 2em" v-if="deal.fakturia">
+          <br>
+          <b>Fakturia:</b><br>
 
-        <b>Vorauszahlungen 2020:</b><br>
-        ...<br>
-        <br>
-        <b>Verbräuchsdaten 2020:</b><br>
-        ...<br>
-        <br>
-        <b>Abrechnung 2020:</b><br>
-        ...<br>
+          Vertragsnummer: {{ deal.fakturia.contract_number }}<br>
+          Vertragsabschluss: {{ deal.fakturia.delivery_begin | dateFormat }}<br>
+          Kündigungsdatum: -<br>
+          Vertragsende: -<br>
+          Zahlungsinterval: 1 Monat<br>
+          IBAN: {{ deal.fakturia.iban }}<br>
+          BIC: {{ deal.fakturia.bic }}<br>
+          Inhaber: {{ deal.fakturia.owner }}<br>
+          Lastschriftmandat gültig seit: {{ deal.sepa_mandate_since | dateFormat }}
+          <br>
+          <div class="cloud_products">
+            <div v-for="(item, index) in deal.fakturia.items_to_update" :key="index" class="product">
+              <div>{{ index + 1 }}</div>
+              <div>{{ item.type }}</div>
+              <div>
+                <small>
+                  <div v-if="item.label"><b>{{ item.label }}</b></div>
+                  <div v-html="item.description"></div>
+                </small>
+              </div>
+              <div>
+              </div>
+              <div style="text-align: right;"><div v-if="item.total_price != 0">{{ item.total_price | formatPrice }}</div></div>
+            </div>
+          </div>
+          <v-btn v-if="deal.fakturia_contract_number" :href="`https://backoffice.fakturia.de/secure/tenant/Contract/ContractEdit.html?preload=${deal.fakturia_contract_number}`" target="_blank">
+            In Fakturia öffnen
+          </v-btn>
+          <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">An Fakturia senden</v-btn>
+        </div>
+        <div style="padding-bottom: 2em" v-if="deal.fakturia">
+          <br>
+          <h2>Jahres-Abrechnung:</h2>
+          <b>Vorauszahlungen 2021:</b><br>
+          <div v-for="(item, index) in deal.fakturia.invoices" :key="index" class="invoice">
+            <div class="layout horizontal">
+              <div style="flex: 0 0 10em">{{ item.number }}</div>
+              <div>{{ item.amountGross | formatPrice }}</div>
+            </div>
+          </div>
+          <br>
+          <b>Verbräuchsdaten 2021:</b><br>
+          ...<br>
+          <br>
+          <b>Prognose 2021:</b><br>
+          ...<br>
+          <br>
 
-        <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">Abrechnung 2020 erzeugen</v-btn>
-        <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">An Fakturia senden</v-btn>
+          <b>Vorauszahlungen 2020:</b><br>
+          ...<br>
+          <br>
+          <b>Verbräuchsdaten 2020:</b><br>
+          ...<br>
+          <br>
+          <b>Abrechnung 2020:</b><br>
+          ...<br>
+
+          <v-btn v-if="deal.cloud_delivery_start" @click="exportFakturia">Abrechnung 2020 erzeugen</v-btn>
+        </div>
       </div>
-
       <v-dialog v-model="editDialog" width="800">
         <v-card v-if="newItemsList">
           <v-card-title class="headline grey lighten-2" primary-title >
@@ -330,7 +330,7 @@ export default {
     },
     editDeal () {
       let items = []
-      if (this.deal.item_lists.length > 0) {
+      if (this.deal.item_lists && this.deal.item_lists.length > 0) {
         items = cloneDeep(this.deal.item_lists[this.deal.item_lists.length - 1].items)
       }
       this.newItemsList = {
