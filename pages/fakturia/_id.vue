@@ -207,7 +207,12 @@
         <br>
         <h2>Jahres-Abrechnung:</h2>
         <b>Vorauszahlungen 2021:</b><br>
-        ...<br>
+        <div v-for="(item, index) in deal.fakturia.invoices" :key="index" class="invoice">
+          <div class="layout horizontal">
+            <div style="flex: 0 0 10em">{{ item.number }}</div>
+            <div>{{ item.amountGross | formatPrice }}</div>
+          </div>
+        </div>
         <br>
         <b>Verbräuchsdaten 2021:</b><br>
         ...<br>
