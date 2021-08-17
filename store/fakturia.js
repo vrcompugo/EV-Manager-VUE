@@ -8,36 +8,100 @@ export const state = () => ({
 
   export const actions = {
     async loadDealData ({ commit }, { dealId }) {
-      const response = await this.$axios.get(`/fakturia/${dealId}`)
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.get(`/fakturia/${dealId}`)
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     },
     async createContractNumber ({ commit }, { dealId }) {
-      const response = await this.$axios.post(`/fakturia/${dealId}/create_contract_number`)
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.post(`/fakturia/${dealId}/create_contract_number`)
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     },
     async setMasterDeal ({ commit }, { dealId }) {
-      const response = await this.$axios.post(`/fakturia/${dealId}/to_master`)
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.post(`/fakturia/${dealId}/to_master`)
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     },
     async assignSubDeal ({ commit }, { dealId, subDealId, listIndex, itemIndex }) {
-      const response = await this.$axios.post(`/fakturia/${dealId}/item/${listIndex}/${itemIndex}/deal`, { sub_deal_id: subDealId })
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.post(`/fakturia/${dealId}/item/${listIndex}/${itemIndex}/deal`, { sub_deal_id: subDealId })
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     },
     async storeItem ({ commit }, { deal, listIndex, index, newUsage, newUsageOutside }) {
-      const response = await this.$axios.put(`/fakturia/${deal.id}/item/${listIndex}/${index}`, { deal, newUsage, newUsageOutside })
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.put(`/fakturia/${deal.id}/item/${listIndex}/${index}`, { deal, newUsage, newUsageOutside })
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     },
     async storeItems ({ commit }, { deal, newItemsList }) {
-      const response = await this.$axios.post(`/fakturia/${deal.id}/item`, { deal, newItemsList })
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.post(`/fakturia/${deal.id}/item`, { deal, newItemsList })
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     },
     async deleteItems ({ commit }, { deal, listIndex }) {
-      const response = await this.$axios.delete(`/fakturia/${deal.id}/item/${listIndex}`)
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.delete(`/fakturia/${deal.id}/item/${listIndex}`)
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     },
     async export ({ commit }, { deal }) {
-      const response = await this.$axios.post(`/fakturia/${deal.id}/export`)
-      commit('setDealData', response.data.data)
+      return new Promise((resolve, reject) => {
+        this.$axios.post(`/fakturia/${deal.id}/export`)
+        .then(response => {
+          commit('setDealData', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     }
   }
 

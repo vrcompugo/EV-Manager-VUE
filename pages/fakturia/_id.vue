@@ -26,6 +26,19 @@
 
 <template>
   <div class="layout vertical" style="max-height: 100%; padding: 1em">
+    <v-overlay :value="loading">
+      <v-progress-circular
+        indeterminate
+        color="primary"
+      ></v-progress-circular>
+    </v-overlay>
+
+    <v-snackbar v-model="errorSnack">
+      {{ errorMessage }}
+      <v-btn text @click="errorSnack = false">
+        Schließen
+      </v-btn>
+    </v-snackbar>
 
     <div v-if="deal.data && deal.data.error">{{ deal.data.error }}</div>
     <div v-if="deal.deals">
@@ -282,9 +295,12 @@ export default {
   },
 
   async fetch ({ store, params }) {
+    this.loading = true
     await store.dispatch('fakturia/loadDealData', {
       dealId: params.id
     })
+    .catch (error => this.showError(error))
+    this.loading = false
   },
 
   data(){
@@ -295,7 +311,9 @@ export default {
       edited2_items: '',
       loading: false,
       newUsage: 0,
-      newUsageOutside: 0
+      newUsageOutside: 0,
+      errorSnack: false,
+      errorMessage: ''
     }
   },
 
@@ -305,28 +323,40 @@ export default {
 
   methods: {
     async reload () {
+      this.loading = true
       await store.dispatch('fakturia/loadDealData', {
         dealId: this.deal.id
       })
+      .catch (error => this.showError(error))
+      this.loading = false
     },
     async createContractNumber () {
+      this.loading = true
       await this.$store.dispatch('fakturia/createContractNumber', {
         dealId: this.deal.id
       })
+      .catch (error => this.showError(error))
       this.reload()
+      this.loading = false
     },
-    setMaster (deal) {
-      this.$store.dispatch('fakturia/setMasterDeal', {
+    async setMaster (deal) {
+      this.loading = true
+      await this.$store.dispatch('fakturia/setMasterDeal', {
         dealId: deal.id
       })
+      .catch (error => this.showError(error))
+      this.loading = false
     },
-    assignSubDeal (subDealId, listIndex, itemIndex) {
-      this.$store.dispatch('fakturia/assignSubDeal', {
+    async assignSubDeal (subDealId, listIndex, itemIndex) {
+      this.loading = true
+      await this.$store.dispatch('fakturia/assignSubDeal', {
         dealId: this.deal.id,
         subDealId: subDealId,
         listIndex: listIndex,
         itemIndex: itemIndex
       })
+      .catch (error => this.showError(error))
+      this.loading = false
     },
     editDeal () {
       let items = []
@@ -361,6 +391,7 @@ export default {
       return this.edited2_items === `${listIndex}-${index}`
     },
     async stopEditItem2 (listIndex, index) {
+      this.loading = true
       await this.$store.dispatch('fakturia/storeItem', {
         deal: this.deal,
         listIndex: listIndex,
@@ -368,7 +399,9 @@ export default {
         newUsage: this.newUsage,
         newUsageOutside: this.newUsageOutside
       })
+      .catch (error => this.showError(error))
       this.edited2_items = ''
+      this.loading = false
     },
     async storeItems () {
       this.loading = true
@@ -376,25 +409,38 @@ export default {
         deal: this.deal,
         newItemsList: this.newItemsList
       })
+      .catch (error => this.showError(error))
       this.loading = false
       this.editDialog = false
     },
     async deleteItemsList (listIndex) {
-      this.loading = true
       await this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich löschen?</div>').then(res => {
         if(res){
+          this.loading = true
           this.$store.dispatch('fakturia/deleteItems', {
             deal: this.deal,
             listIndex: listIndex
           })
+          .catch (error => this.showError(error))
+          .finally(() => this.loading = false)
         }
       })
-      this.loading = false
     },
     async exportFakturia () {
+      this.loading = true
       await this.$store.dispatch('fakturia/export', {
         deal: this.deal
       })
+      .catch (error => this.showError(error))
+      this.loading = false
+    },
+    showError (error) {
+      this.errorMessage = 'Unbekannter Server Fehler'
+      if (error.response && error.response.data) {
+        this.errorMessage = error.response.data.message
+      }
+      console.log(error.response, error.message, error.number, error.name)
+      this.errorSnack = true
     }
   }
 }
