@@ -299,7 +299,6 @@ export default {
     await store.dispatch('fakturia/loadDealData', {
       dealId: params.id
     })
-    .catch (error => this.showError(error))
     this.loading = false
   },
 
