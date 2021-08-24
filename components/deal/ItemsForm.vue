@@ -47,7 +47,12 @@
           <div style="text-align: right;">
             <v-text-field v-model="item.total_price" type="number" step="0.01" suffix="€" style="text-align: right" @input="formChanged" />
           </div>
-          <div style="text-align: right;"><v-icon @click="edited_items.splice(edited_items.indexOf(index), 1)">mdi-content-save</v-icon></div>
+          <div style="text-align: right;">
+            <v-icon @click="edited_items.splice(edited_items.indexOf(index), 1)">mdi-content-save</v-icon>
+            <br>
+            <br>
+            <v-icon @click="edited_items.splice(edited_items.indexOf(index), 1); deal.items.splice(index, 1); formChanged()">mdi-delete</v-icon>
+          </div>
         </div>
       </div>
       <v-btn @click="addItem">Neuer Posten</v-btn>
