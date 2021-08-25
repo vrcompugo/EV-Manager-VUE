@@ -124,6 +124,7 @@ export default {
         { text: 'eCloud', value: 'ecloud' },
         { text: 'Consumer', value: 'consumer' },
         { text: 'eMove', value: 'emove' },
+        { text: 'Wartung', value: 'service' },
         { text: 'Text', value: 'text' }
       ]
     }
