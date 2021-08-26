@@ -48,7 +48,7 @@
     </div>
     <div v-if="deal.id">
       <Cloud v-if="deal.category_id === '15'" :deal="deal" @loading="loading = true" @error="showError" @success="loading = false" />
-      <Contracting v-if="deal.category_id === '68'" :deal="deal" @loading="loading = true" @error="showError" @success="loading = false" />
+      <Contracting v-if="deal.category_id === '68' || deal.category_id === '70'" :deal="deal" @loading="loading = true" @error="showError" @success="loading = false" />
     </div>
   </div>
 </template>

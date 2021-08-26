@@ -25,6 +25,9 @@ export default {
       if (this.deal.category_id === "68") {
         result = this.deal.service_contract_number
       }
+      if (this.deal.category_id === "70") {
+        result = this.deal.service_contract_number
+      }
       if (result === undefined || result === null || result === 'None') {
         return ''
       }

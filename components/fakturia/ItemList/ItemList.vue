@@ -81,7 +81,7 @@
                       </div>
                     </div>
                   </div>
-                  <div v-if="item.type != 'text' && item.type != 'service'">
+                  <div v-if="item.type != 'text' && item.type != 'service' && item.type != 'insurance'">
                     <div v-if="!isEditItem2(listIndex, index)">
                       <div>
                         abgedeckter Jahresverbrauch: {{ item.usage }} kWh <v-icon @click="startEditItem2(listIndex, index)">mdi-pencil</v-icon>
