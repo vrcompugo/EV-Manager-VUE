@@ -60,6 +60,9 @@ export default {
       if (this.deal.category_id === "68") {
         return this.deal.activation_date
       }
+      if (this.deal.category_id === "70") {
+        return this.deal.activation_date
+      }
       return false
     }
   },
