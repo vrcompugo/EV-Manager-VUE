@@ -12,7 +12,13 @@
       Abbrechungsbeginn: {{ deal.fakturia.delivery_begin | dateFormat }}<br>
       Kündigungsdatum: -<br>
       Vertragsende: -<br>
-      Zahlungsinterval: 1 Monat<br>
+      <div v-if="deal.category_id === '70' || deal.category_id === '68'">
+        Zahlungsinterval: 1 Jahr<br>
+        Kündigungsfrist: 1 Jahr<br>
+      </div>
+      <div v-else>
+        Zahlungsinterval: 1 Monat<br>
+      </div>
       IBAN: {{ deal.fakturia.iban }}<br>
       BIC: {{ deal.fakturia.bic }}<br>
       Inhaber: {{ deal.fakturia.owner }}<br>
