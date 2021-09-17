@@ -45,7 +45,8 @@
             </small>
           </div>
           <div style="text-align: right;">
-            <v-text-field v-model="item.total_price" type="number" step="0.01" suffix="€" style="text-align: right" @input="formChanged" />
+            <v-text-field v-model="item.total_price" type="number" step="0.01" suffix="€" style="text-align: right" @input="formChanged" @blur="item.total_price_net = item.total_price / 1.19; formChanged()" />
+            <v-text-field v-model="item.total_price_net" type="number" step="0.01" suffix="€" style="text-align: right" @input="formChanged" @blur="item.total_price = item.total_price_net * 1.19; formChanged()" />
           </div>
           <div style="text-align: right;">
             <v-icon @click="edited_items.splice(edited_items.indexOf(index), 1)">mdi-content-save</v-icon>
