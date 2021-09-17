@@ -1,7 +1,7 @@
 <style lang="scss" scoped>
   .cloud_products .product {
     display: grid;
-    grid-template-columns: 2em 7em 1fr 1fr 10em;
+    grid-template-columns: 2em 7em 1fr 1fr 8em 8em;
     padding: 0.5em;
     border-radius: 5px;
     box-shadow: 1px 1px 4px 0 rgba(0,0,0,0.5);
@@ -97,6 +97,7 @@
                     </div>
                   </div>
                 </div>
+                <div style="text-align: right;"><div v-if="item.total_price_net != 0">{{ item.total_price_net | formatPrice }}</div></div>
                 <div style="text-align: right;"><div v-if="item.total_price != 0">{{ item.total_price | formatPrice }}</div></div>
               </div>
               <div v-if="list.start === null || list.start === undefined || (new Date(list.start)) >= (new Date())" style="text-align: right">
