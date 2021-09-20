@@ -137,13 +137,6 @@
                               <div class="section">
                                 <h2>Verbrauch Lichtstrom</h2>
                                 <div class="layout horizontal">
-                                  <v-text-field
-                                    ref="power_meter_number"
-                                    v-model="data.power_meter_number"
-                                    :rules="[rules.required_for_order]"
-                                    @keyup="formChanged"
-                                    label="Haupt Zählernummer"
-                                    style="margin-right: 1em"></v-text-field>
                                   <div class="flex">
                                     <v-text-field
                                       ref="power_usage"
@@ -165,11 +158,6 @@
                               <h3>Wärmecloud</h3>
                               <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
                               <div class="layout horizontal">
-                                <v-text-field
-                                  v-model="data.heatcloud_power_meter_number"
-                                  @input="formChanged"
-                                  label="Wärmecloud Zählernummer"
-                                  style="margin-right: 1em"></v-text-field>
                                 <div>
                                   <v-text-field v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
                                 </div>
@@ -259,7 +247,7 @@
                                   item-text="label"
                                   item-value="value"></v-select>
                               </div>
-                              <!--<div>
+                              <div>
                                 <h3>Cloud.Refresh</h3>
                                 <v-checkbox
                                   label="Kunde hat Altanlage"
@@ -301,7 +289,7 @@
                                     suffix="kWp"
                                     style="width: 26em; margin-right: 1em"></v-text-field>
                                 </div>
-                              </div>-->
+                              </div>
                             </div>
 
                             <h3>Extra Pakete</h3>
@@ -542,13 +530,6 @@
                               <small>Falls eine Wärmecloud baulich nicht möglich ist, kann ein entsprechender Consumer angelegt werden.</small>
                               <div v-for="(consumer, index) in data.consumers" :key="index">
                                 <div class="layout horizontal center">
-                                  <v-text-field
-                                    :ref="'consumer_power_meter_number_' + index"
-                                    :rules="[rules.required_for_order]"
-                                    v-model="consumer.power_meter_number"
-                                    @input="formChanged"
-                                    label="Consumer Zählernummer"
-                                    style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
                                   <v-text-field v-model="consumer.usage" label="Verbrauch" @keyup.enter="calculateCloud" @blur="calculateCloud" class="flex-1 align-right" suffix="kWh" type="number" step="1"></v-text-field>
                                   <svg @click="data.consumers.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                                 </div>
@@ -1995,6 +1976,81 @@
                     style="margin-left: 1em"
                     v-model="data.is_commercial" />
                   <div v-if="data.is_commercial" class="warning" style="padding: 1em">Achtung! Beim Kontakt muss die Adresse der Firma angegeben sein. Nicht der Aufbauort. Bei Abweisung bitte im Kommentar vermerken.</div>
+                  <div style="border: 2px solid #aaa; padding: 1em">
+                    <h2>Benötige Vertragsdaten</h2>
+                    <b>Kundendaten</b>
+                    <v-menu
+                      ref="datepickerMenu2"
+                      v-model="datepickerMenu2"
+                      :close-on-content-click="false"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="data.birthdate"
+                          type="date"
+                          label="Geburtstag"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="data.birthdate"
+                        :active-picker.sync="activePicker"
+                        min="1910-01-01"
+                        @change="datePickerSave2"
+                      ></v-date-picker>
+                    </v-menu>
+                    <div v-if="data.has_pv_quote">
+                      <b>Zählernummern</b><br>
+                      <v-checkbox v-model="data.is_new_building" label="Es handelt sich um einen Neubau" style="margin: 0" />
+                      <div v-if="!data.is_new_building">
+                        <v-text-field
+                          ref="power_meter_number"
+                          v-model="data.power_meter_number"
+                          :rules="[rules.required_for_order]"
+                          @keyup="formChanged"
+                          label="Haupt Zählernummer"
+                          style="margin-right: 1em"></v-text-field>
+                        <v-text-field
+                          v-if="data.heater_usage > 0"
+                          v-model="data.heatcloud_power_meter_number"
+                          @input="formChanged"
+                          label="Wärmecloud Zählernummer"
+                          style="margin-right: 1em"></v-text-field>
+                      </div>
+                      <div v-for="(consumer, index) in data.consumers" :key="index">
+                        <v-text-field
+                          v-model="consumer.power_meter_number"
+                          @input="formChanged"
+                          label="Consumer Zählernummer (falls vorhanden)"
+                          style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                      </div>
+                    </div>
+
+                    <b>Bankdaten</b>
+                    <div class="layout horizontal">
+                      <v-text-field
+                        v-model="data.iban"
+                        label="IBAN"
+                        style="margin: 0"></v-text-field>
+                      <v-text-field
+                        v-model="data.bic"
+                        label="BIC"
+                        style="margin: 0 1em"></v-text-field>
+                      <v-text-field
+                        v-model="data.bankname"
+                        label="Name der Bank"
+                        style="margin: 0"></v-text-field>
+                    </div>
+                    <v-btn @click="storeExtraData" style="margin: 0 1em 0 0">Vertragsdaten speichern</v-btn><br>
+                  </div>
+                  <br>
+                  <b>Kommentare/Sonderkonditionen</b>
                   <v-text-field
                     v-model="data.extra_notes"
                     label="ergänzende Angaben für den Innendienst"
@@ -2337,7 +2393,10 @@
               <div v-if="insignData.is_sent">
                 Daten wurden an {{ insignData.email }} versendet<br>
               </div>
-              <div class="layout horizontal center center">
+              <div v-if="!data.iban || !data.bic || !data.bankname || !data.birthdate || (data.has_pv_quote && !data.power_meter_number)">
+                Fehlende Daten bitte unter 'Allgemein' ergänzen.
+              </div>
+              <div v-else class="layout horizontal center center">
                 <v-btn @click="requestInsignData" :loading="insignLoading" style="margin: 0 1em 0 0">Vorort Daten abrufen</v-btn>
                 <v-btn @click="sendInsignEmail" :loading="insignLoading" style="margin: 0">Per E-Mail senden</v-btn>
               </div>
@@ -2848,6 +2907,7 @@ export default {
       "showProductsBlueGenQuote": false,
       "showHistoryDialog": false,
       "insignData": {},
+      "extraData": {},
       rules: {
         required: value => !!value || 'Required.',
         required_for_order:  value => {
@@ -2994,6 +3054,9 @@ export default {
 
   watch: {
     datepickerMenu (val) {
+      val && setTimeout(() => (this.activePicker = 'YEAR'))
+    },
+    datepickerMenu2 (val) {
       val && setTimeout(() => (this.activePicker = 'YEAR'))
     },
   },
@@ -3389,6 +3452,18 @@ export default {
       }
       this.loading = false
     },
+    async storeExtraData () {
+      this.loading = true
+      try {
+        this.loading_percent = 0
+        this.loading_message = "Eingabedaten verarbeiten"
+        const response = await this.$axios.put(`/quote_calculator/${this.id}/extra_data`, this.data)
+        this.data = response.data.data.data
+        console.log(this.data)
+      } catch (error) {
+      }
+      this.loading = false
+    },
     formatPrice(number){
       return this.formatNumber(number, 2) + " €"
     },
@@ -3511,6 +3586,9 @@ export default {
     datePickerSave (date) {
       this.$refs.datepickerMenu.save(date)
       this.calculateCloud()
+    },
+    datePickerSave (date) {
+      this.$refs.datepickerMenu2.save(date)
     }
   }
 }
