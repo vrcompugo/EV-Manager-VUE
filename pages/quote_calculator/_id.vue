@@ -2009,13 +2009,21 @@
                       <b>Zählernummern</b><br>
                       <v-checkbox v-model="data.is_new_building" label="Es handelt sich um einen Neubau" style="margin: 0" />
                       <div v-if="!data.is_new_building">
-                        <v-text-field
-                          ref="power_meter_number"
-                          v-model="data.power_meter_number"
-                          :rules="[rules.required_for_order]"
-                          @keyup="formChanged"
-                          label="Haupt Zählernummer"
-                          style="margin-right: 1em"></v-text-field>
+                        <div class="layout horizontal">
+                          <v-text-field
+                            ref="power_meter_number"
+                            v-model="data.power_meter_number"
+                            :rules="[rules.required_for_order]"
+                            @keyup="formChanged"
+                            label="Haupt Zählernummer"
+                            style="margin-right: 1em"></v-text-field>
+                          <v-text-field
+                            v-model="data.main_malo_id"
+                            :rules="[rules.required_for_order]"
+                            @keyup="formChanged"
+                            label="Haupt Malo ID"
+                            style="margin-right: 1em"></v-text-field>
+                        </div>
                         <v-text-field
                           v-if="data.heater_usage > 0"
                           v-model="data.heatcloud_power_meter_number"
@@ -2024,11 +2032,18 @@
                           style="margin-right: 1em"></v-text-field>
                       </div>
                       <div v-for="(consumer, index) in data.consumers" :key="index">
-                        <v-text-field
-                          v-model="consumer.power_meter_number"
-                          @input="formChanged"
-                          label="Consumer Zählernummer (falls vorhanden)"
-                          style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                        <div class="layout horizontal">
+                          <v-text-field
+                            v-model="consumer.power_meter_number"
+                            @input="formChanged"
+                            label="Consumer Zählernummer (falls vorhanden)"
+                            style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                          <v-text-field
+                            v-model="consumer.malo_id"
+                            @keyup="formChanged"
+                            label="Consumer Malo ID"
+                            style="margin-right: 1em"></v-text-field>
+                        </div>
                       </div>
                     </div>
 
@@ -2393,7 +2408,7 @@
               <div v-if="insignData.is_sent">
                 Daten wurden an {{ insignData.email }} versendet<br>
               </div>
-              <div v-if="!data.iban || !data.bic || !data.bankname || !data.birthdate || (data.has_pv_quote && !data.power_meter_number)">
+              <div v-if="(!data.iban || !data.bic || !data.bankname || !data.birthdate) || (data.has_pv_quote && (!data.power_meter_number || !data.main_malo_id))">
                 Fehlende Daten bitte unter 'Allgemein' ergänzen.
               </div>
               <div v-else class="layout horizontal center center">
