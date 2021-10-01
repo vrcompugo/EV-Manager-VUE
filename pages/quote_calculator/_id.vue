@@ -303,11 +303,11 @@
                                   value="technik_service_packet" />
                                 <div v-if="data.extra_options.indexOf('technik_service_packet') >= 0">
                                   <v-checkbox
-                                    label="Technik &amp; Service Paket - Sommer Aktion"
+                                    label="Service, Technik &amp; Garantie Paket Herbst Highlight"
                                     style="margin-right: 1em"
                                     @change="calculateCloud"
                                     v-model="data.extra_options"
-                                    value="technik_service_packet_summer_extra" />
+                                    value="technik_service_packet_autumn_extra" />
                                 </div>
                               </div>
                               <!--<div class="flex">
