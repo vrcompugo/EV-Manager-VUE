@@ -5,9 +5,7 @@
 
 <template>
   <div class="main-content">
-
-    <v-btn @click="generateContractNumber" :loading="loading_contact_number">Vertragsnummer erzeugen</v-btn>
-    <v-btn :href="sherpa_link()" target="_blank">Sherpa Excel runterladen</v-btn>
+    Jetzt im Reiter Fakturia (beta)
   </div>
 </template>
 

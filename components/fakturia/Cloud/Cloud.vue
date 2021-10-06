@@ -2,11 +2,10 @@
   <div>
     <h2>Cloud Abo</h2>
     Cloud Angebotsnummer: {{ deal.cloud_number }}<br>
-    Cloud <ContractNumber :deal="deal" @loading="$emit('loading')" @error="$emit('error', $event)" @success="$emit('success')" />
-
-    <br>
+    Cloud <ContractNumber :deal="deal" @loading="$emit('loading')" @error="$emit('error', $event)" @success="$emit('success')" /><br>
     Hauptauftrag: <a :href="deal.link" target="_blank">{{ deal.title }}</a><br>
     Lieferbegin: {{ deal.cloud_delivery_start | dateTimeFormat }}<br>
+    <v-btn :href="sherpa_link()" target="_blank">Sherpa Excel runterladen</v-btn><br>
     <br>
     <div v-if="deal.cloud_contract_number !== undefined && deal.cloud_contract_number !== null && deal.cloud_contract_number !== ''">
       <ItemList :deal="deal" @loading="$emit('loading')" @error="$emit('error', $event)" @success="$emit('success')" />
@@ -83,6 +82,13 @@ export default {
       type: Object,
       default: undefined,
       required: true
+    }
+  },
+
+  methods: {
+    sherpa_link(){
+      const token = this.$auth.getToken("local")
+      return `/fakturia/${this.deal.id}/sherpa_export?token=${token}`
     }
   }
 
