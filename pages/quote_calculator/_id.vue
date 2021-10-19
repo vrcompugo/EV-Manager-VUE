@@ -247,6 +247,7 @@
                                   item-text="label"
                                   item-value="value"></v-select>
                               </div>
+                              <!--
                               <div>
                                 <h3>Cloud.Refresh</h3>
                                 <v-checkbox
@@ -290,6 +291,7 @@
                                     style="width: 26em; margin-right: 1em"></v-text-field>
                                 </div>
                               </div>
+                              -->
                             </div>
 
                             <h3>Extra Pakete</h3>
