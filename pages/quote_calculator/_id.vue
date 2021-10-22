@@ -90,13 +90,13 @@
               <div><v-checkbox v-model="data.has_pv_quote" @change="calculateCloud" label="Cloud/PV" style="margin: 0;" /></div>
               <div><v-checkbox v-model="data.has_roof_reconstruction_quote" @change="calculateCloud" label="Dachsanierung" style="margin: 0" /></div>
               <div><v-checkbox v-model="data.has_heating_quote" @change="calculateCloud" label="Heizung" style="margin: 0" /></div>
-              <div><v-checkbox v-model="data.has_bluegen_quote" @change="calculateCloud" label="BlueGen" style="margin: 0" /></div>
+              <div><v-checkbox v-model="data.has_bluegen_quote" @change="calculateCloud" label="Brennstoffzellen" style="margin: 0" /></div>
             </div>
             <v-tabs class="flex-1" v-model="tab">
               <v-tab v-if="data.has_pv_quote">Cloud/PV</v-tab>
               <v-tab v-if="data.has_roof_reconstruction_quote">Dachsanierung</v-tab>
               <v-tab v-if="data.has_heating_quote">Heizung</v-tab>
-              <v-tab v-if="data.has_bluegen_quote">BlueGen</v-tab>
+              <v-tab v-if="data.has_bluegen_quote">Brennstoffzellen</v-tab>
               <v-tab>Allgemein</v-tab>
             </v-tabs>
             <v-tabs-items v-model="tab">
@@ -1773,7 +1773,7 @@
                       <v-select
                         label="Alter Heizungstyp"
                         v-model="data.old_heating_type" :items="[
-                          {'value':'flat','label':'Gas'},
+                          {'value':'gas','label':'Gas'},
                           {'value':'oil','label':'Öl'},
                           {'value':'heatpump','label':'Wärmepumpe'},
                           {'value':'pellez','label':'Pellet'},
@@ -1788,7 +1788,6 @@
                       <v-select
                         label="Gewünschter Heizungstyp"
                         v-model="data.new_heating_type" :items="[
-                          {'value': 'oil', 'label': 'Öl'},
                           {'value': 'gas', 'label': 'Gas'},
                           {'value': 'heatpump', 'label':' Wärmepumpe'},
                           {'value': 'hybrid_gas', 'label':' Hybrid Gas/WP'}
@@ -1915,6 +1914,30 @@
                           v-model="data.heating_quote_extra_options"
                           value="deconstruct_old_heater" />
                       </div>
+                      <div v-if="data.new_heating_type == 'gas'">
+                        <v-checkbox
+                          label="Renewable Ready (20% Förderung möglich) "
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="renewable_ready" />
+                      </div>
+                      <div>
+                        <v-checkbox
+                          label="Aussen-Schornstein"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="outside_chimney" />
+                        <div v-if="data.heating_quote_extra_options.indexOf('outside_chimney') >= 0">
+                          <v-text-field
+                            label="Höhe in Meter"
+                            v-model="data.heating_quote_extra_options_extra_outside_chimney_height"
+                            @input="calculateCloud"
+                            style="max-width: 14em;"
+                            step="1"></v-text-field>
+                        </div>
+                      </div>
                       <div v-if="data.new_heating_type == 'heatpump' || data.new_heating_type == 'hybrid_gas'">
                         <v-checkbox
                           label="Kein Ablauf im Raum der WP vorhanden"
@@ -1954,7 +1977,17 @@
               <v-tab-item key="bluegen" v-if="data.has_bluegen_quote">
                 <div class="main-content flex-1">
                   <div v-if="data.has_bluegen_quote">
-                    <h2>BlueGen Brennstoffzellen</h2>
+                    <h2>Brennstoffzellen</h2>
+                    <v-select
+                      label="Wirkungsart"
+                      v-model="data.bluegen_type" :items="[
+                        {'value':'bluegen','label':'Bluegen (Stromerzeugung mit Heizungsunterstützung)'},
+                        {'value':'electa300','label':'Brennstoffzellenheizung eLecta300 (Heizung mit Unterstützung für Stromerzeugung'}
+                      ]"
+                      @input="calculateCloud"
+                      style="margin-left: 1em"
+                      item-text="label"
+                      item-value="value"></v-select>
                     <v-text-field
                       v-model="data.bluegen_cell_count"
                       @keyup="calculateCloud"
