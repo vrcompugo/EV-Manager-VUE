@@ -391,8 +391,8 @@
                                   <v-select
                                     label="Variante"
                                     v-model="data.extra_options_wallbox_variant" :items="[
-                                      {'value':'11kW','label':'11kW Variante'},
-                                      {'value':'22kW','label':'22kW Variante'}
+                                      {'value':'11kW','label':'11kW Variante'}
+                                      //{'value':'22kW','label':'22kW Variante'}
                                     ]"
                                     @input="calculateCloud"
                                     style="max-width: 9em;"
