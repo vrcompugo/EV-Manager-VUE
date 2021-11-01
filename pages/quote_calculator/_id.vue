@@ -303,7 +303,7 @@
                                   value="technik_service_packet" />
                                 <div v-if="data.extra_options.indexOf('technik_service_packet') >= 0">
                                   <v-checkbox
-                                    label="Service, Technik &amp; Garantie Paket Herbst Highlight"
+                                    label="Service, Technik &amp; Garantie Paket Winter Highlight"
                                     style="margin-right: 1em"
                                     @change="calculateCloud"
                                     v-model="data.extra_options"
