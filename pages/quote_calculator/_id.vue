@@ -159,7 +159,7 @@
                               <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
                               <div class="layout horizontal">
                                 <div>
-                                  <v-text-field v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                                  <v-text-field :disabled="data.has_heating_quote" v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
                                 </div>
                               </div>
                               <small>mehr kWh werden mit {{ formatNumber(calculated.heatcloud_extra_price_per_kwh * 100, 2) }} Cent abgerechnet</small>
@@ -167,7 +167,7 @@
                             <div class="section" :disabled="true">
                               <h3>E.Cloud</h3>
                               <small><b>Voraussetzung:</b> Gasheizung</small>
-                              <v-text-field v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                              <v-text-field :disabled="data.has_heating_quote" v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
                               <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
                             </div>
                           </div>
@@ -391,8 +391,9 @@
                                   <v-select
                                     label="Variante"
                                     v-model="data.extra_options_wallbox_variant" :items="[
-                                      {'value':'11kW','label':'11kW Variante'}
-                                      //{'value':'22kW','label':'22kW Variante'}
+                                      {'value':'11kW','label':'Heidelberg ECO Home 11 kw (nicht förderfähig)'},
+                                      {'value':'control-11kW','label':'Heidelberg Energy Control 11 kW'},
+                                      {'value':'senec-22kW','label':'SENEC 11 bis 22 kW', disabled: true}
                                     ]"
                                     @input="calculateCloud"
                                     style="max-width: 9em;"
@@ -449,7 +450,7 @@
                               </div>
                               <div class="flex">
                                 <v-checkbox
-                                  label="Wärmepumpe"
+                                  label="Brauchwasserwärmepume"
                                   style="margin-right: 1em"
                                   @change="calculateCloud"
                                   v-model="data.extra_options_zero"
@@ -503,8 +504,9 @@
                                   <v-select
                                     label="Variante"
                                     v-model="data.extra_options_wallbox_variant" :items="[
-                                      {'value':'11kW','label':'11kW Variante'},
-                                      {'value':'22kW','label':'22kW Variante'}
+                                      {'value':'11kW','label':'Heidelberg ECO Home 11 kw (nicht förderfähig)'},
+                                      {'value':'control-11kW','label':'Heidelberg Energy Control 11 kW'},
+                                      {'value':'senec-22kW','label':'SENEC 11 bis 22 kW', disabled: true}
                                     ]"
                                     @input="calculateCloud"
                                     style="max-width: 9em;"
@@ -1404,7 +1406,7 @@
                                   @input="formChanged"
                                   min="1.0"
                                   max="3.5"
-                                  step="0.1"
+                                  step="0.01"
                                   thumb-label="always"></v-slider>
                                 <div style="margin-top: -1em; padding-left: 0.5em">Inflation</div>
                               </div>
@@ -1769,8 +1771,23 @@
                 <div class="main-content flex-1">
                   <div v-if="data.has_heating_quote">
                     <h2>Heizungsanlage</h2>
-                    <div class="layout horizontal wrap">
+                    <div class="layout horizontal wrap" style="align-items: center;">
                       <v-select
+                        label="Baujahr Haus (Dämmwert)"
+                        v-model="data.heating_quote_house_build" :items="[
+                          {'value':'1940-1969','label':'1940-1969'},
+                          {'value':'1970-1979','label':'1970-1979'},
+                          {'value':'1980-1999','label':'1980-1999'},
+                          {'value':'2000-2015','label':'2000-2015'},
+                          {'value':'2016 und neuer','label':'2016 und neuer'},
+                          {'value':'new_building','label':'Neubau'}
+                        ]"
+                        @input="calculateUsageHeating();calculateCloud();"
+                        style="margin-left: 1em; max-width: 14em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
+                        v-if="data.heating_quote_house_build !== 'new_building'"
                         label="Alter Heizungstyp"
                         v-model="data.old_heating_type" :items="[
                           {'value':'gas','label':'Gas'},
@@ -1781,8 +1798,20 @@
                           {'value':'nightofen','label':'Nachtspeicheröfen'},
                           {'value':'other','label':'Sonstige'},
                         ]"
-                        @input="calculateCloud"
-                        style="margin-left: 1em"
+                        @input="calculateUsageHeating();calculateCloud();"
+                        style="margin-left: 1em; width: 7em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
+                        v-if="data.heating_quote_house_build !== 'new_building'"
+                        label="Baujahr alte Heizung"
+                        v-model="data.heating_quote_old_heating_build" :items="[
+                          {'value':'2-6_years','label':'2-6 Jahre'},
+                          {'value':'7-12_years','label':'7-12 Jahre'},
+                          {'value':'older','label':'Über 12 Jahre'}
+                        ]"
+                        @input="calculateUsageHeating();calculateCloud();"
+                        style="margin-left: 1em; width: 7em"
                         item-text="label"
                         item-value="value"></v-select>
                       <v-select
@@ -1792,19 +1821,70 @@
                           {'value': 'heatpump', 'label':' Wärmepumpe'},
                           {'value': 'hybrid_gas', 'label':' Hybrid Gas/WP'}
                         ]"
-                        @input="calculateCloud"
-                        style="margin-left: 1em"
+                        @input="calculateUsageHeating();calculateCloud();"
+                        style="margin-left: 1em; width: 8em;"
                         item-text="label"
                         item-value="value"></v-select>
                       <v-text-field
-                        v-model="data.heating_quote_usage"
+                        v-if="data.old_heating_type === 'oil'"
+                        v-model="data.heating_quote_usage_oil"
+                        @input="data.heating_quote_usage_old = data.heating_quote_usage_oil * 10; calculateUsageHeating()"
+                        @blur="calculateCloud"
+                        label="Verbrauch in der letzten Heizperiode"
+                        class="align-right"
+                        suffix="Liter"
+                        type="number"
+                        step="0.01"
+                        style="margin-left: 1em; width: 8em;"></v-text-field>
+                      <v-text-field
+                        v-if="data.old_heating_type !== 'oil' && data.heating_quote_house_build !== 'new_building'"
+                        v-model="data.heating_quote_usage_old"
+                        @input="calculateUsageHeating"
                         @blur="calculateCloud"
                         label="Verbrauch in der letzten Heizperiode"
                         class="align-right"
                         suffix="kWh"
                         type="number"
                         step="0.01"
-                        style="margin-left: 1em"></v-text-field>
+                        style="margin-left: 1em; width: 8em;"></v-text-field>
+                      <v-text-field
+                        v-if="data.new_heating_type !== 'hybrid_gas'"
+                        v-model="data.heating_quote_usage"
+                        @blur="calculateCloud"
+                        label="Neuer Verbrauch"
+                        class="align-right"
+                        suffix="kWh"
+                        type="number"
+                        step="0.01"
+                        style="margin-left: 1em; width: 10em;"></v-text-field>
+                      <v-text-field
+                        v-if="data.new_heating_type === 'hybrid_gas'"
+                        v-model="data.heating_quote_usage_gas"
+                        @blur="calculateCloud"
+                        label="Neuer Verbrauch (Gas)"
+                        class="align-right"
+                        suffix="kWh"
+                        type="number"
+                        step="0.01"
+                        style="margin-left: 1em; width: 8em;"></v-text-field>
+                      <v-text-field
+                        v-if="data.new_heating_type === 'hybrid_gas'"
+                        v-model="data.heating_quote_usage_wp"
+                        @blur="calculateCloud"
+                        label="Neuer Verbrauch (WP)"
+                        class="align-right"
+                        suffix="kWh"
+                        type="number"
+                        step="0.01"
+                        style="margin-left: 1em; width: 8em;"></v-text-field>
+                      <v-btn
+                        v-if="data.heating_quote_house_build === 'new_building'"
+                        @click="estimateNewUsage"
+                        style="margin-left: 1em;"
+                        small
+                        >Verbrauch schätzen</v-btn>
+                    </div>
+                    <div class="layout horizontal wrap">
                       <v-text-field
                         v-model="data.heating_quote_sqm"
                         @blur="calculateCloud"
@@ -1814,21 +1894,6 @@
                         type="number"
                         step="1"
                         style="margin-left: 1em"></v-text-field>
-                    </div>
-                    <div class="layout horizontal wrap">
-                      <v-select
-                        label="Baujahr Haus (Dämmwert)"
-                        v-model="data.heating_quote_house_build" :items="[
-                          {'value':'1940-1969','label':'1940-1969'},
-                          {'value':'1970-1979','label':'1970-1979'},
-                          {'value':'1980-1999','label':'1980-1999'},
-                          {'value':'2000-2015','label':'2000-2015'},
-                          {'value':'2016 und neuer','label':'2016 und neuer'}
-                        ]"
-                        @input="calculateCloud"
-                        style="margin-left: 1em; max-width: 14em"
-                        item-text="label"
-                        item-value="value"></v-select>
                       <v-select
                         label="Heizkörpertyp"
                         v-model="data.heating_quote_radiator_type" :items="[
@@ -1966,7 +2031,7 @@
                         <v-checkbox
                           label="Heizungspufferspeicher"
                           style="margin-right: 1em"
-                          @change="calculateCloud"
+                          @change="calculateUsageHeating(); calculateCloud()"
                           v-model="data.heating_quote_extra_options"
                           value="bufferstorage" />
                       </div>
@@ -1981,8 +2046,9 @@
                     <v-select
                       label="Wirkungsart"
                       v-model="data.bluegen_type" :items="[
-                        {'value':'bluegen','label':'Bluegen (Stromerzeugung mit Heizungsunterstützung)'},
-                        {'value':'electa300','label':'Brennstoffzellenheizung eLecta300 (Heizung mit Unterstützung für Stromerzeugung'}
+                        {'value':'bluegen','label':'BlueGen: ca: 14000 kWh Strom / 5500 kWh Wärme'},
+                        {'value':'bluegen_home','label':'Blue Gen Home ca: 9000 kWh Strom, 3000 kWh Wärme'},
+                        {'value':'electa300','label':'eLecta300 bei 25000 kWh Wärme Verbrauch (170m2 Wohnhaus 2003) 6000 kWh Stromerzeugung'}
                       ]"
                       @input="calculateCloud"
                       style="margin-left: 1em"
@@ -1993,7 +2059,12 @@
                       @keyup="calculateCloud"
                       label="Anzahl Brennstoffzellen"
                       style="margin-right: 1em"></v-text-field>
-                    <v-checkbox v-model="data.add_bluegen_storage" @change="calculateCloud" label="Mit Multifunktionsspeicher" style="margin: 0" />
+                    <v-checkbox
+                      v-if="data.bluegen_type !== 'electa300'"
+                      v-model="data.add_bluegen_storage"
+                      @change="calculateCloud"
+                      label="Mit Multifunktionsspeicher"
+                      style="margin: 0" />
                   </div>
                 </div>
               </v-tab-item>
@@ -2875,7 +2946,6 @@
       </v-card>
     </v-dialog>
 
-
     <v-dialog
       v-model="showHistoryDialog"
       width="500"
@@ -2904,6 +2974,53 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog
+      v-model="usageCalculatorHeatingDialog"
+      width="800"
+    >
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title >
+          Verbrauchsberechnung
+        </v-card-title>
+
+        <v-card-text>
+          <div v-if="data.old_heating_type === 'oil' || data.old_heating_type === 'gas'">
+            <div v-if="data.new_heating_type === 'heatpump'">
+              Beim Ersetzen Ihrer alten Gas oder Öl-Anlage durch eine moderne Wärmepumpe reduziert sich ihr Verbrauch wie folgt:
+              {{ data.heating_quote_usage_old }} -27% / 3.75 = {{ data.heating_quote_usage }} kWh
+            </div>
+            <div v-if="data.new_heating_type === 'hybrid_gas'">
+              Beim Ersetzen Ihrer alten Gas oder Öl-Anlage durch eine moderne Gas-Wärmepumpe Hybridheizung reduziert sich ihr Verbrauch wie folgt:
+              {{ data.heating_quote_usage_old }} -27% = {{ data.heating_quote_usage }} kWh
+            </div>
+          </div>
+          <div v-if="data.old_heating_type === 'heatpump'">
+            Beim ersetzen einer Wärmepumpe die älter ist als 14 Jahre:
+            {{ data.heating_quote_usage_old }} -25% = {{ data.heating_quote_usage }} kWh
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            text
+            @click="usageCalculatorHeatingDialog = false;"
+          >
+            Abbrechen
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="usageCalculatorHeatingDialog = false; data.heating_quote_usage = data.usageCalculationHeating.value"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -2926,6 +3043,8 @@ export default {
     return {
       "activePicker": null,
       "datepickerMenu": false,
+      "datepickerMenu2": false,
+      "usageCalculatorHeatingDialog": false,
       "token": "",
       "tab": 0,
       "loading_percent": 100,
@@ -3036,7 +3155,7 @@ export default {
       ],
       "data": {
         "only_show_total_price": false,
-        "financing_rate": 3.79,
+        "financing_rate": 2.49,
         "consumers": [],
         "roofs": [],
         "extra_options": ["technik_service_packet", "solaredge"],
@@ -3143,6 +3262,75 @@ export default {
       this.showHistoryDialog = false
       await this.$nuxt.refresh()
       this.calculateCloud()
+    },
+    estimateNewUsage () {
+      if (this.data.heating_quote_sqm <= 0 || this.data.heating_quote_people < 0) {
+        return
+      }
+      const heating_usage = this.data.heating_quote_sqm * 18
+      const water_heating_usage = this.data.heating_quote_people * 320
+      this.data.heating_quote_usage = heating_usage + water_heating_usage
+
+      if (this.data.new_heating_type === 'hybrid_gas') {
+        let wp_percent = 0.60
+        if (this.data.heating_quote_extra_options.indexOf("bufferstorage") >= 0) {
+          wp_percent = 0.75
+        }
+        this.data.heating_quote_usage_gas = Math.round(this.data.heating_quote_usage * (1 - wp_percent))
+        this.data.heating_quote_usage_wp = Math.round(this.data.heating_quote_usage * wp_percent)
+      }
+      this.addHeatingToCloud()
+    },
+    calculateUsageHeating () {
+      if (this.data.heating_quote_house_build === 'new_building') {
+        this.data.old_heating_type = 'new'
+        this.estimateNewUsage()
+        return
+      }
+      let new_heating_benefit = 0.75
+      if (this.data.heating_quote_old_heating_build == '2-6_years') {
+        new_heating_benefit = 0.86
+      }
+      if (this.data.heating_quote_old_heating_build == 'older') {
+        new_heating_benefit = 0.69
+      }
+      if (this.data.new_heating_type === 'heatpump') {
+        this.data.heating_quote_usage_gas = 0
+        this.data.heating_quote_usage_wp = (this.data.heating_quote_usage_old * new_heating_benefit) / 3.75
+        this.data.heating_quote_usage = this.data.heating_quote_usage_wp
+      }
+      if (this.data.old_heating_type === 'heatpump' && this.data.new_heating_type === 'heatpump') {
+        this.data.heating_quote_usage_gas = 0
+        this.data.heating_quote_usage_wp = (this.data.heating_quote_usage_old * new_heating_benefit)
+        this.data.heating_quote_usage = this.data.heating_quote_usage_wp
+      }
+      if (this.data.new_heating_type === 'hybrid_gas') {
+        let wp_percent = 0.60
+        if (this.data.heating_quote_extra_options.indexOf("bufferstorage") >= 0) {
+          wp_percent = 0.75
+        }
+        this.data.heating_quote_usage_gas = this.data.heating_quote_usage_old * new_heating_benefit * (1 - wp_percent)
+        this.data.heating_quote_usage_wp = ((this.data.heating_quote_usage_old * 0.75 * wp_percent)) / 3.75
+        this.data.heating_quote_usage = this.data.heating_quote_usage_gas + this.data.heating_quote_usage_wp
+      }
+      if (this.data.new_heating_type === 'gas') {
+        this.data.heating_quote_usage_gas = this.data.heating_quote_usage_old * new_heating_benefit
+        this.data.heating_quote_usage_wp = 0
+        this.data.heating_quote_usage = this.data.heating_quote_usage_gas
+      }
+      this.data.heating_quote_usage_gas = Math.round(this.data.heating_quote_usage_gas)
+      this.data.heating_quote_usage_wp = Math.round(this.data.heating_quote_usage_wp)
+      this.data.heating_quote_usage = Math.round(this.data.heating_quote_usage)
+      this.addHeatingToCloud ()
+    },
+    addHeatingToCloud () {
+      if (this.data.new_heating_type === 'hybrid_gas' || this.data.new_heating_type === 'gas') {
+        this.data.heater_usage = this.data.heating_quote_usage_wp
+        this.data.ecloud_usage = this.data.heating_quote_usage_gas
+      } else {
+        this.data.heater_usage = this.data.heating_quote_usage
+        this.data.ecloud_usage = 0
+      }
     },
     openHistoryDialog () {
       this.showHistoryDialog = !this.showHistoryDialog;
@@ -3635,7 +3823,7 @@ export default {
       this.$refs.datepickerMenu.save(date)
       this.calculateCloud()
     },
-    datePickerSave (date) {
+    datePickerSave2 (date) {
       this.$refs.datepickerMenu2.save(date)
     }
   }
