@@ -28,8 +28,8 @@
           <th>Mitarbeiter</th>
           <th>Letzte Zuordnung</th>
           <th>Zyklus Zuordnungen</th>
-          <th>Zyklus Monat</th>
-          <th>max. Zuordnungen/Monat</th>
+          <th>Zyklus Woche</th>
+          <th>max. Zuordnungen/Woche</th>
           <th>PLZ Gebiet</th>
         </tr>
         <tr v-for="user in users" :key="user.ID" :class="user.ACTIVE || 'inactive'">
@@ -60,7 +60,7 @@
             v-model="editUser.association.max_leads"
             type="number"
             step="1"
-            label="max. Zuordnungen/Monat"></v-text-field>
+            label="max. Zuordnungen/Woche"></v-text-field>
           <v-textarea
             v-model="editUser.association.rawData"
             label="PLZ-Liste"></v-textarea>
