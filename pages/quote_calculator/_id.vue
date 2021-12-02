@@ -3185,7 +3185,6 @@ export default {
         }else{
           data["pdf_order_confirmation_link"] = undefined
         }
-        data["is_sent"] = offerData.data.data.is_sent
         data["data"] = offerData.data.data.data
         data["data"]["module_type"] = offerData.data.data.data["module_type"]
         if (offerData.data.data.cloud_number) {
@@ -3795,7 +3794,6 @@ export default {
             this.pdf_summary_link = response.data.data.pdf_summary_link
             this.pdf_contract_summary_part1_file_id = response.data.data.pdf_contract_summary_part1_file_id
             this.pdf_wi_link = response.data.data.pdf_wi_link
-            this.is_sent = response.data.data.is_sent
             this.data = response.data.data.data
             this.calculated = response.data.data.calculated
           }).finally(() => {
