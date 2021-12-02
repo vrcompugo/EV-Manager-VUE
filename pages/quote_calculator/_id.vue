@@ -3138,7 +3138,6 @@ export default {
       "pv_efficiancy_min": "",
       "pv_efficiancy_max": "",
       "pdf_wi_link": undefined,
-      "is_sent": false,
       "contact": {},
       "confirm_error": "",
       "min_storage_size_options_full": [
@@ -3230,6 +3229,12 @@ export default {
   },
 
   computed: {
+    is_sent () {
+      if (this.data.status_id === "WON") {
+        return true
+      }
+      return false
+    },
     min_storage_size_options () {
       const sizes = this.min_storage_size_options_full.filter(option => option.value >= this.min_storage_size)
       return sizes
