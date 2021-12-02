@@ -3230,7 +3230,7 @@ export default {
 
   computed: {
     is_sent () {
-      if (this.data.status_id === "WON") {
+      if (this.data.status_id === "WON" || this.data.status_id === "CONVERTED") {
         return true
       }
       return false
