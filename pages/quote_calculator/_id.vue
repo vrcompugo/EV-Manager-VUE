@@ -3241,6 +3241,9 @@ export default {
       if (this.$auth.user.bitrix_department.indexOf('T-Vertrieb (neu 2022)') >= 0) {
         return false
       }
+      if (this.$auth.user.bitrix_department.indexOf('Team Schuster') >= 0) {
+        return false
+      }
       if (this.$auth.user.bitrix_department.indexOf('Extern IT Unterstützung') >= 0) {
         return false
       }
