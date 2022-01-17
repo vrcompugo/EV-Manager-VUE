@@ -3245,7 +3245,7 @@ export default {
         return false
       }
       if (this.$auth.user.bitrix_department.indexOf('Extern IT Unterstützung') >= 0) {
-        return false
+        return true
       }
       return true
     },

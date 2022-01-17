@@ -26,19 +26,21 @@
         <tr>
           <th></th>
           <th>Mitarbeiter</th>
+          <th>Gruppe</th>
           <th>Letzte Zuordnung</th>
-          <th>Zyklus Zuordnungen</th>
-          <th>Zyklus Woche</th>
-          <th>max. Zuordnungen/Woche</th>
+          <th style="text-align: right">Zyklus Zuordnungen</th>
+          <th style="text-align: right">Zyklus Woche</th>
+          <th style="text-align: right">max. Zuordnungen/Woche</th>
           <th>PLZ Gebiet</th>
         </tr>
         <tr v-for="user in users" :key="user.ID" :class="user.ACTIVE || 'inactive'">
           <td><v-btn @click="openEditDialog(user)" small>Bearbeiten</v-btn></td>
-          <td>{{ user.NAME }} {{ user.LAST_NAME }}</td>
-          <td>{{ user.association.last_assigned | dateTimeFormat }}</td>
-          <td>{{ user.association.current_cycle_count }}</td>
-          <td>{{ user.association.current_cycle_index }}</td>
-          <td>{{ user.association.max_leads }}</td>
+          <td style="white-space: nowrap">{{ user.NAME }} {{ user.LAST_NAME }}</td>
+          <td style="white-space: nowrap">{{ user.association.user_type }}</td>
+          <td style="white-space: nowrap">{{ user.association.last_assigned | dateTimeFormat }}</td>
+          <td style="text-align: right">{{ user.association.current_cycle_count }}</td>
+          <td style="text-align: right">{{ user.association.current_cycle_index }}</td>
+          <td style="text-align: right">{{ user.association.max_leads }}</td>
           <td><div style="white-space: nowrap; width: 30em; overflow: auto;">{{ user.association.data.join(", ") }}</div></td>
         </tr>
       </table>
@@ -61,6 +63,19 @@
             type="number"
             step="1"
             label="max. Zuordnungen/Woche"></v-text-field>
+          <v-select
+            v-model="editUser.association.user_type" :items="[
+              'Angestellter',
+              'Handelsvertreter 2021',
+              'Handelsvertreter 2022',
+              'Teamleiter HV',
+              'Teamleiter Angestellt'
+            ]"></v-select>
+          <v-select
+            v-model="editUser.association.supervisor_id"
+            :items="supervisors"
+            item-text="fullname"
+            item-value="ID"></v-select>
           <v-textarea
             v-model="editUser.association.rawData"
             label="PLZ-Liste"></v-textarea>
@@ -138,7 +153,9 @@ export default {
       }
       this.loading = false
     },
-    openEditDialog (user) {
+    async openEditDialog (user) {
+      const response = await this.$axios.get(`/users/supervisors`)
+      this.supervisors = response.data.data
       if(user.association.data) {
         user.association.rawData = user.association.data.join("\n")
       } else {
