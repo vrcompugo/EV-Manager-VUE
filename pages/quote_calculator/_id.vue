@@ -395,7 +395,7 @@
                                       {'value':'11kW','label':'Heidelberg ECO Home 11 kw (nicht förderfähig)'},
                                       {'value':'control-11kW','label':'Heidelberg Energy Control 11 kW'},
                                       {'value':'senec-pro-11kW','label':'Wallbox SENEC pro S (11kW)'},
-                                      {'value':'senec-22kW','label':'SENEC 11 bis 22 kW', disabled: true}
+                                      {'value':'senec-22kW','label':'Wallbox SENEC 22kW Pro', disabled: true}
                                     ]"
                                     @input="calculateCloud"
                                     style="max-width: 9em;"
