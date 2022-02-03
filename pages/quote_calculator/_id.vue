@@ -2408,7 +2408,7 @@
         </div>
         <div v-if="data.has_pv_quote" style="padding-left: 0.5em">= {{ formatNumber(calculated.min_kwp, 2) }} kWp</div>
         <div class="flex-1"></div>
-        <v-checkbox label="Alte Preise" v-model="data.old_price_calculation" value="l2k3fblk3baxv55" @change="calculateCloud" />
+        <v-checkbox v-if="checkCloudRights() || checkBookkeepingRights()" label="Alte Preise" v-model="data.old_price_calculation" value="l2k3fblk3baxv55" @change="calculateCloud" />
         <v-btn v-if="$auth.user.bitrix_department.indexOf('AEV Vertrieb GmbH') < 0" @click="adjustment_dialog = true" style="margin-left: 1em">Anpassungen</v-btn>
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
         <v-btn v-if="!is_sent && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
