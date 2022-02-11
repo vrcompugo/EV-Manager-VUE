@@ -3362,7 +3362,7 @@ export default {
     },
     checkBookkeepingRights(){
       let result = false
-      const departments = ["Innendienst", "After Sales ???", "After Sales Neu", "Buchhaltung", "Exte2rn IT Unterstützung", "KeSO"]
+      const departments = ["Innendienst", "After Sales ???", "After Sales Neu", "Buchhaltung", "Extern IT Unterstützung", "KeSO"]
       for(let i=0; i<departments.length; i++){
         if (this.$auth.user.bitrix_department.indexOf(departments[i]) >= 0){
           return true
@@ -3372,7 +3372,7 @@ export default {
     },
     checkCloudRights(){
       let result = false
-      const departments = ["e360 (Cloud)", "Exte2rn IT Unterstützung", "KeSO"]
+      const departments = ["efi-Strom (Cloud)", "e360 (Cloud)", "Extern IT Unterstützung", "KeSO"]
       for(let i=0; i<departments.length; i++){
         if (this.$auth.user.bitrix_department.indexOf(departments[i]) >= 0){
           return true
