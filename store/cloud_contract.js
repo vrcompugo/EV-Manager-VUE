@@ -1,15 +1,41 @@
 export const state = () => ({
-  contract: undefined
+  contract: undefined,
+  contracts: []
   })
 
   export const getters = {
-    contract: state => state.contract
+    contract: state => state.contract,
+    contracts: state => state.contracts
   }
 
   export const actions = {
     async loadContractData ({ commit }, { contractNumber }) {
       return new Promise((resolve, reject) => {
         this.$axios.get(`/cloud2/contract/${contractNumber}`)
+        .then(response => {
+          commit('setContract', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
+    },
+    async loadContracts ({ commit }, { year }) {
+      return new Promise((resolve, reject) => {
+        this.$axios.get(`/cloud2/contract/${year}/list`)
+        .then(response => {
+          commit('setContracts', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
+    },
+    async checkContractData ({ commit }, { contractNumber, year }) {
+      return new Promise((resolve, reject) => {
+        this.$axios.get(`/cloud2/contract/${contractNumber}/check/${year}`)
         .then(response => {
           commit('setContract', response.data.data)
           resolve(response.data.data)
@@ -34,5 +60,6 @@ export const state = () => ({
   }
 
   export const mutations = {
-    setContract: (state, data) => state.contract = data
+    setContract: (state, data) => state.contract = data,
+    setContracts: (state, data) => state.contracts = data
   }
