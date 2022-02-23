@@ -2411,7 +2411,7 @@
         <v-checkbox v-if="checkCloudRights() || checkBookkeepingRights()" label="Alte Preise" v-model="data.old_price_calculation" value="l2k3fblk3baxv55" @change="calculateCloud" />
         <v-btn v-if="$auth.user.bitrix_department.indexOf('AEV Vertrieb GmbH') < 0" @click="adjustment_dialog = true" style="margin-left: 1em">Anpassungen</v-btn>
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
-        <v-btn v-if="!is_sent && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
+        <v-btn v-if="(!is_sent || checkCloudRights()) && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
         <v-btn v-if="pdf_summary_link" @click="pdf_dialog = true" style="margin-left: 1em">PDFs</v-btn>
         <v-btn @click="links_dialog = true" style="margin-left: 1em">Links</v-btn>
