@@ -303,12 +303,18 @@
                                   v-model="data.extra_options"
                                   value="technik_service_packet" />
                                 <div v-if="data.extra_options.indexOf('technik_service_packet') >= 0">
-                                  <v-checkbox
+                                  <!--<v-checkbox
                                     label="Service, Technik &amp; Garantie Paket Winter Highlight"
                                     style="margin-right: 1em"
                                     @change="calculateCloud"
                                     v-model="data.extra_options"
-                                    value="technik_service_packet_autumn_extra" />
+                                    value="technik_service_packet_autumn_extra" />-->
+                                  <v-checkbox
+                                    label="Service, Technik &amp; Garantie Paket Frühlings Highlight"
+                                    style="margin-right: 1em"
+                                    @change="calculateCloud"
+                                    v-model="data.extra_options"
+                                    value="technik_service_packet_spring_extra" />
                                 </div>
                               </div>
                               <!--<div class="flex">
@@ -2074,6 +2080,7 @@
                 <div class="main-content flex-1">
                   <h2>Allgemeine Angaben</h2>
                   <v-checkbox
+                    v-if="data.only_show_total_price"
                     label="Nur Gesamtpreis in Angeboten anzeigen"
                     style="margin-left: 1em"
                     v-model="data.only_show_total_price" />
