@@ -56,6 +56,18 @@ export const state = () => ({
           reject(error)
         })
       })
+    },
+    async storeManuellData ({ commit }, { year, contract }) {
+      return new Promise((resolve, reject) => {
+        this.$axios.put(`/cloud2/contract/${contract.contract_number}/manuell_data/${year}`, { contract })
+        .then(response => {
+          commit('setContract', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
     }
   }
 
