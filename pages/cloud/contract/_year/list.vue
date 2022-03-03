@@ -54,6 +54,7 @@
         <td style="text-align: right">{{ contract.has_ecloud }}</td>
         <td style="text-align: right">{{ contract.has_consumers }}</td>
         <td style="text-align: right">{{ contract.has_emove }}</td>
+        <td style="text-align: right"><v-btn @click="status(contract)" small>Manuelle Data</v-btn></td>
         <td style="text-align: right"><v-btn @click="openManuallData(contract)" small>Manuelle Data</v-btn></td>
         <td style="text-align: right"><v-btn @click="checkContract(contract.contract_number)" small>Check Data</v-btn></td>
         <td style="text-align: right"><v-btn @click="generateAnnualStatement(contract.contract_number)" small>Abrechnung erzeugen</v-btn></td>
@@ -237,7 +238,7 @@ export default {
     async generateAllContracts () {
       this.loading = true
       for (let i = 0; i < this.contracts.length; i++) {
-        if (this.status(contract) === 'green') {
+        if (this.status(this.contracts[i]) === 'green') {
           await this.$store.dispatch('cloud_contract/generateAnnualStatement',{ contractNumber: this.contracts[i].contract_number, year: this.year })
             .catch (error => this.showError(error))
           await this.sleep(1000)
@@ -274,7 +275,6 @@ export default {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
     status (contract) {
-      console.log(contract.has_correct_usage)
       if (
         contract.has_lightcloud === true &&
         contract.has_cloud_number === true &&
@@ -282,7 +282,6 @@ export default {
         contract.has_smartme_number === true &&
         contract.has_smartme_number_values === true &&
         contract.has_correct_usage === "true" &&
-        contract.has_sherpa_values === true &&
         contract.has_heatcloud === false &&
         contract.has_ecloud === false &&
         contract.has_consumers === false
@@ -294,8 +293,7 @@ export default {
         contract.has_begin_date === true &&
         contract.has_smartme_number === true &&
         contract.has_smartme_number_values === true &&
-        contract.has_correct_usage === "true" &&
-        contract.has_sherpa_values === true
+        contract.has_correct_usage === "true"
       ) {
         return "yellow"
       } else {
