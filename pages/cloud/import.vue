@@ -6,6 +6,10 @@
       v-model="invoicesArchive"
       label="Sherpa Rechnungen Zip" />
     <v-btn @click="uploadInvoices">Upload Zip</v-btn>
+    <v-file-input
+      v-model="contractsArchive"
+      label="Sherpa Vertragsliste" />
+    <v-btn @click="uploadContracts">Upload Contracts</v-btn>
     <v-snackbar v-model="errorSnack">
       {{ errorMessage }}
       <v-btn text @click="errorSnack = false">
@@ -41,6 +45,14 @@ export default {
           commit('setContract', response.data.data)
           resolve(response.data.data)
         })
+        .catch (error => this.showError(error))
+      this.loading = false
+    },
+    async uploadContracts () {
+      this.loading = true
+      const formData = new FormData();
+      formData.append("contracts", this.contractsArchive);
+      await this.$axios.post(`/cloud2/import_contracts`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
         .catch (error => this.showError(error))
       this.loading = false
     },

@@ -280,6 +280,7 @@ export default {
         contract.has_cloud_number === true &&
         contract.has_begin_date === true &&
         contract.has_smartme_number === true &&
+        contract.has_sherpa_values === true &&
         contract.has_smartme_number_values === true &&
         contract.has_correct_usage === "true" &&
         contract.has_heatcloud === false &&
@@ -291,6 +292,7 @@ export default {
         contract.has_lightcloud === true &&
         contract.has_cloud_number === true &&
         contract.has_begin_date === true &&
+        contract.has_sherpa_values === true &&
         contract.has_smartme_number === true &&
         contract.has_smartme_number_values === true &&
         contract.has_correct_usage === "true"
