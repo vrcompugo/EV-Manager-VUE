@@ -57,7 +57,6 @@
         <td style="text-align: right">{{ contract.has_ecloud }}</td>
         <td style="text-align: right">{{ contract.has_consumers }}</td>
         <td style="text-align: right">{{ contract.has_emove }}</td>
-        <td style="text-align: right"><v-btn @click="status(contract)" small>Manuelle Data</v-btn></td>
         <td style="text-align: right"><v-btn @click="openManuallData(contract)" small>Manuelle Data</v-btn></td>
         <td style="text-align: right"><v-btn @click="checkContract(contract.contract_number)" small>Check Data</v-btn></td>
         <td style="text-align: right"><v-btn @click="generateAnnualStatement(contract.contract_number)" small>Abrechnung erzeugen</v-btn></td>
