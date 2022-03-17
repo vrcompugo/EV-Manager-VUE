@@ -352,8 +352,8 @@
                                   <v-select
                                     label="Variante"
                                     v-model="data.extra_options_wwwp_variant" :items="[
-                                      {'value':'NIBE L','label':'NIBE L'},
-                                      {'value':'NIBE XL','label':'NIBE XL'}
+                                      {'value':'NIBE L','label':'L'},
+                                      {'value':'NIBE XL','label':'XL'}
                                     ]"
                                     @input="calculateCloud"
                                     style="max-width: 14em;"
@@ -467,8 +467,8 @@
                                   <v-select
                                     label="Variante"
                                     v-model="data.extra_options_wwwp_variant" :items="[
-                                      {'value':'NIBE L','label':'NIBE L'},
-                                      {'value':'NIBE XL','label':'NIBE XL'}
+                                      {'value':'NIBE L','label':'L'},
+                                      {'value':'NIBE XL','label':'XL'}
                                     ]"
                                     @input="calculateCloud"
                                     style="max-width: 14em;"
