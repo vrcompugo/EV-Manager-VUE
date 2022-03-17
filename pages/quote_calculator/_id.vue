@@ -2175,14 +2175,15 @@
                         label="Name der Bank"
                         style="margin: 0"></v-text-field>
                     </div>
+                    <b>Kommentar</b>
+                    <v-text-field
+                      v-model="data.extra_notes"
+                      label="ergänzende Angaben für den Innendienst"
+                      hint="Diese Eingabe wird nicht im Vertrag zu sehen sein, hier kann eine Information für den Innendienst eingestellt werden"></v-text-field>
                     <v-btn @click="storeExtraData" style="margin: 0 1em 0 0">Vertragsdaten speichern</v-btn><br>
                   </div>
                   <br>
-                  <b>Kommentare/Sonderkonditionen</b>
-                  <v-text-field
-                    v-model="data.extra_notes"
-                    label="ergänzende Angaben für den Innendienst"
-                    hint="Diese Eingabe wird nicht im Vertrag zu sehen sein, hier kann eine Information für den Innendienst eingestellt werden"></v-text-field>
+                  <b>Sonderkonditionen</b>
                   <v-text-field
                     v-if="data.has_pv_quote"
                     v-model="data.special_conditions_pv_quote"
