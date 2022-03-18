@@ -89,7 +89,7 @@
               <div style="text-align: left; max-width: 8em; min-width: 8em;">Angebote für:</div>
               <div><v-checkbox v-model="data.has_pv_quote" @change="calculateCloud" label="Cloud/PV" style="margin: 0;" /></div>
               <div><v-checkbox v-model="data.has_roof_reconstruction_quote" @change="calculateCloud" label="Dachsanierung" style="margin: 0" /></div>
-              <div><v-checkbox v-model="data.has_heating_quote" @change="calculateCloud" label="Heizung" style="margin: 0" /></div>
+              <div><v-checkbox v-model="data.has_heating_quote" @change="addHeatingToCloud(); calculateCloud();" label="Heizung" style="margin: 0" /></div>
               <div><v-checkbox v-model="data.has_bluegen_quote" @change="calculateCloud" label="Brennstoffzellen" style="margin: 0" /></div>
             </div>
             <v-tabs class="flex-1" v-model="tab">
@@ -1848,7 +1848,6 @@
                         v-if="data.old_heating_type !== 'oil' && data.heating_quote_house_build !== 'new_building'"
                         v-model="data.heating_quote_usage_old"
                         @input="calculateUsageHeating"
-                        @blur="calculateCloud"
                         label="Verbrauch in der letzten Heizperiode"
                         class="align-right"
                         suffix="kWh"
@@ -1858,7 +1857,7 @@
                       <v-text-field
                         v-if="data.new_heating_type !== 'hybrid_gas'"
                         v-model="data.heating_quote_usage"
-                        @blur="calculateCloud"
+                        @blur="addHeatingToCloud();calculateCloud();"
                         label="Neuer Verbrauch"
                         class="align-right"
                         suffix="kWh"
@@ -1868,7 +1867,7 @@
                       <v-text-field
                         v-if="data.new_heating_type === 'hybrid_gas'"
                         v-model="data.heating_quote_usage_gas"
-                        @blur="calculateCloud"
+                        @blur="addHeatingToCloud();calculateCloud();"
                         label="Neuer Verbrauch (Gas)"
                         class="align-right"
                         suffix="kWh"
@@ -1878,7 +1877,7 @@
                       <v-text-field
                         v-if="data.new_heating_type === 'hybrid_gas'"
                         v-model="data.heating_quote_usage_wp"
-                        @blur="calculateCloud"
+                        @blur="addHeatingToCloud();calculateCloud();"
                         label="Neuer Verbrauch (WP)"
                         class="align-right"
                         suffix="kWh"
