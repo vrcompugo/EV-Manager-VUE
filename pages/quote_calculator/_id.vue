@@ -1781,6 +1781,16 @@
                     <h2>Heizungsanlage</h2>
                     <div class="layout horizontal wrap" style="align-items: center;">
                       <v-select
+                        label="Hausart"
+                        v-model="data.heating_quote_house_type" :items="[
+                          {'value':'Einfamilienhaus','label':'Einfamilienhaus'},
+                          {'value':'Mehrfamilienhaus','label':'Mehrfamilienhaus'}
+                        ]"
+                        @input="calculateCloud"
+                        style="margin-left: 1em; max-width: 14em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
                         label="Baujahr Haus (Dämmwert)"
                         v-model="data.heating_quote_house_build" :items="[
                           {'value':'1940-1969','label':'1940-1969'},
@@ -1922,9 +1932,33 @@
                         style="margin-left: 1em; max-width: 14em"
                         item-text="label"
                         item-value="value"></v-select>
+                      <v-select
+                        label="Zirkulationspumpe"
+                        v-model="data.heating_quote_circulation_pump" :items="[
+                          {'value': false,'label': 'Nein'},
+                          {'value': true,'label': 'Ja'}
+                        ]"
+                        @input="calculateCloud"
+                        style="margin-left: 1em; max-width: 14em"
+                        item-text="label"
+                        item-value="value"></v-select>
                       <v-text-field
                         label="Anzahl Heizkörper"
                         v-model="data.heating_quote_radiator_count"
+                        @input="calculateCloud"
+                        type="number"
+                        style="margin-left: 1em; max-width: 14em;"
+                        step="1"></v-text-field>
+                      <v-text-field
+                        label="Anzahl Duschen"
+                        v-model="data.heating_quote_shower_count"
+                        @input="calculateCloud"
+                        type="number"
+                        style="margin-left: 1em; max-width: 14em;"
+                        step="1"></v-text-field>
+                      <v-text-field
+                        label="Anzahl Badewannen"
+                        v-model="data.heating_quote_bathtub_count"
                         @input="calculateCloud"
                         type="number"
                         style="margin-left: 1em; max-width: 14em;"
@@ -2499,6 +2533,9 @@
         <v-card-text>
           <div>
             <v-btn v-if="pdf_summary_link" :href="pdf_summary_link" target="_blank" style="margin-top: 0.5em; margin-left: 1em; margin-bottom: 0.5em">Energiekonzept öffnen</v-btn>
+          </div>
+          <div>
+            <v-btn v-if="pdf_contract_summary_part4_file_link" :href="pdf_contract_summary_part4_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Heizungskonzept öffnen</v-btn>
           </div>
           <div>
             <v-btn v-if="pdf_quote_summary_link" :href="pdf_quote_summary_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Angebote öffnen</v-btn>
@@ -3142,6 +3179,7 @@ export default {
       "pdf_link": undefined,
       "pdf_summary_link": undefined,
       "pdf_contract_summary_part1_file_id": undefined,
+      "pdf_contract_summary_part4_file_link": undefined,
       "pdf_contract_summary_link": undefined,
       "pdf_datasheets_link": undefined,
       "pv_efficiancy_min": "",
@@ -3185,6 +3223,7 @@ export default {
         }
         data["pdf_summary_link"] = offerData.data.data.pdf_summary_link
         data["pdf_contract_summary_part1_file_id"] = offerData.data.data.pdf_contract_summary_part1_file_id
+        data["pdf_contract_summary_part4_file_link"] = offerData.data.data.pdf_contract_summary_part4_file_link
         data["pdf_commission_link"] = offerData.data.data.pdf_commission_link
         data["pdf_quote_summary_link"] = offerData.data.data.pdf_quote_summary_link
         data["pdf_contract_summary_link"] = offerData.data.data.pdf_contract_summary_link
@@ -3347,10 +3386,24 @@ export default {
         this.data.heating_quote_usage_wp = 0
         this.data.heating_quote_usage = this.data.heating_quote_usage_gas
       }
+      const factors = {
+        '1940-1969': 1.25,
+        '1970-1979': 1.18,
+        '1980-1999': 1.12,
+        '2000-2015': 1.07,
+        '2016 und neuer': 1.03,
+        'new_building': 0.9
+      }
+      let extra_factor = 1
+      if (factors[this.data.heating_quote_house_build]) {
+        extra_factor = factors[this.data.heating_quote_house_build]
+      }
+      this.data.heating_quote_usage_wp = this.data.heating_quote_usage_wp * extra_factor
+      this.data.heating_quote_usage = this.data.heating_quote_usage * extra_factor
       this.data.heating_quote_usage_gas = Math.round(this.data.heating_quote_usage_gas)
       this.data.heating_quote_usage_wp = Math.round(this.data.heating_quote_usage_wp)
       this.data.heating_quote_usage = Math.round(this.data.heating_quote_usage)
-      this.addHeatingToCloud ()
+      this.addHeatingToCloud()
     },
     addHeatingToCloud () {
       if (this.data.new_heating_type === 'hybrid_gas' || this.data.new_heating_type === 'gas') {
@@ -3721,6 +3774,7 @@ export default {
         const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
         this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
         this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
+        this.pdf_contract_summary_part4_file_link = response9.data.data.pdf_contract_summary_part4_file_link
         this.form_dirty = false
       } catch (error) {
 
