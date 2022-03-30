@@ -47,7 +47,7 @@
       </table>
     </div>
     <div v-if="deal.id">
-      <Cloud v-if="deal.category_id === '15'" :deal="deal" @loading="loading = true" @error="showError" @success="loading = false" />
+      <Cloud v-if="deal.category_id === '15'" :deal="deal" :dealId="dealId" @loading="loading = true" @error="showError" @success="loading = false" />
       <Contracting v-if="deal.category_id === '68' || deal.category_id === '70'" :deal="deal" @loading="loading = true" @error="showError" @success="loading = false" />
     </div>
   </div>
@@ -62,6 +62,10 @@ export default {
   components: {
     Cloud,
     Contracting
+  },
+
+  async asyncData({ params }) {
+    return { dealId: params.id }
   },
 
   async fetch ({ store, params }) {

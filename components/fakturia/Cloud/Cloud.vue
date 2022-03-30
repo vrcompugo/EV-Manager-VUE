@@ -82,13 +82,18 @@ export default {
       type: Object,
       default: undefined,
       required: true
+    },
+    dealId: {
+      type: String,
+      default: undefined,
+      required: false
     }
   },
 
   methods: {
     sherpa_link(){
       const token = this.$auth.getToken("local")
-      return `/fakturia/${this.deal.id}/sherpa_export?token=${token}`
+      return `/fakturia/${this.dealId}/sherpa_export?token=${token}`
     }
   }
 
