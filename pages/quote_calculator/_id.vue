@@ -3387,12 +3387,12 @@ export default {
         this.data.heating_quote_usage = this.data.heating_quote_usage_gas
       }
       const factors = {
-        '1940-1969': 1.25,
-        '1970-1979': 1.18,
-        '1980-1999': 1.12,
-        '2000-2015': 1.07,
-        '2016 und neuer': 1.03,
-        'new_building': 0.9
+        '1940-1969': 1.125,
+        '1970-1979': 1.9,
+        '1980-1999': 1.6,
+        '2000-2015': 1.035,
+        '2016 und neuer': 1.015,
+        'new_building': 0.95
       }
       let extra_factor = 1
       if (factors[this.data.heating_quote_house_build]) {
