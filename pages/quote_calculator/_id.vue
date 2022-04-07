@@ -3673,6 +3673,10 @@ export default {
       }
     },
     calculateCloud(){
+      console.log(this.data.heating_quote_people)
+      if (this.data.heating_quote_people && this.data.heating_quote_people >= 5 && this.data.heating_quote_extra_options.indexOf('extra_warm_water') < 0) {
+        this.data.heating_quote_extra_options.push("extra_warm_water");
+      }
       this.changeRoofDirection()
       this.changePVModules()
       this.$axios.post(`/quote_calculator/${this.id}/calculate`, this.data).then(response => {
