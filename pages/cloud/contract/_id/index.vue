@@ -18,7 +18,6 @@
     <v-btn @click="reload">reload</v-btn>
     <div class="box">
         <h3>Anlageninformationen:</h3>
-        Angebotsnummer: {{ contract.cloud.cloud_number }}<br>
         Größe PV Anlage: {{ contract.pv_system.pv_kwp | formatNumber }} kWp<br>
         Smart.me Zählernummer: {{ contract.pv_system.smartme_number }}<br>
         Zählernummer: {{ contract.pv_system.power_meter_number }}<br>
@@ -31,6 +30,7 @@
     </div>
     <div class="box">
         <h3>Cloud Produkte</h3>
+        Angebotsnummer: <a :href="contract.cloud.pdf_link" target="_blank">{{ contract.cloud.cloud_number }}</a><br>
         <div class="layout horizontal" v-if="contract.lightcloud">
             <div class="statusicon">{{ contract.lightcloud.status }}</div>
             <div class="description flex">
