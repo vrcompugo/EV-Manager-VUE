@@ -9,10 +9,15 @@ export const state = () => ({
   }
 
   export const actions = {
-    async loadContractData ({ commit }, { contractNumber }) {
+    async loadContractData ({ commit }, { contractNumber, forceReload }) {
       return new Promise((resolve, reject) => {
-        this.$axios.get(`/cloud2/contract/${contractNumber}`)
-        .then(response => {
+        let promise
+        if (forceReload) {
+          promise =  this.$axios.post(`/cloud2/contract/${contractNumber}`)
+        } else {
+          promise =  this.$axios.get(`/cloud2/contract/${contractNumber}`)
+        }
+        promise.then(response => {
           commit('setContract', response.data.data)
           resolve(response.data.data)
         })
