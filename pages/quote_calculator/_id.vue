@@ -151,14 +151,12 @@
                                       step="1"></v-text-field>
                                   </div>
                                 </div>
-                                <!--
                                 <small>mehr kWh werden mit {{ formatNumber(calculated.lightcloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small><br>
                                 <v-checkbox
                                   v-model="data.additional_cloud_contract"
                                   value="true"
                                   label="Cloud Kombinationsvertrag"
                                   @change="calculateCloud" />
-                                  -->
                               </div>
                             </div>
                             <div class="section" :disabled="true">
