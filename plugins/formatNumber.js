@@ -24,9 +24,9 @@ Vue.filter('formatPrice', function (value) {
   }
 })
 
-Vue.filter('formatNumber', function (value) {
+Vue.filter('formatNumber', function (value, digits=2) {
   if (value && value !== 'None') {
-    return formatNumber(value)
+    return formatNumber(value, digits)
   } else {
     return ''
   }

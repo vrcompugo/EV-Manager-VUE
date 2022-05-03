@@ -50,9 +50,9 @@ export const state = () => ({
         })
       })
     },
-    async generateAnnualStatement ({ commit }, { year, contractNumber }) {
+    async generateAnnualStatement ({ commit }, { year, contractNumber, statement }) {
       return new Promise((resolve, reject) => {
-        this.$axios.post(`/cloud2/contract/${contractNumber}/annual_statement/${year}`)
+        this.$axios.post(`/cloud2/contract/${contractNumber}/annual_statement/${year}`, statement)
         .then(response => {
           commit('setContract', response.data.data)
           resolve(response.data.data)

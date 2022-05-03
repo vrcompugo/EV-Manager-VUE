@@ -61,7 +61,7 @@
           <div>
             <div style="display: grid; grid-template-columns: auto auto">
               <div>(netto)&nbsp;</div> <div style="text-align: right">{{ config.price_per_month_net | formatPrice}}</div>
-              <div>(brutto)&nbsp;</div> <div style="text-align: right">{{ config.price_per_month_net | formatPrice}}</div>
+              <div>(brutto)&nbsp;</div> <div style="text-align: right">{{ config.price_per_month | formatPrice}}</div>
             </div>
           </div>
 
@@ -69,12 +69,15 @@
         <div class="productlist layout horizontal">
           <div>
             <b>Lichtcloud</b><br>
-            SmartMe Zähler: {{ config.lightcloud.smartme_number }}<br>
-            Zählernummer: {{ config.lightcloud.power_meter_number }}<br>
-            Verbrauch: {{ config.lightcloud.usage }} kWh<br>
-            Lieferbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
-            Mehrverbrauch: {{ (config.lightcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
-            Bitrix Auftrag: <a v-if="config.lightcloud.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + config.lightcloud.deal.id + '/'" target="_blank">Link</a>
+            <div v-if="config.lightcloud">
+              SmartMe Zähler: {{ config.lightcloud.smartme_number }}<br>
+              Zählernummer: {{ config.lightcloud.power_meter_number }}<br>
+              Verbrauch: {{ config.lightcloud.usage }} kWh<br>
+              Lieferbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
+              Mehrverbrauch: {{ (config.lightcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
+              Bitrix Auftrag: <a v-if="config.lightcloud.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + config.lightcloud.deal.id + '/'" target="_blank">Link</a>
+            </div>
+            <div v-else>- nicht bestellt -</div>
           </div>
           <div>
             <b>Wärmecloud</b><br>
@@ -85,7 +88,6 @@
               Lieferbeginn: {{ config.heatcloud.delivery_begin | dateFormat }}<br>
               Mehrverbrauch: {{ (config.heatcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
               Bitrix Auftrag: <a v-if="config.heatcloud.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + config.heatcloud.deal.id + '/'" target="_blank">Link</a>
-
             </div>
             <div v-else>- nicht bestellt -</div>
           </div>
@@ -184,11 +186,106 @@
 
     <div class="box">
       <h3>Abrechnungen</h3>
-      <h4>2021</h4>
-      <v-btn @click="generateAnnualStatement">Abrechnung 2021 erstellen</v-btn><br>
-      <a href="#" target="_blank">Link zur PDF</a><br>
-      Nachzahlung: 53,23 €<br>
-      Bitrix Auftrag:
+
+      <div v-for="annualStatement in contract.annual_statements" :key="annualStatement.year">
+        <h4>{{ annualStatement.year }}</h4>
+        <div v-if="!annualStatement.data">
+          Keine Abrechnung vorhanden
+        </div>
+        <div v-else>
+          <div>
+            <v-btn-toggle v-model="annualStatement.status" multiple>
+              <v-btn value="has_status">
+                Hat Status
+              </v-btn>
+              <v-btn value="is_generated">
+                Ist erstellt
+              </v-btn>
+              <v-btn>
+                In manueller Prüfung
+              </v-btn>
+              <v-btn>
+                Ist verschickt
+              </v-btn>
+              <v-btn>
+                Ist Abgerechnet
+              </v-btn>
+            </v-btn-toggle>
+          </div>
+          Bitrix Auftrag: <a v-if="annualStatement.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + annualStatement.deal.id + '/'" target="_blank">Link</a><br>
+          Abrechnungs PDF: <a v-if="annualStatement.pdf_link" :href="annualStatement.pdf_link" target="_blank">Link</a><br>
+          <br>
+          <div class="label">Gesamtpreis:</div>
+          <div>
+            <div style="display: grid; grid-template-columns: auto auto">
+              <div>(netto)&nbsp;</div> <div style="text-align: right">{{ annualStatement.to_pay_net | formatPrice}}</div>
+              <div>(brutto)&nbsp;</div> <div style="text-align: right">{{ annualStatement.to_pay | formatPrice}}</div>
+            </div>
+          </div>
+          <b>Produkte</b>
+          <table>
+            <tr>
+              <th>Cloud Produkt/Abnahmestelle</th>
+              <th>von</th>
+              <th>bis</th>
+              <th>abgedeckt</th>
+              <th>ermittelt</th>
+            </tr>
+            <tr v-for="product in annualStatement.data.products" :key="product.start_date">
+              <td>{{ product.label }}</td>
+              <td>{{ product.start_date | dateformat }}</td>
+              <td>{{ product.end_date | dateformat }}</td>
+              <td>{{ product.allowed_usage | formatNumber(0) }}</td>
+              <td>{{ product.usage | formatNumber(0) }}</td>
+            </tr>
+          </table>
+          <table>
+            <tr>
+              <th colspan="3">&nbsp;</th>
+              <th colspan="2">Stand Alt</th>
+              <th colspan="2">Stand Neu</th>
+              <th>&nbsp;</th>
+            </tr>
+            <tr>
+              <th>Zählernummer</th>
+              <th>Zählerart</th>
+              <th>Ablesegrund</th>
+              <th style="text-align: right;">Datum</th>
+              <th style="text-align: right;">Wert</th>
+              <th style="text-align: right;">Datum</th>
+              <th style="text-align: right;">Wert</th>
+              <th style="text-align: right;">Verbrauch</th>
+            </tr>
+            <tr v-for="counter in annualStatement.data.counters" :key="counter.number + counter.zahlernummer">
+              <td v-if="counter.sherpa_invoice_id">{{ counter.zahlernummer }} *</td>
+              <td v-if="counter.sherpa_invoice_id">{{ counter.zahlerart }}</td>
+              <td v-if="counter.sherpa_invoice_id">{{ counter.ablesegrund }}</td>
+              <td v-if="counter.sherpa_invoice_id" style="text-align: right;">{{ counter.datum_stand_alt | dateformat }}</td>
+              <td v-if="counter.sherpa_invoice_id" style="text-align: right;">{{ counter.stand_alt | formatNumber(0) }} kWh</td>
+              <td v-if="counter.sherpa_invoice_id" style="text-align: right;">{{ counter.datum_stand_neu | dateFormat }}</td>
+              <td v-if="counter.sherpa_invoice_id" style="text-align: right;">{{ counter.stand_neu | formatNumber() }} kWh</td>
+              <td v-if="counter.sherpa_invoice_id" style="text-align: right;">{{ counter.verbrauch | formatNumber(0) }} kWh</td>
+              <td v-if="counter.number">{{ counter.number }} **</td>
+              <td v-if="counter.number">smartMe</td>
+              <td v-if="counter.number"></td>
+              <td v-if="counter.number" style="text-align: right;">{{ counter.start_date | dateformat }}</td>
+              <td v-if="counter.number" style="text-align: right;">{{ counter.start_value | formatNumber(0) }} kWh</td>
+              <td v-if="counter.number" style="text-align: right;">{{ counter.end_date | dateformat }}</td>
+              <td v-if="counter.number" style="text-align: right;">{{ counter.end_value | formatNumber(0) }} kWh</td>
+              <td v-if="counter.number" style="text-align: right;">{{ counter.usage | formatNumber(0) }} kWh</td>
+            </tr>
+          </table>
+          <b>Manuelle Daten:</b><br>
+          <div v-if="manuellData.year == annualStatement.year">
+            <div v-for="(counter, index) in this.manuellData.counters" :key="index">
+              <v-text-field v-model="counter.start_date" label="Stand Alt Datum" />
+              <v-text-field v-model="counter.start_value" label="Stand Alt Wert" />
+            </div>
+          </div>
+          <v-btn v-else @click="setManuellData(annualStatement)">überschreiben</v-btn>
+        </div>
+        <v-btn @click="generateAnnualStatement(annualStatement.year, annualStatement)">Abrechnung erzeugen</v-btn>
+      </div>
 
     </div>
     <br>
@@ -268,9 +365,12 @@
 </template>
 
 <script>
+import { cloneDeep } from 'lodash'
+
 export default {
 
   async asyncData({ $axios, params, route }) {
+    console.log(params)
     return {
       contractNumber: params.id
     }
@@ -282,6 +382,7 @@ export default {
 
   data(){
     return {
+      manuellData: {},
       loading: false,
       errorSnack: false,
       errorMessage: ''
@@ -302,14 +403,28 @@ export default {
       .catch (error => this.showError(error))
       this.loading = false
     },
-    async generateAnnualStatement () {
+    async generateAnnualStatement (year, statement) {
+      console.log(year)
       this.loading = true
       await this.$store.dispatch('cloud_contract/generateAnnualStatement', {
-        year: 2021,
-        contractNumber: this.contractNumber
+        year: year,
+        contractNumber: this.contract.contract_number,
+        statement: statement
       })
       .catch (error => this.showError(error))
       this.loading = false
+      this.reload()
+    },
+    setManuellData (annualStatement) {
+      if(!annualStatement.manuell_data || !annualStatement.manuell_data.year) {
+        this.manuellData = {
+          year: annualStatement.year,
+          counters: []
+        }
+        console.log(this.manuellData)
+      } else {
+        this.manuellData = cloneDeep(annualStatement.manuell_data)
+      }
     },
     showError (error) {
       this.errorMessage = 'Unbekannter Server Fehler'
