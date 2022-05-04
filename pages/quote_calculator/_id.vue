@@ -75,6 +75,10 @@
   table th {
     text-align: left;
   }
+  .notice {
+    padding: 1em 0;
+    color: #E53935;
+  }
 </style>
 
 
@@ -1575,6 +1579,7 @@
                   <div v-if="data.has_roof_reconstruction_quote">
                     <div class="main-content flex-1">
                       <h2>Dachsanierung</h2>
+                      <div class="notice">Achtung! Montage/Aufbau-Termin ab 2023</div>
                       <div class="layout horizontal wrap">
                         <v-text-field
                           v-model="data.reconstruction_sqm"
