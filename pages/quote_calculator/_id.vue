@@ -3342,78 +3342,24 @@ export default {
       this.calculateCloud()
     },
     estimateNewUsage () {
-      if (this.data.heating_quote_sqm <= 0 || this.data.heating_quote_people < 0) {
-        return
-      }
-      const heating_usage = this.data.heating_quote_sqm * 18
-      const water_heating_usage = this.data.heating_quote_people * 320
-      this.data.heating_quote_usage = heating_usage + water_heating_usage
-
-      if (this.data.new_heating_type === 'hybrid_gas') {
-        let wp_percent = 0.60
-        if (this.data.heating_quote_extra_options.indexOf("bufferstorage") >= 0) {
-          wp_percent = 0.75
-        }
-        this.data.heating_quote_usage_gas = Math.round(this.data.heating_quote_usage * (1 - wp_percent))
-        this.data.heating_quote_usage_wp = Math.round(this.data.heating_quote_usage * wp_percent)
-      }
-      this.addHeatingToCloud()
+      this.calculateUsageHeating()
     },
     calculateUsageHeating () {
-      if (this.data.heating_quote_house_build === 'new_building') {
-        this.data.old_heating_type = 'new'
-        this.estimateNewUsage()
-        return
-      }
-      let new_heating_benefit = 0.75
-      if (this.data.heating_quote_old_heating_build == '2-6_years') {
-        new_heating_benefit = 0.86
-      }
-      if (this.data.heating_quote_old_heating_build == 'older') {
-        new_heating_benefit = 0.69
-      }
-      if (this.data.new_heating_type === 'heatpump') {
-        this.data.heating_quote_usage_gas = 0
-        this.data.heating_quote_usage_wp = (this.data.heating_quote_usage_old * new_heating_benefit) / 3.75
-        this.data.heating_quote_usage = this.data.heating_quote_usage_wp
-      }
-      if (this.data.old_heating_type === 'heatpump' && this.data.new_heating_type === 'heatpump') {
-        this.data.heating_quote_usage_gas = 0
-        this.data.heating_quote_usage_wp = (this.data.heating_quote_usage_old * new_heating_benefit)
-        this.data.heating_quote_usage = this.data.heating_quote_usage_wp
-      }
-      if (this.data.new_heating_type === 'hybrid_gas') {
-        let wp_percent = 0.60
-        if (this.data.heating_quote_extra_options.indexOf("bufferstorage") >= 0) {
-          wp_percent = 0.75
+      this.$axios.post(`/quote_calculator/${this.id}/calculate_heating_usage`, this.data).then(response => {
+        this.data.old_heating_type = response.data.data.old_heating_type
+        console.log("asd", this.data.old_heating_type)
+        this.data.heating_quote_usage_gas = response.data.data.heating_quote_usage_gas
+        this.data.heating_quote_usage_wp = response.data.data.heating_quote_usage_wp
+        this.data.heating_quote_usage = response.data.data.heating_quote_usage
+        this.addHeatingToCloud()
+      }).catch(err => {
+        this.calculated["invalid_form"] = true
+        if (!this.calculated["errors"]) {
+          this.calculated["errors"] = []
         }
-        this.data.heating_quote_usage_gas = this.data.heating_quote_usage_old * new_heating_benefit * (1 - wp_percent)
-        this.data.heating_quote_usage_wp = ((this.data.heating_quote_usage_old * 0.75 * wp_percent)) / 3.75
-        this.data.heating_quote_usage = this.data.heating_quote_usage_gas + this.data.heating_quote_usage_wp
-      }
-      if (this.data.new_heating_type === 'gas') {
-        this.data.heating_quote_usage_gas = this.data.heating_quote_usage_old * new_heating_benefit
-        this.data.heating_quote_usage_wp = 0
-        this.data.heating_quote_usage = this.data.heating_quote_usage_gas
-      }
-      const factors = {
-        '1940-1969': 1.125,
-        '1970-1979': 1.09,
-        '1980-1999': 1.06,
-        '2000-2015': 1.035,
-        '2016 und neuer': 1.015,
-        'new_building': 0.95
-      }
-      let extra_factor = 1
-      if (factors[this.data.heating_quote_house_build]) {
-        extra_factor = factors[this.data.heating_quote_house_build]
-      }
-      this.data.heating_quote_usage_wp = this.data.heating_quote_usage_wp * extra_factor
-      this.data.heating_quote_usage = this.data.heating_quote_usage * extra_factor
-      this.data.heating_quote_usage_gas = Math.round(this.data.heating_quote_usage_gas)
-      this.data.heating_quote_usage_wp = Math.round(this.data.heating_quote_usage_wp)
-      this.data.heating_quote_usage = Math.round(this.data.heating_quote_usage)
-      this.addHeatingToCloud()
+        const result = err.response.data
+        this.calculated["errors"].push(result.message)
+      })
     },
     addHeatingToCloud () {
       if (this.data.new_heating_type === 'hybrid_gas' || this.data.new_heating_type === 'gas') {

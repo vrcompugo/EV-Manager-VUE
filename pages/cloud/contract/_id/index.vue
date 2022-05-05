@@ -231,13 +231,22 @@
               <th>abgedeckt</th>
               <th>ermittelt</th>
             </tr>
-            <tr v-for="product in annualStatement.data.products" :key="product.start_date">
-              <td>{{ product.label }}</td>
-              <td>{{ product.start_date | dateformat }}</td>
-              <td>{{ product.end_date | dateformat }}</td>
-              <td>{{ product.allowed_usage | formatNumber(0) }}</td>
-              <td>{{ product.usage | formatNumber(0) }}</td>
-            </tr>
+            <template v-for="product in annualStatement.data.products">
+              <tr :key="product.number">
+                <td>{{ product.label }}</td>
+                <td>{{ product.start_date | dateformat }}</td>
+                <td>{{ product.end_date | dateformat }}</td>
+                <td>{{ product.allowed_usage | formatNumber(0) }}</td>
+                <td>{{ product.usage | formatNumber(0) }}</td>
+              </tr>
+              <tr v-if="product.power_meter_usage > 0" :key="product.power_meter_number">
+                <td>{{ product.label }}</td>
+                <td>{{ product.power_meter_start_date | dateformat }}</td>
+                <td>{{ product.power_meter_end_date | dateformat }}</td>
+                <td>-</td>
+                <td>{{ product.power_meter_usage | formatNumber(0) }}</td>
+              </tr>
+            </template>
           </table>
           <table>
             <tr>
