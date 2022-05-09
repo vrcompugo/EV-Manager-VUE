@@ -62,11 +62,43 @@ export const state = () => ({
         })
       })
     },
-    async storeManuellData ({ commit }, { year, contract }) {
+    async addCounterValue ({ commit }, { counter }) {
       return new Promise((resolve, reject) => {
-        this.$axios.put(`/cloud2/contract/${contract.contract_number}/manuell_data/${year}`, { contract })
+        if (counter.id) {
+          this.$axios.put(`/cloud2/contract/counter_values/${counter.id}`, { counter })
+          .then(response => {
+            resolve(response.data.data)
+          })
+          .catch(error => {
+            reject(error)
+          })
+        }else{
+          this.$axios.post(`/cloud2/contract/counter_values`, { counter })
+          .then(response => {
+            resolve(response.data.data)
+          })
+          .catch(error => {
+            reject(error)
+          })
+        }
+      })
+    },
+    async deleteCounterValue ({ commit }, { counter }) {
+      return new Promise((resolve, reject) => {
+        this.$axios.delete(`/cloud2/contract/counter_values/${counter.id}`)
         .then(response => {
-          commit('setContract', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
+    },
+    async storeManuellData ({ commit }, { contractNumber, year, data }) {
+      return new Promise((resolve, reject) => {
+        console.log(contractNumber, year, data)
+        this.$axios.put(`/cloud2/contract/${contractNumber}/annual_statement/${year}/manuell_data`, { data })
+        .then(response => {
           resolve(response.data.data)
         })
         .catch(error => {
