@@ -223,9 +223,9 @@
             <br>
             <div class="label">Gesamtpreis:</div>
             <div>
-              <div style="display: grid; grid-template-columns: auto auto">
-                <div>(netto)&nbsp;</div> <div style="text-align: right">{{ annualStatement.to_pay_net | formatPrice}}</div>
-                <div>(brutto)&nbsp;</div> <div style="text-align: right">{{ annualStatement.to_pay | formatPrice}}</div>
+              <div style="display: grid; grid-template-columns: 5em 8em">
+                <div>(netto)&nbsp;</div> <div style="text-align: right">{{ annualStatement.data.to_pay_net | formatPrice}}</div>
+                <div>(brutto)&nbsp;</div> <div style="text-align: right">{{ annualStatement.data.to_pay | formatPrice}}</div>
               </div>
             </div>
 
@@ -254,6 +254,7 @@
                     Differenz Verbrauch: {{ config.lightcloud.total_extra_usage | formatNumber }} kWh<br>
                     <div v-if="config.lightcloud.total_extra_usage >= 0">Nachzahlung: {{ config.lightcloud.total_extra_price | formatPrice }}</div>
                     <div v-else>Auszahlung: {{ config.lightcloud.total_extra_price | formatPrice }}</div>
+                    Vorauszahlungen Soll: {{ config.lightcloud.total_cloud_price_incl_refund | formatPrice }}
                   </div>
                 </div>
                 <div>
@@ -272,6 +273,7 @@
                     Differenz Verbrauch: {{ config.heatcloud.total_extra_usage | formatNumber }} kWh<br>
                     <div v-if="config.heatcloud.total_extra_usage >= 0">Nachzahlung: {{ config.heatcloud.total_extra_price | formatPrice }}</div>
                     <div v-else>Auszahlung: {{ config.heatcloud.total_extra_price | formatPrice }}</div>
+                    Vorauszahlungen Soll: {{ config.heatcloud.total_cloud_price_incl_refund | formatPrice }}
                   </div>
                   <div v-else>- nicht bestellt -</div>
                 </div>
@@ -291,6 +293,7 @@
                     Differenz Verbrauch: {{ config.ecloud.total_extra_usage | formatNumber }} kWh<br>
                     <div v-if="config.ecloud.total_extra_usage >= 0">Nachzahlung: {{ config.ecloud.total_extra_price | formatPrice }}</div>
                     <div v-else>Auszahlung: {{ config.ecloud.total_extra_price | formatPrice }}</div>
+                    Vorauszahlungen Soll: {{ config.ecloud.total_cloud_price_incl_refund | formatPrice }}
                   </div>
                   <div v-else>- nicht bestellt -</div>
                 </div>
@@ -311,6 +314,9 @@
                 </div>
               </div>
             </div>
+            Vorauszahlungen {{ annualStatement.year }} Soll: {{ annualStatement.data.total_cloud_price_incl_refund | formatPrice }}<br>
+            Vorauszahlungen {{ annualStatement.year }} Haben: {{ annualStatement.data.pre_payments_total | formatPrice }}<br>
+            <br>
             <table>
               <tr>
                 <th colspan="3">&nbsp;</th>
