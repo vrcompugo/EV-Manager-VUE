@@ -3668,6 +3668,13 @@ export default {
         this.loading_percent = 0
         this.loading_message = "Eingabedaten verarbeiten"
         const response = await this.$axios.put(`/quote_calculator/${this.id}`, this.data)
+        if (response.data.status === "error") {
+          this.calculated["invalid_form"] = true
+          if (!this.calculated["errors"]) {
+            this.calculated["errors"] = []
+          }
+          this.calculated["errors"].push(response.data.message)
+        }
         this.data = response.data.data.data
         if (response.data.data.histories) {
           this.histories = response.data.data.histories
