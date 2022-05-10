@@ -159,7 +159,7 @@
                                 <v-checkbox
                                   v-model="data.additional_cloud_contract"
                                   value="true"
-                                  label="Cloud Kombinationsvertrag"
+                                  label="Cloud Kombinationsvertrag (nur 2 Jahre Laufzeit)"
                                   @change="calculateCloud" />
                               </div>
                             </div>
