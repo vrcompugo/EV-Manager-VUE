@@ -4,6 +4,7 @@ const daysShort = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.']
 
 export function dateFormat (date, format) {
   let t
+  date = date.replace(" ", "T")
   const d = new Date(date)
   if (format === 'relative') {
     t = new Date()
@@ -23,6 +24,7 @@ export function dateFormat (date, format) {
 }
 
 export function dateTimeFormat (date, format) {
+  date = date.replace(" ", "T")
   const d = new Date(date)
   return dateFormat(date, format) + ' ' + ('0' + d.getHours()).substr(-2) + ':' + ('0' + d.getMinutes()).substr(-2)
 }

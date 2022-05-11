@@ -109,6 +109,7 @@
             <div>
               <b>eCloud</b><br>
               <div v-if="config.ecloud">
+                Zählernummer: {{ config.ecloud.power_meter_number }}<br>
                 Verbrauch: {{ config.ecloud.usage }} kWh<br>
                 Lieferbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
                 Mehrverbrauch: {{ (config.ecloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
@@ -125,7 +126,9 @@
             </div>
             <div>
               <b>Cashback</b><br>
-              Minderverbrauch: {{ (config.cashback_price_per_kwh * 100) | formatNumber }} Cent/kWh
+              Minderverbrauch: {{ (config.cashback_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
+              <b>Cashback eCloud</b><br>
+              Minderverbrauch: {{ (config.ecloud_cashback_price_per_kwh * 100) | formatNumber }} Cent/kWh
             </div>
           </div>
         </div>
@@ -289,7 +292,6 @@
                     Abrechnungsende: {{ config.ecloud.delivery_end | dateFormat }}<br>
                     abgedeckter Verbrauch: {{ config.ecloud.allowed_usage | formatNumber }} kWh<br>
                     tatsächlicher Verbrauch: {{ config.ecloud.actual_usage | formatNumber }} kWh<br>
-                    - davon Netzbezug: {{ config.ecloud.actual_usage_net | formatNumber }} kWh<br>
                     Differenz Verbrauch: {{ config.ecloud.total_extra_usage | formatNumber }} kWh<br>
                     <div v-if="config.ecloud.total_extra_usage >= 0">Nachzahlung: {{ config.ecloud.total_extra_price | formatPrice }}</div>
                     <div v-else>Auszahlung: {{ config.ecloud.total_extra_price | formatPrice }}</div>
@@ -310,7 +312,9 @@
                   <div class="layout horizontal">
                     <b class="flex">Cashback</b>
                   </div>
-                  Minderverbrauch: {{ (config.cashback_price_per_kwh * 100) | formatNumber }} Cent/kWh
+                  Minderverbrauch: {{ (config.cashback_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
+                  <b>Cashback eCloud</b><br>
+                  Minderverbrauch: {{ (config.ecloud_cashback_price_per_kwh * 100) | formatNumber }} Cent/kWh
                 </div>
               </div>
             </div>
@@ -387,6 +391,7 @@
                 <v-text-field label="Mehrverbrauch Wärmecloud" v-model="manuellData[annualStatement.year].heatcloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Mehrverbrauch eCloud" v-model="manuellData[annualStatement.year].ecloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Cashback" v-model="manuellData[annualStatement.year].cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+                <v-text-field label="Cashback eCloud" v-model="manuellData[annualStatement.year].ecloud_cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
               </div>
               <v-textarea
                 label="Kommentarfeld"
@@ -394,9 +399,25 @@
               ></v-textarea><br>
               <v-btn @click="storeManuellData(annualStatement.year)" small>Speichern</v-btn>
             </div>
+            <br>
+            <div v-if="annualStatement.data.errors && annualStatement.data.errors.length > 0">
+              <b>Abrechnung hat Fehler:</b><br>
+              <div v-for="error in annualStatement.data.errors" :key="error">
+                {{ error }}
+              </div>
+              <br>
+            </div>
+            <div v-if="annualStatement.data.warnings && annualStatement.data.warnings.length > 0">
+              <b>Abrechnung hat Warnungen:</b><br>
+              <div v-for="warning in annualStatement.data.warnings" :key="warning">
+                {{ warning }}
+              </div>
+              <br>
+            </div>
           </div>
-          <br>
-          <v-btn @click="generateAnnualStatement(annualStatement.year)">Abrechnung erzeugen</v-btn>
+          <v-btn @click="generateAnnualStatement(annualStatement.year)" style="margin-right: 1em">Daten neuladen</v-btn>
+          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal.status === 'Neu')" @click="generateAnnualStatementPDF(annualStatement.year)" style="margin-right: 1em">PDF erzeugen</v-btn>
+          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal.status === 'Neu')" @click="generateAnnualStatement(annualStatement.year)">verschicken</v-btn>
         </div>
       </div>
       <br>
@@ -484,8 +505,18 @@ export default {
         contractNumber: this.contract.contract_number
       })
       .catch (error => this.showError(error))
-      this.loading = false
       this.reload(true)
+      this.loading = false
+    },
+    async generateAnnualStatementPDF (year) {
+      this.loading = true
+      await this.$store.dispatch('cloud_contract/generateAnnualStatementPDF', {
+        year: year,
+        contractNumber: this.contract.contract_number
+      })
+      .catch (error => this.showError(error))
+      this.reload(true)
+      this.loading = false
     },
     async storeCounterValue () {
       this.loading = true
@@ -493,9 +524,9 @@ export default {
         counter: this.editedCounter
       })
       .then((response) => {
-        this.loading = false
         this.generateAnnualStatement(this.editStatement.year)
         this.reload(true)
+        this.loading = false
       })
       .catch (error => this.showError(error))
     },
@@ -507,9 +538,9 @@ export default {
         data: this.manuellData[year]
       })
       .then((response) => {
-        this.loading = false
         this.generateAnnualStatement(year)
         this.reload(true)
+        this.loading = false
       })
       .catch (error => this.showError(error))
     },
@@ -519,9 +550,9 @@ export default {
           this.loading = true
           this.$store.dispatch('cloud_contract/deleteCounterValue', { counter })
           .then((response) => {
-            this.loading = false
             this.generateAnnualStatement(year)
             this.reload(true)
+            this.loading = false
           })
           .catch (error => this.showError(error))
         }

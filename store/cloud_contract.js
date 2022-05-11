@@ -62,6 +62,18 @@ export const state = () => ({
         })
       })
     },
+    async generateAnnualStatementPDF ({ commit }, { year, contractNumber, statement }) {
+      return new Promise((resolve, reject) => {
+        this.$axios.post(`/cloud2/contract/${contractNumber}/annual_statement/${year}/pdf`, statement)
+        .then(response => {
+          commit('setContract', response.data.data)
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+      })
+    },
     async addCounterValue ({ commit }, { counter }) {
       return new Promise((resolve, reject) => {
         if (counter.id) {
