@@ -355,6 +355,13 @@
                 <th style="text-align: right;">Datum</th>
                 <th style="text-align: right;">Wert</th>
               </tr>
+              <tr v-for="counter in annualStatement.data.available_values" :key="counter.number + counter.date">
+                <td>{{ counter.number }}</td>
+                <td>{{ counter.origin }}</td>
+                <td style="text-align: right;">{{ counter.date | dateFormat }}</td>
+                <td style="text-align: right;">{{ counter.value | formatNumber(0) }} kWh</td>
+                <td>&nbsp;</td>
+              </tr>
               <tr v-for="counter in annualStatement.data.manuell_counter_values" :key="counter.number + counter.date">
                 <td>{{ counter.number }}</td>
                 <td>{{ counter.origin }}</td>
@@ -374,13 +381,19 @@
               <v-btn v-if="editedCounter.id" @click="editStatement = annualStatement; storeCounterValue()" small>Speichern</v-btn>
               <v-btn v-if="editedCounter.id" @click="editedCounter = {}" small>Abbrechen</v-btn>
             </div>
-          </div>
-          <div v-if="manuellData && manuellData[annualStatement.year]" class="layout horizontal" style="flex: 0; justify-content: flex-start; align-items: center">
-            <v-text-field label="Mehrverbrauch Lichtcloud" v-model="manuellData[annualStatement.year].lightcloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right" style="flex: 0 1 12em; margin-right: 1em" />
-            <v-text-field label="Mehrverbrauch Wärmecloud" v-model="manuellData[annualStatement.year].heatcloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
-            <v-text-field label="Mehrverbrauch eCloud" v-model="manuellData[annualStatement.year].ecloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
-            <v-text-field label="Cashback" v-model="manuellData[annualStatement.year].cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
-            <v-btn @click="storeManuellData(annualStatement.year)" small>Speichern</v-btn>
+            <div v-if="manuellData && manuellData[annualStatement.year]">
+              <div class="layout horizontal" style="flex: 0; justify-content: flex-start; align-items: center">
+                <v-text-field label="Mehrverbrauch Lichtcloud" v-model="manuellData[annualStatement.year].lightcloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right" style="flex: 0 1 12em; margin-right: 1em" />
+                <v-text-field label="Mehrverbrauch Wärmecloud" v-model="manuellData[annualStatement.year].heatcloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+                <v-text-field label="Mehrverbrauch eCloud" v-model="manuellData[annualStatement.year].ecloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+                <v-text-field label="Cashback" v-model="manuellData[annualStatement.year].cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+              </div>
+              <v-textarea
+                label="Kommentarfeld"
+                v-model="manuellData[annualStatement.year].comment"
+              ></v-textarea><br>
+              <v-btn @click="storeManuellData(annualStatement.year)" small>Speichern</v-btn>
+            </div>
           </div>
           <br>
           <v-btn @click="generateAnnualStatement(annualStatement.year)">Abrechnung erzeugen</v-btn>
