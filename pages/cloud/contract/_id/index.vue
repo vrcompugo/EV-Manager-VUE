@@ -78,6 +78,9 @@
               <div v-if="config.lightcloud">
                 SmartMe Zähler: {{ config.lightcloud.smartme_number }}<br>
                 Zählernummer: {{ config.lightcloud.power_meter_number }}<br>
+                <div v-if="config.lightcloud.additional_power_meter_numbers">
+                  zus. Zählernummern: <span v-for="number in config.lightcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                </div>
                 Verbrauch: {{ config.lightcloud.usage }} kWh<br>
                 Lieferbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
                 Mehrverbrauch: {{ (config.lightcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>

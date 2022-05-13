@@ -20,7 +20,7 @@
     <div class="layout horizontal">
       <v-text-field
         v-model="usage"
-        label="Verbauch pro Jahr"
+        label="Verbrauch pro Jahr"
         suffix="kWh"
         type="number"
         step="1"
