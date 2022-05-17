@@ -121,11 +121,20 @@
               <div v-else>- nicht bestellt -</div>
             </div>
             <div>
-              <b>Consumer</b><br>
               <div v-if="config.consumers.length > 0">
-
+                <div v-for="(consumer, index) in config.consumers" :key="consumer.label">
+                  <b>Consumer {{ index + 1 }}</b><br>
+                  Zählernummer: {{ consumer.power_meter_number }}<br>
+                  Verbrauch: {{ consumer.usage }} kWh<br>
+                  Lieferbeginn: {{ consumer.delivery_begin | dateFormat }}<br>
+                  Bitrix Auftrag: <a v-if="consumer.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + consumer.deal.id + '/'" target="_blank">Link</a>
+                </div>
+                Mehrverbrauch: {{ (config.consumer_data.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
               </div>
-              <div v-else>- nicht bestellt -</div>
+              <div v-else>
+                <b class="flex">Consumer</b><br>
+                - nicht bestellt -
+              </div>
             </div>
             <div>
               <b>Cashback</b><br>
@@ -303,13 +312,25 @@
                   <div v-else>- nicht bestellt -</div>
                 </div>
                 <div>
-                  <div class="layout horizontal">
-                    <b class="flex">Consumer</b>
-                  </div>
                   <div v-if="config.consumers.length > 0">
-
+                    <div v-for="(consumer, index) in config.consumers" :key="consumer.label">
+                      <b>Consumer {{ index + 1 }}</b><br>
+                      Zählernummer: {{ consumer.power_meter_number }}<br>
+                      Abrechnungsbeginn: {{ consumer.delivery_begin | dateFormat }}<br>
+                      Abrechnungsende: {{ consumer.delivery_end | dateFormat }}<br>
+                      abgedeckter Verbrauch: {{ consumer.allowed_usage | formatNumber }} kWh<br>
+                      tatsächlicher Verbrauch: {{ consumer.actual_usage | formatNumber }} kWh<br>
+                      Differenz Verbrauch: {{ consumer.total_extra_usage | formatNumber }} kWh<br>
+                      <div v-if="consumer.total_extra_usage >= 0">Nachzahlung: {{ consumer.total_extra_price | formatPrice }}</div>
+                      <div v-else>Auszahlung: {{ consumer.total_extra_price | formatPrice }}</div>
+                      Vorauszahlungen Soll: {{ consumer.total_cloud_price_incl_refund | formatPrice }}
+                    </div>
+                    Mehrverbrauch: {{ (config.consumer_data.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                   </div>
-                  <div v-else>- nicht bestellt -</div>
+                  <div v-else>
+                    <b class="flex">Consumer</b><br>
+                    - nicht bestellt -
+                  </div>
                 </div>
                 <div>
                   <div class="layout horizontal">
