@@ -297,6 +297,7 @@
                     <b class="flex">eCloud</b>
                   </div>
                   <div v-if="config.ecloud">
+                    Zählernummer: {{ config.ecloud.power_meter_number }}<br>
                     Verbrauch: {{ config.ecloud.usage }} kWh<br>
                     Lieferbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
                     Mehrverbrauch: {{ (config.ecloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
@@ -518,9 +519,9 @@ export default {
             this.manuellData[contract.annual_statements[i].year] = {}
           }
         }
+        this.loading = false
       })
       .catch (error => this.showError(error))
-      this.loading = false
     },
     async generateAnnualStatement (year) {
       this.loading = true
@@ -529,8 +530,8 @@ export default {
         contractNumber: this.contract.contract_number
       })
       .catch (error => this.showError(error))
-      this.reload(true)
       this.loading = false
+      this.reload(true)
     },
     async generateAnnualStatementPDF (year) {
       this.loading = true
@@ -539,8 +540,8 @@ export default {
         contractNumber: this.contract.contract_number
       })
       .catch (error => this.showError(error))
-      this.reload(true)
       this.loading = false
+      this.reload(true)
     },
     async storeCounterValue () {
       this.loading = true
@@ -548,9 +549,9 @@ export default {
         counter: this.editedCounter
       })
       .then((response) => {
+        this.loading = false
         this.generateAnnualStatement(this.editStatement.year)
         this.reload(true)
-        this.loading = false
       })
       .catch (error => this.showError(error))
     },
@@ -562,9 +563,9 @@ export default {
         data: this.manuellData[year]
       })
       .then((response) => {
+        this.loading = false
         this.generateAnnualStatement(year)
         this.reload(true)
-        this.loading = false
       })
       .catch (error => this.showError(error))
     },
@@ -574,9 +575,9 @@ export default {
           this.loading = true
           this.$store.dispatch('cloud_contract/deleteCounterValue', { counter })
           .then((response) => {
+            this.loading = false
             this.generateAnnualStatement(year)
             this.reload(true)
-            this.loading = false
           })
           .catch (error => this.showError(error))
         }
