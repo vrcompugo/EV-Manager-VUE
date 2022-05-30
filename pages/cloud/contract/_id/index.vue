@@ -77,8 +77,11 @@
               <b>Lichtcloud</b><br>
               <div v-if="config.lightcloud">
                 SmartMe Zähler: {{ config.lightcloud.smartme_number }}<br>
+                <div v-if="config.lightcloud.additional_smartme_numbers && config.lightcloud.additional_smartme_numbers.length > 0">
+                  zus. SmartMe Zählernummern: <span v-for="number in config.lightcloud.additional_smartme_numbers" :key="number">{{ number }} </span>
+                </div>
                 Zählernummer: {{ config.lightcloud.power_meter_number }}<br>
-                <div v-if="config.lightcloud.additional_power_meter_numbers">
+                <div v-if="config.lightcloud.additional_power_meter_numbers && config.lightcloud.additional_power_meter_numbers.length > 0">
                   zus. Zählernummern: <span v-for="number in config.lightcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                 </div>
                 Verbrauch: {{ config.lightcloud.usage }} kWh<br>
@@ -254,6 +257,9 @@
                   </div>
                   <div v-if="config.lightcloud">
                     SmartMe Zähler: {{ config.lightcloud.smartme_number }}<br>
+                  <div v-if="config.lightcloud.additional_smartme_numbers && config.lightcloud.additional_smartme_numbers.length > 0">
+                    zus. SmartMe Zählernummern: <span v-for="number in config.lightcloud.additional_smartme_numbers" :key="number">{{ number }} </span>
+                  </div>
                     Zählernummer: {{ config.lightcloud.power_meter_number }}<br>
                     Mehrverbrauch: {{ (config.lightcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                     Abrechnungsbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
@@ -418,6 +424,7 @@
                 <v-text-field label="Cashback" v-model="manuellData[annualStatement.year].cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Cashback eCloud" v-model="manuellData[annualStatement.year].ecloud_cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
               </div>
+              <v-checkbox label="Netzbezug ausblenden" v-model="manuellData[annualStatement.year].hide_netusage"></v-checkbox>
               <v-textarea
                 label="Kommentarfeld"
                 v-model="manuellData[annualStatement.year].comment"
