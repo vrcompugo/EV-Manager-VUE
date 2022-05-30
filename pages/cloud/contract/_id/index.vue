@@ -257,10 +257,13 @@
                   </div>
                   <div v-if="config.lightcloud">
                     SmartMe Zähler: {{ config.lightcloud.smartme_number }}<br>
-                  <div v-if="config.lightcloud.additional_smartme_numbers && config.lightcloud.additional_smartme_numbers.length > 0">
-                    zus. SmartMe Zählernummern: <span v-for="number in config.lightcloud.additional_smartme_numbers" :key="number">{{ number }} </span>
-                  </div>
+                    <div v-if="config.lightcloud.additional_smartme_numbers && config.lightcloud.additional_smartme_numbers.length > 0">
+                      zus. SmartMe Zählernummern: <span v-for="number in config.lightcloud.additional_smartme_numbers" :key="number">{{ number }} </span>
+                    </div>
                     Zählernummer: {{ config.lightcloud.power_meter_number }}<br>
+                    <div v-if="config.lightcloud.additional_power_meter_numbers && config.lightcloud.additional_power_meter_numbers.length > 0">
+                      zus. Zählernummern: <span v-for="number in config.lightcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                    </div>
                     Mehrverbrauch: {{ (config.lightcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                     Abrechnungsbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
                     Abrechnungsende: {{ config.lightcloud.delivery_end | dateFormat }}<br>
