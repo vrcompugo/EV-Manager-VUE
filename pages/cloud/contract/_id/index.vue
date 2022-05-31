@@ -427,7 +427,10 @@
                 <v-text-field label="Cashback" v-model="manuellData[annualStatement.year].cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Cashback eCloud" v-model="manuellData[annualStatement.year].ecloud_cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
               </div>
-              <v-checkbox label="Netzbezug ausblenden" v-model="manuellData[annualStatement.year].hide_netusage"></v-checkbox>
+              <div class="layout horizontal">
+                <v-checkbox label="Netzbezug ausblenden" v-model="manuellData[annualStatement.year].hide_netusage" style="margin-right: 1em"></v-checkbox>
+                <v-checkbox label="Zähler Zeitbegrenzung umgehen" v-model="manuellData[annualStatement.year].skip_counter_date_range_limiter"></v-checkbox>
+              </div>
               <v-textarea
                 label="Kommentarfeld"
                 v-model="manuellData[annualStatement.year].comment"
