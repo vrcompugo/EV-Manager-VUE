@@ -780,11 +780,7 @@
                                   @input="formChanged"
                                   label="Bezeichnung"
                                   style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                                <v-checkbox
-                                  label="ist Flachdach"
-                                  style="margin: 0 1em"
-                                  @change="roof.direction = 'west_east'; calculateCloud()"
-                                  v-model="roof.is_flat"/>
+                                <v-btn @click="showEditRoof(index)" small style="margin-right: 1em">Konfigurieren</v-btn>
                                 <v-select
                                   v-if="!roof.is_flat"
                                   v-model="roof.direction" :items="[
@@ -817,6 +813,7 @@
                                   type="number"
                                   class="align-right"
                                   style="flex: 0 1 8em;"></v-text-field>
+
                                 <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                               </div>
                             </div>
@@ -2479,6 +2476,34 @@
     </v-overlay>
 
     <v-dialog
+      v-model="editRoofDialog"
+      width="1200"
+    >
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title >
+          Dachfläche bearbeiten
+        </v-card-title>
+
+        <v-card-text>
+          <RoofForm v-model="editRoof" :roofs="data.roofs" :index="roofEditIndex" />
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="editRoofDialog = false"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
       v-model="links_dialog"
       width="500"
     >
@@ -3084,12 +3109,14 @@
 <script>
 import HistorySelect from '~/components/quote_calculator/history_select'
 import AddressForm from '~/components/address/form'
+import RoofForm from '~/components/quote_calculator/roof_detail'
 
 export default {
 
   components: {
     AddressForm,
-    HistorySelect
+    HistorySelect,
+    RoofForm
   },
 
   mounted(){
@@ -3098,6 +3125,8 @@ export default {
 
   data(){
     return {
+      "editRoofDialog": false,
+      "roofEditIndex": -1,
       "activePicker": null,
       "datepickerMenu": false,
       "datepickerMenu2": false,
@@ -3884,6 +3913,10 @@ export default {
     },
     datePickerSave2 (date) {
       this.$refs.datepickerMenu2.save(date)
+    },
+    showEditRoof (index) {
+      this.roofEditIndex = index
+      this.editRoofDialog = true
     }
   }
 }
