@@ -317,13 +317,13 @@
                                     style="margin-right: 1em"
                                     @change="calculateCloud"
                                     v-model="data.extra_options"
-                                    value="technik_service_packet_autumn_extra" />-->
+                                    value="technik_service_packet_autumn_extra" />
                                   <v-checkbox
                                     label="Service, Technik &amp; Garantie Paket Frühlings Highlight"
                                     style="margin-right: 1em"
                                     @change="calculateCloud"
                                     v-model="data.extra_options"
-                                    value="technik_service_packet_spring_extra" />
+                                    value="technik_service_packet_spring_extra" />-->
                                 </div>
                               </div>
                               <!--<div class="flex">
