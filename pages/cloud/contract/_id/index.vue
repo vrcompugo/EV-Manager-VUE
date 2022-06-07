@@ -235,8 +235,7 @@
               </v-btn-toggle>
             </div>
             -->
-            Bitrix Auftrag: <a v-if="annualStatement.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + annualStatement.deal.id + '/'" target="_blank">Link</a>
-            ({{ annualStatement.deal.status }})<br>
+            Bitrix Auftrag: <a v-if="annualStatement.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + annualStatement.deal.id + '/'" target="_blank">Link ({{ annualStatement.deal.status }})</a><br>
             Abrechnungs PDF: <a v-if="annualStatement.pdf_link" :href="annualStatement.pdf_link" target="_blank">Link</a><br>
             <br>
             <div class="label">Gesamtpreis:</div>
@@ -454,8 +453,8 @@
             </div>
           </div>
           <v-btn @click="generateAnnualStatement(annualStatement.year)" style="margin-right: 1em">Daten neuladen</v-btn>
-          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal.status === 'Neu')" @click="generateAnnualStatementPDF(annualStatement.year)" style="margin-right: 1em">PDF erzeugen</v-btn>
-          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal.status === 'Neu')" @click="generateAnnualStatement(annualStatement.year)">verschicken</v-btn>
+          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal && annualStatement.deal.status === 'Neu')" @click="generateAnnualStatementPDF(annualStatement.year)" style="margin-right: 1em">PDF erzeugen</v-btn>
+          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal && annualStatement.deal.status === 'Neu')" @click="generateAnnualStatement(annualStatement.year)">verschicken</v-btn>
         </div>
       </div>
       <br>
