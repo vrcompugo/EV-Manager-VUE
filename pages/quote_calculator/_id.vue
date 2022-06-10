@@ -780,7 +780,7 @@
                                   @input="formChanged"
                                   label="Bezeichnung"
                                   style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                                <v-btn @click="showEditRoof(index)" small style="margin-right: 1em">Konfigurieren</v-btn>
+                                <v-btn @click="showEditRoof(index)" small style="margin-right: 1em"><v-icon style="color:#D32F2F;">mdi-close</v-icon> Konfigurieren</v-btn>
                                 <v-select
                                   v-if="!roof.is_flat"
                                   v-model="roof.direction" :items="[
@@ -2479,12 +2479,12 @@
       v-model="editRoofDialog"
       width="1200"
     >
-      <v-card>
+      <v-card v-if="data.roofs && data.roofs[roofEditIndex]">
         <v-card-title class="headline grey lighten-2" primary-title >
-          Dachfläche bearbeiten
+          Dachfläche {{ data.roofs[roofEditIndex].label }} bearbeiten
         </v-card-title>
 
-        <v-card-text>
+        <v-card-text style="height: 61vh; overflow: auto;">
           <RoofForm v-model="editRoof" :roofs="data.roofs" :index="roofEditIndex" />
         </v-card-text>
 
@@ -2570,7 +2570,10 @@
             <v-btn v-if="pdf_summary_link" :href="pdf_summary_link" target="_blank" style="margin-top: 0.5em; margin-left: 1em; margin-bottom: 0.5em">Energiekonzept öffnen</v-btn>
           </div>
           <div>
-            <v-btn v-if="pdf_contract_summary_part4_file_link" :href="pdf_contract_summary_part4_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Heizungskonzept öffnen</v-btn>
+            <v-btn v-if="pdf_contract_summary_part4_file_link" :href="pdf_contract_summary_part4_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Technischer Aufnahmebogen öffnen</v-btn>
+          </div>
+          <div>
+            <v-btn v-if="pdf_contract_summary_part4_1_file_link" :href="pdf_contract_summary_part4_1_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Heizungskonzept öffnen</v-btn>
           </div>
           <div>
             <v-btn v-if="pdf_quote_summary_link" :href="pdf_quote_summary_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Angebote öffnen</v-btn>
@@ -2645,9 +2648,6 @@
           </div>
           <div class="h3" v-if="data.has_pv_quote">
             <v-btn :href="data.upload_link_invoices" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Rechnung vom bisherigem Anbieter</v-btn>
-          </div>
-          <div class="h3">
-            <v-btn :href="data.upload_link_contract" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Vertragsunterlagen</v-btn>
           </div>
         </v-card-text>
 
@@ -3219,6 +3219,7 @@ export default {
       "pdf_summary_link": undefined,
       "pdf_contract_summary_part1_file_id": undefined,
       "pdf_contract_summary_part4_file_link": undefined,
+      "pdf_contract_summary_part4_1_file_link": undefined,
       "pdf_contract_summary_link": undefined,
       "pdf_datasheets_link": undefined,
       "pv_efficiancy_min": "",
@@ -3263,6 +3264,7 @@ export default {
         data["pdf_summary_link"] = offerData.data.data.pdf_summary_link
         data["pdf_contract_summary_part1_file_id"] = offerData.data.data.pdf_contract_summary_part1_file_id
         data["pdf_contract_summary_part4_file_link"] = offerData.data.data.pdf_contract_summary_part4_file_link
+        data["pdf_contract_summary_part4_1_file_link"] = offerData.data.data.pdf_contract_summary_part4_1_file_link
         data["pdf_commission_link"] = offerData.data.data.pdf_commission_link
         data["pdf_quote_summary_link"] = offerData.data.data.pdf_quote_summary_link
         data["pdf_contract_summary_link"] = offerData.data.data.pdf_contract_summary_link
@@ -3771,6 +3773,7 @@ export default {
         this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
         this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
         this.pdf_contract_summary_part4_file_link = response9.data.data.pdf_contract_summary_part4_file_link
+        this.pdf_contract_summary_part4_1_file_link = response9.data.data.pdf_contract_summary_part4_1_file_link
         this.form_dirty = false
       } catch (error) {
 
