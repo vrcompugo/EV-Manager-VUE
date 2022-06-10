@@ -387,6 +387,19 @@
                                   @change="calculateCloud"
                                   v-model="data.extra_options"
                                   value="new_power_closet" />
+                                  <div v-if="data.extra_options.indexOf('new_power_closet') >= 0">
+                                    <v-select
+                                      label="Anzahl Zählerfelder"
+                                      v-model="data.extra_options_new_power_closet_size" :items="[
+                                        {'value':'2','label':'2 Zählerfelder'},
+                                        {'value':'3','label':'3 Zählerfelder'},
+                                        {'value':'4','label':'4 Zählerfelder'}
+                                      ]"
+                                      @input="calculateCloud"
+                                      style="max-width: 14em;"
+                                      item-text="label"
+                                      item-value="value"></v-select>
+                                  </div>
                               </div>
                               <div class="flex">
                                 <v-checkbox
