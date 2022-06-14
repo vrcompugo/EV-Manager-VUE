@@ -412,6 +412,7 @@
             </table>
             <div class="layout horizontal" style="flex: 0; justify-content: flex-start; align-items: center">
               <v-text-field label="Zählernummer" v-model="editedCounter.number" style="flex: 0 1 12em; margin-right: 1em" />
+              <v-text-field label="Ursprung" v-model="editedCounter.origin" style="flex: 0 1 12em; margin-right: 1em" />
               <v-text-field label="Stand Datum" type="date" v-model="editedCounter.date" style="flex: 0 1 12em; margin-right: 1em" />
               <v-text-field label="Stand Wert" type="number" step="1" class="right" v-model="editedCounter.value" suffix="kWh" style="flex: 0 1 12em; margin-right: 1em" />
               <v-btn v-if="!editedCounter.id" @click="editStatement = annualStatement; storeCounterValue()" small>Zählerwert manuell hinzufügen</v-btn>
