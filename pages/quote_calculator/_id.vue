@@ -780,7 +780,11 @@
                                   @input="formChanged"
                                   label="Bezeichnung"
                                   style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                                <v-btn @click="showEditRoof(index)" small style="margin-right: 1em"><v-icon style="color:#D32F2F;">mdi-close</v-icon> Konfigurieren</v-btn>
+                                <v-btn @click="showEditRoof(index)" small style="margin-right: 1em">
+                                  <v-icon v-if="!roof.is_valid" style="color:#D32F2F;">mdi-close</v-icon>
+                                  <v-icon v-if="roof.is_valid" style="color:#2E7D32;">mdi-check</v-icon>
+                                  Konfigurieren
+                                </v-btn>
                                 <v-select
                                   v-if="!roof.is_flat"
                                   v-model="roof.direction" :items="[
@@ -2485,7 +2489,7 @@
         </v-card-title>
 
         <v-card-text style="height: 61vh; overflow: auto;">
-          <RoofForm v-model="editRoof" :roofs="data.roofs" :index="roofEditIndex" />
+          <RoofForm ref="roof_form" :roofs="data.roofs" :index="roofEditIndex" />
         </v-card-text>
 
         <v-divider></v-divider>
@@ -2495,7 +2499,7 @@
           <v-btn
             color="primary"
             text
-            @click="editRoofDialog = false"
+            @click="$refs.roof_form.validate(); editRoofDialog = false"
           >
             OK
           </v-btn>
@@ -2570,10 +2574,10 @@
             <v-btn v-if="pdf_summary_link" :href="pdf_summary_link" target="_blank" style="margin-top: 0.5em; margin-left: 1em; margin-bottom: 0.5em">Energiekonzept öffnen</v-btn>
           </div>
           <div>
-            <v-btn v-if="pdf_contract_summary_part4_file_link" :href="pdf_contract_summary_part4_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Technischer Aufnahmebogen öffnen</v-btn>
+            <v-btn v-if="pdf_contract_summary_part4_file_link" :href="pdf_contract_summary_part4_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Heizungskonzept öffnen</v-btn>
           </div>
           <div>
-            <v-btn v-if="pdf_contract_summary_part4_1_file_link" :href="pdf_contract_summary_part4_1_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Heizungskonzept öffnen</v-btn>
+            <v-btn v-if="pdf_contract_summary_part4_1_file_link" :href="pdf_contract_summary_part4_1_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Technischer Aufnahmebogen öffnen</v-btn>
           </div>
           <div>
             <v-btn v-if="pdf_quote_summary_link" :href="pdf_quote_summary_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Angebote öffnen</v-btn>
@@ -3103,6 +3107,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
   </div>
 </template>
 
@@ -3691,6 +3696,16 @@ export default {
         if(this.data.power_usage === undefined || this.data.power_usage === ''){
           this.$refs["power_usage"].validate(true)
           this.$refs["power_usage"].focus()
+          return
+        }
+      }
+      for (let i = 0; i < this.data.roofs.length; i++) {
+        if (!this.data.roofs[i].is_valid) {
+          this.calculated["invalid_form"] = true
+          if (!this.calculated["errors"]) {
+            this.calculated["errors"] = []
+          }
+          this.calculated["errors"].push("Nicht alle Dachflächen korrigiert")
           return
         }
       }
