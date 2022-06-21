@@ -3712,14 +3712,16 @@ export default {
           return
         }
       }
-      for (let i = 0; i < this.data.roofs.length; i++) {
-        if (!this.data.roofs[i].is_valid) {
-          this.calculated["invalid_form"] = true
-          if (!this.calculated["errors"]) {
-            this.calculated["errors"] = []
+      if (this.data["has_pv_quote"]) {
+        for (let i = 0; i < this.data.roofs.length; i++) {
+          if (!this.data.roofs[i].is_valid) {
+            this.calculated["invalid_form"] = true
+            if (!this.calculated["errors"]) {
+              this.calculated["errors"] = []
+            }
+            this.calculated["errors"].push("Nicht alle Dachflächen korrigiert")
+            return
           }
-          this.calculated["errors"].push("Nicht alle Dachflächen korrigiert")
-          return
         }
       }
       this.loading = true
