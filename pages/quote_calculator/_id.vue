@@ -793,11 +793,11 @@
                                   @input="formChanged"
                                   label="Bezeichnung"
                                   style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                                <v-checkbox
-                                  label="ist Flachdach"
-                                  style="margin: 0 1em"
-                                  @change="roof.direction = 'west_east'; calculateCloud()"
-                                  v-model="roof.is_flat"/>
+                                <v-btn @click="showEditRoof(index)" small style="margin-right: 1em">
+                                  <v-icon v-if="!roof.is_valid" style="color:#D32F2F;">mdi-close</v-icon>
+                                  <v-icon v-if="roof.is_valid" style="color:#2E7D32;">mdi-check</v-icon>
+                                  Konfigurieren
+                                </v-btn>
                                 <v-select
                                   v-if="!roof.is_flat"
                                   v-model="roof.direction" :items="[
@@ -830,6 +830,7 @@
                                   type="number"
                                   class="align-right"
                                   style="flex: 0 1 8em;"></v-text-field>
+
                                 <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                               </div>
                             </div>
@@ -2492,6 +2493,34 @@
     </v-overlay>
 
     <v-dialog
+      v-model="editRoofDialog"
+      width="1200"
+    >
+      <v-card v-if="data.roofs && data.roofs[roofEditIndex]">
+        <v-card-title class="headline grey lighten-2" primary-title >
+          Dachfläche {{ data.roofs[roofEditIndex].label }} bearbeiten
+        </v-card-title>
+
+        <v-card-text style="height: 61vh; overflow: auto;">
+          <RoofForm ref="roof_form" :roofs="data.roofs" :index="roofEditIndex" />
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="$refs.roof_form.validate(); editRoofDialog = false"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
       v-model="links_dialog"
       width="500"
     >
@@ -2559,6 +2588,9 @@
           </div>
           <div>
             <v-btn v-if="pdf_contract_summary_part4_file_link" :href="pdf_contract_summary_part4_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Heizungskonzept öffnen</v-btn>
+          </div>
+          <div>
+            <v-btn v-if="pdf_contract_summary_part4_1_file_link" :href="pdf_contract_summary_part4_1_file_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Technischer Aufnahmebogen öffnen</v-btn>
           </div>
           <div>
             <v-btn v-if="pdf_quote_summary_link" :href="pdf_quote_summary_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Angebote öffnen</v-btn>
@@ -2633,9 +2665,6 @@
           </div>
           <div class="h3" v-if="data.has_pv_quote">
             <v-btn :href="data.upload_link_invoices" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Rechnung vom bisherigem Anbieter</v-btn>
-          </div>
-          <div class="h3">
-            <v-btn :href="data.upload_link_contract" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Vertragsunterlagen</v-btn>
           </div>
         </v-card-text>
 
@@ -3091,18 +3120,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
   </div>
 </template>
 
 <script>
 import HistorySelect from '~/components/quote_calculator/history_select'
 import AddressForm from '~/components/address/form'
+import RoofForm from '~/components/quote_calculator/roof_detail'
 
 export default {
 
   components: {
     AddressForm,
-    HistorySelect
+    HistorySelect,
+    RoofForm
   },
 
   mounted(){
@@ -3111,6 +3143,8 @@ export default {
 
   data(){
     return {
+      "editRoofDialog": false,
+      "roofEditIndex": -1,
       "activePicker": null,
       "datepickerMenu": false,
       "datepickerMenu2": false,
@@ -3203,6 +3237,7 @@ export default {
       "pdf_summary_link": undefined,
       "pdf_contract_summary_part1_file_id": undefined,
       "pdf_contract_summary_part4_file_link": undefined,
+      "pdf_contract_summary_part4_1_file_link": undefined,
       "pdf_contract_summary_link": undefined,
       "pdf_datasheets_link": undefined,
       "pv_efficiancy_min": "",
@@ -3247,6 +3282,7 @@ export default {
         data["pdf_summary_link"] = offerData.data.data.pdf_summary_link
         data["pdf_contract_summary_part1_file_id"] = offerData.data.data.pdf_contract_summary_part1_file_id
         data["pdf_contract_summary_part4_file_link"] = offerData.data.data.pdf_contract_summary_part4_file_link
+        data["pdf_contract_summary_part4_1_file_link"] = offerData.data.data.pdf_contract_summary_part4_1_file_link
         data["pdf_commission_link"] = offerData.data.data.pdf_commission_link
         data["pdf_quote_summary_link"] = offerData.data.data.pdf_quote_summary_link
         data["pdf_contract_summary_link"] = offerData.data.data.pdf_contract_summary_link
@@ -3676,6 +3712,16 @@ export default {
           return
         }
       }
+      for (let i = 0; i < this.data.roofs.length; i++) {
+        if (!this.data.roofs[i].is_valid) {
+          this.calculated["invalid_form"] = true
+          if (!this.calculated["errors"]) {
+            this.calculated["errors"] = []
+          }
+          this.calculated["errors"].push("Nicht alle Dachflächen korrigiert")
+          return
+        }
+      }
       this.loading = true
       try {
         this.loading_percent = 0
@@ -3755,6 +3801,7 @@ export default {
         this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
         this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
         this.pdf_contract_summary_part4_file_link = response9.data.data.pdf_contract_summary_part4_file_link
+        this.pdf_contract_summary_part4_1_file_link = response9.data.data.pdf_contract_summary_part4_1_file_link
         this.form_dirty = false
       } catch (error) {
 
@@ -3897,6 +3944,10 @@ export default {
     },
     datePickerSave2 (date) {
       this.$refs.datepickerMenu2.save(date)
+    },
+    showEditRoof (index) {
+      this.roofEditIndex = index
+      this.editRoofDialog = true
     }
   }
 }
