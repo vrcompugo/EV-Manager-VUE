@@ -60,6 +60,8 @@
           <div style="display: grid; grid-template-columns: auto auto;justify-content: start;">
             <div class="label">Gültig ab:</div>
             <div><b>{{ config.delivery_begin | dateFormat }}</b></div>
+            <div v-if="config.delivery_end" class="label">Gekündigt zum:</div>
+            <div v-if="config.delivery_end"><b>{{ config.delivery_end | dateFormat }}</b></div>
             <div class="label">Konfiguration:</div>
             <div><a :href="config.pdf_link" target="_blank"><b>{{ config.cloud_number }}</b></a></div>
 
