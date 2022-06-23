@@ -208,7 +208,7 @@
       <div class="box">
         <h3>Abrechnungen</h3>
 
-        <div v-for="annualStatement in contract.annual_statements" :key="annualStatement.year">
+        <div v-for="annualStatement in contract.annual_statements" :key="annualStatement.year" style="margin-bottom: 2em">
           <h4>{{ annualStatement.year }}</h4>
           <div v-if="!annualStatement.data">
             Keine Abrechnung vorhanden
