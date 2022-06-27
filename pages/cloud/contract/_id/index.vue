@@ -431,7 +431,14 @@
               </div>
               <div class="layout horizontal">
                 <v-checkbox label="Netzbezug ausblenden" v-model="manuellData[annualStatement.year].hide_netusage" style="margin-right: 1em"></v-checkbox>
-                <v-checkbox label="Zähler Zeitbegrenzung umgehen" v-model="manuellData[annualStatement.year].skip_counter_date_range_limiter"></v-checkbox>
+                <v-checkbox label="Zähler Zeitbegrenzung umgehen" v-model="manuellData[annualStatement.year].skip_counter_date_range_limiter" style="margin-right: 1em"></v-checkbox>
+                <v-checkbox label="Netzbezug schätzen" v-model="manuellData[annualStatement.year].estimate_netusage" style="margin-right: 1em"></v-checkbox>
+                <v-text-field
+                  label="Angenommener Autarkiegrad"
+                  v-model="manuellData[annualStatement.year].assumed_autocracy" type="number" step="1" suffix="%" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+                <v-text-field
+                  label="Netzbezug Startwert"
+                  v-model="manuellData[annualStatement.year].estimate_netusage_startvalue" type="number" step="1" suffix="kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
               </div>
               <v-textarea
                 label="Kommentarfeld"
