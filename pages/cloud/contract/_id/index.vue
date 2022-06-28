@@ -408,7 +408,7 @@
                 <td style="text-align: right;">{{ counter.value | formatNumber(0) }} kWh</td>
                 <td>
                   <v-btn small icon @click="editedCounter = cloneDeep(counter)"><v-icon>mdi-pencil</v-icon></v-btn>
-                  <v-btn v-if="counter.origin == 'energie360'" small icon @click="deleteCounter(counter, annualStatement.year)"><v-icon>mdi-delete</v-icon></v-btn>
+                  <v-btn small icon @click="deleteCounter(counter, annualStatement.year)"><v-icon>mdi-delete</v-icon></v-btn>
                 </td>
               </tr>
             </table>
