@@ -116,6 +116,12 @@
 
                         <v-divider></v-divider>
 
+                        <v-stepper-step :complete="stepper > 2" step="2" editable>
+                          Finanzierung
+                        </v-stepper-step>
+
+                        <v-divider></v-divider>
+
                         <v-stepper-step :complete="stepper > 3" step="3" editable>
                           Zusatzoptionen
                         </v-stepper-step>
@@ -183,60 +189,53 @@
                         </v-stepper-content>
 
                         <v-stepper-content step="2">
-                          <b>Dachflächen</b>
-                          <div v-for="(roof, index) in data.roofs" :key="index">
-                            <div class="layout horizontal center">
-                              <v-text-field
-                                v-model="roof.label"
-                                @input="formChanged"
-                                label="Bezeichnung"
-                                style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                              <v-checkbox
-                                label="ist Flachdach"
-                                style="margin: 0 1em"
-                                @change="roof.direction = 'west_east'; calculateCloud()"
-                                v-model="roof.is_flat"/>
-                              <v-select
-                                v-if="!roof.is_flat"
-                                v-model="roof.direction" :items="[
-                                  {'value':'north','label':'Nord'},
-                                  {'value':'north_west_east','label':'Nord West/Ost'},
-                                  {'value':'north_south','label':'Nord/Süd'},
-                                  {'value':'west_east','label':'West/Ost'},
-                                  {'value':'south_west_east','label':'Süd West/Ost'},
-                                  {'value':'south','label':'Süd'}
-                                ]"
-                                @change="calculateCloud()"
-                                style="flex: 0 1 8em;"
-                                item-text="label"
-                                item-value="value"></v-select>
-                              <v-text-field
-                                v-model="roof.sqm"
-                                @input="calculateCloud"
-                                @blur="$refs.pv_kwp.validate(true)"
-                                label="Fläche"
-                                suffix="m²"
-                                step="0.01"
-                                type="number"
-                                class="align-right"
-                                style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
-                              <v-text-field
-                                v-model="roof.pv_count_modules"
-                                @input="calculateCloud"
-                                @blur="$refs.pv_kwp.validate(true)"
-                                label="Anzahl Module"
-                                step="1"
-                                type="number"
-                                class="align-right"
-                                style="flex: 0 1 8em;"></v-text-field>
-                              <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                          <div class="layout horizontal wrap">
+                            <div class="section" style="padding-bottom: 0">
+                              <div class="section">
+                                <h2>Finanzierung</h2>
+                                <div class="layout horizontal">
+                                  <v-select
+                                    v-model="data.investment_type" :items="[
+                                      {'value':'financing','label':'Finanzierung'},
+                                      {'value':'cash','label':'Barkauf'}
+                                    ]"
+                                    @input="formChanged"
+                                    style="flex: 0 1 10em; margin-left: 1em;"
+                                    item-text="label"
+                                    item-value="value"></v-select>
+                                  <v-select
+                                    v-if="data.investment_type == 'financing'"
+                                    v-model="data.financing_bank" :items="[
+                                      {'value':'energie360','label':'über Energie360'},
+                                      {'value':'ownbank','label':'Hausbank'}
+                                    ]"
+                                    @input="calculateCloud"
+                                    style="flex: 0 1 10em; margin-left: 1em;"
+                                    item-text="label"
+                                    item-value="value"></v-select>
+                                  <v-text-field
+                                    v-if="data.investment_type == 'financing'"
+                                    v-model="data.loan_upfront"
+                                    @input="formChanged"
+                                    label="Anzahlung"
+                                    suffix="€"
+                                    style="flex: 0 0 12em; margin-left: 1em; margin-right: 1em"></v-text-field>
+                                </div>
+                                <div class="flex" v-if="data.investment_type == 'financing'">
+                                  <v-slider
+                                    :disabled="data.financing_bank == 'energie360'"
+                                    v-model="data.financing_rate"
+                                    @input="formChanged"
+                                    min="0"
+                                    max="8"
+                                    step="0.01"
+                                    thumb-label="always"></v-slider>
+                                  <div style="margin-top: -1em; padding-left: 0.5em">Finanzierungs Zinssatz</div>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <v-btn @click="data.roofs.push({}); calculateCloud()" style="margin-right: 1em">Hinzufügen</v-btn>
-                            <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
-                            <v-btn @click="set_optimized_coverage">Optimierte Belegung</v-btn>
-                          </div>
+
                         </v-stepper-content>
 
                         <v-stepper-content step="3">
@@ -767,15 +766,6 @@
                                 suffix="m²"
                                 type="number"
                                 step="0.01"></v-text-field>
-                              <v-select
-                                v-model="data.investment_type" :items="[
-                                  {'value':'financing','label':'Finanzierung'},
-                                  {'value':'cash','label':'Barkauf'}
-                                ]"
-                                @input="formChanged"
-                                style="flex: 0 1 10em; margin-left: 1em;"
-                                item-text="label"
-                                item-value="value"></v-select>
                               <v-select
                                 v-model="data.overwrite_storage_size" :items="possible_storage_sizes"
                                 label="Speichergröße überschreiben"
@@ -1443,16 +1433,6 @@
                               </div>
                               <div class="flex">
                                 <v-slider
-                                  v-model="data.financing_rate"
-                                  @input="formChanged"
-                                  min="0"
-                                  max="5"
-                                  step="0.01"
-                                  thumb-label="always"></v-slider>
-                                <div style="margin-top: -1em; padding-left: 0.5em">Finanzierungs Zinssatz</div>
-                              </div>
-                              <div class="flex">
-                                <v-slider
                                   v-model="data.runtime"
                                   @input="formChanged"
                                   min="25"
@@ -2100,6 +2080,46 @@
                           v-model="data.heating_quote_extra_options"
                           value="bufferstorage" />
                       </div>
+                    </div>
+                    <h2>Finanzierung</h2>
+                    <div class="layout horizontal">
+                      <v-select
+                        v-model="data.investment_type_heating" :items="[
+                          {'value':'financing','label':'Finanzierung'},
+                          {'value':'cash','label':'Barkauf'}
+                        ]"
+                        @input="formChanged"
+                        style="flex: 0 1 10em; margin-left: 1em;"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
+                        v-if="data.investment_type_heating == 'financing'"
+                        v-model="data.financing_bank_heating" :items="[
+                          {'value':'energie360','label':'über Energie360'},
+                          {'value':'ownbank','label':'Hausbank'}
+                        ]"
+                        @input="calculateCloud"
+                        style="flex: 0 1 10em; margin-left: 1em;"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-text-field
+                        v-if="data.investment_type_heating == 'financing'"
+                        v-model="data.loan_upfront_heating"
+                        @input="formChanged"
+                        label="Anzahlung"
+                        suffix="€"
+                        style="flex: 0 0 12em; margin-left: 1em; margin-right: 1em"></v-text-field>
+                    </div>
+                    <div class="flex" v-if="data.investment_type_heating == 'financing'">
+                      <v-slider
+                        :disabled="data.financing_bank_heating == 'energie360'"
+                        v-model="data.financing_rate_heating"
+                        @input="formChanged"
+                        min="0"
+                        max="8"
+                        step="0.01"
+                        thumb-label="always"></v-slider>
+                      <div style="margin-top: -1em; padding-left: 0.5em">Finanzierungs Zinssatz</div>
                     </div>
                   </div>
                 </div>
@@ -3261,6 +3281,7 @@ export default {
       "data": {
         "only_show_total_price": false,
         "financing_rate": 2.49,
+        "financing_rate_heating": 2.49,
         "consumers": [],
         "roofs": [],
         "extra_options": ["technik_service_packet", "solaredge"],
@@ -3679,6 +3700,12 @@ export default {
     },
     calculateCloud(){
       console.log(this.data.heating_quote_people)
+      if (this.data.financing_bank == 'energie360') {
+        this.data.financing_rate = 4.89
+      }
+      if (this.data.financing_bank_heating == 'energie360') {
+        this.data.financing_rate_heating = 4.89
+      }
       if (this.data.heating_quote_people && this.data.heating_quote_people >= 5 && this.data.heating_quote_extra_options.indexOf('extra_warm_water') < 0) {
         this.data.heating_quote_extra_options.push("extra_warm_water");
       }
