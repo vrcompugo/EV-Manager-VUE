@@ -28,6 +28,9 @@ export default {
       if (this.deal.category_id === "70") {
         result = this.deal.service_contract_number
       }
+      if (this.deal.category_id === "202") {
+        result = this.deal.contract_number
+      }
       if (result === undefined || result === null || result === 'None') {
         return ''
       }
@@ -42,8 +45,8 @@ export default {
         dealId: this.deal.id
       })
       .catch (error => this.showError(error))
-      this.reload()
       this.loading = false
+      this.$emit('success')
     }
   }
 }
