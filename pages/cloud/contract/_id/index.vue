@@ -107,6 +107,9 @@
               <div v-if="config.heatcloud">
                 SmartMe Zähler: {{ config.heatcloud.smartme_number }}<br>
                 Zählernummer: {{ config.heatcloud.power_meter_number }}<br>
+                <div v-if="config.heatcloud.additional_power_meter_numbers && config.heatcloud.additional_power_meter_numbers.length > 0">
+                  zus. Zählernummern: <span v-for="number in config.heatcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                </div>
                 Verbrauch: {{ config.heatcloud.usage }} kWh<br>
                 Lieferbeginn: {{ config.heatcloud.delivery_begin | dateFormat }}<br>
                 Mehrverbrauch: {{ (config.heatcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
@@ -118,6 +121,9 @@
               <b>eCloud</b><br>
               <div v-if="config.ecloud">
                 Zählernummer: {{ config.ecloud.power_meter_number }}<br>
+                <div v-if="config.ecloud.additional_power_meter_numbers && config.ecloud.additional_power_meter_numbers.length > 0">
+                  zus. Zählernummern: <span v-for="number in config.ecloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                </div>
                 Verbrauch: {{ config.ecloud.usage }} kWh<br>
                 Lieferbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
                 Mehrverbrauch: {{ (config.ecloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
@@ -289,6 +295,9 @@
                   <div v-if="config.heatcloud">
                     SmartMe Zähler: {{ config.heatcloud.smartme_number }}<br>
                     Zählernummer: {{ config.heatcloud.power_meter_number }}<br>
+                    <div v-if="config.heatcloud.additional_power_meter_numbers && config.heatcloud.additional_power_meter_numbers.length > 0">
+                      zus. Zählernummern: <span v-for="number in config.heatcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                    </div>
                     Mehrverbrauch: {{ (config.heatcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                     Abrechnungsbeginn: {{ config.heatcloud.delivery_begin | dateFormat }}<br>
                     Abrechnungsende: {{ config.heatcloud.delivery_end | dateFormat }}<br>
@@ -308,6 +317,9 @@
                   </div>
                   <div v-if="config.ecloud">
                     Zählernummer: {{ config.ecloud.power_meter_number }}<br>
+                    <div v-if="config.ecloud.additional_power_meter_numbers && config.ecloud.additional_power_meter_numbers.length > 0">
+                      zus. Zählernummern: <span v-for="number in config.ecloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                    </div>
                     Verbrauch: {{ config.ecloud.usage }} kWh<br>
                     Lieferbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
                     Mehrverbrauch: {{ (config.ecloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
@@ -327,6 +339,9 @@
                     <div v-for="(consumer, index) in config.consumers" :key="consumer.label">
                       <b>Consumer {{ index + 1 }}</b><br>
                       Zählernummer: {{ consumer.power_meter_number }}<br>
+                      <div v-if="consumer.additional_power_meter_numbers && consumer.additional_power_meter_numbers.length > 0">
+                        zus. Zählernummern: <span v-for="number in consumer.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                      </div>
                       Abrechnungsbeginn: {{ consumer.delivery_begin | dateFormat }}<br>
                       Abrechnungsende: {{ consumer.delivery_end | dateFormat }}<br>
                       abgedeckter Verbrauch: {{ consumer.allowed_usage | formatNumber }} kWh<br>
