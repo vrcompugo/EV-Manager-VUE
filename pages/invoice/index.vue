@@ -39,8 +39,8 @@
           </span>
         </template>
         <template v-slot:[`item.download_link`]="{ item }">
-          <span style="white-space: nowrap">
-            <a :href="item.download_link" target="_blank">Download</a>
+          <span style="white-space: nowrap"  v-for="link in item.download_links" :key="link">
+            <a :href="link" target="_blank">Download</a>&nbsp;
           </span>
         </template>
       </v-data-table>
