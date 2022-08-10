@@ -751,6 +751,7 @@
                               <v-text-field
                                 ref="pv_kwp"
                                 v-model="data.pv_kwp"
+                                disabled="disabled"
                                 @blur="changeKWP"
                                 label="geplante Größe"
                                 class="flex-1 align-right"
