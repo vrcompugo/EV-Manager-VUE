@@ -451,9 +451,21 @@
                 <v-text-field
                   label="Angenommener Autarkiegrad Lichtcloud"
                   v-model="manuellData[annualStatement.year].assumed_autocracy_lightcloud" type="number" step="1" suffix="%" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
-                <v-text-field
-                  label="Angenommener Autarkiegrad Wärmecloud"
-                  v-model="manuellData[annualStatement.year].assumed_autocracy_heatcloud" type="number" step="1" suffix="%" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+                <div v-if="contract.main_deal.measuring_concept === 'parallel_concept'">
+                  <v-select
+                    v-model="manuellData[annualStatement.year].parallel_concept_counter" :items="[
+                      {'value':'','label':'Netzbezugszähler nutzen (Standard)'},
+                      {'value':'smartme','label':'Smartme Zähler nutzen'}
+                    ]"
+                    label="Paralleles Messkonzept Zählerauswahl"
+                    item-text="label"
+                    item-value="value"></v-select>
+                </div>
+                <div v-else>
+                  <v-text-field
+                    label="Angenommener Autarkiegrad Wärmecloud"
+                    v-model="manuellData[annualStatement.year].assumed_autocracy_heatcloud" type="number" step="1" suffix="%" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+                </div>
               </div>
               <v-textarea
                 label="Kommentarfeld"
