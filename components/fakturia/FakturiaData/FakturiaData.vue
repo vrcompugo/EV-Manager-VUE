@@ -63,6 +63,9 @@ export default {
       if (this.deal.category_id === "15") {
         return this.deal.cloud_delivery_start
       }
+      if (this.deal.category_id === "176") {
+        return this.deal.cloud_delivery_start
+      }
       if (this.deal.category_id === "68") {
         return this.deal.activation_date
       }

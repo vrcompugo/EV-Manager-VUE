@@ -22,6 +22,9 @@ export default {
       if (this.deal.category_id === "15") {
         result = this.deal.cloud_contract_number
       }
+      if (this.deal.category_id === "176") {
+        result = this.deal.cloud_contract_number
+      }
       if (this.deal.category_id === "68") {
         result = this.deal.service_contract_number
       }
