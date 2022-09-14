@@ -323,7 +323,7 @@
             </div>
             <div>
               <v-text-field ref="dachhohe" label="Dachöhe" v-model="roofs[index].dachhohe" type="number" step="1" :rules="[rules.required]" />
-              <v-text-field ref="dachneigung" label="Dachneigung" v-model="roofs[index].dachneigung" suffix="°" type="number" step="0.01" :rules="[rules.required]" />
+              <v-text-field ref="dachneigung" label="Dachneigung (max 8°)" v-model="roofs[index].dachneigung" suffix="°" type="number" step="0.01" max="8" :rules="[rules.required]" />
             </div>
           </div>
           <br />

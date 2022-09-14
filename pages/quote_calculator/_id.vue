@@ -182,7 +182,7 @@
                             <div class="section" :disabled="true">
                               <h3>E.Cloud</h3>
                               <small><b>Voraussetzung:</b> Gasheizung</small>
-                              <v-text-field :disabled="data.has_heating_quote" v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+                              <v-text-field :disabled="true" v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
                               <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
                             </div>
                           </div>
@@ -3281,8 +3281,8 @@ export default {
       ],
       "data": {
         "only_show_total_price": false,
-        "financing_rate": 2.49,
-        "financing_rate_heating": 2.49,
+        "financing_rate": 3.75,
+        "financing_rate_heating": 3.75,
         "consumers": [],
         "roofs": [],
         "extra_options": ["technik_service_packet", "solaredge"],
