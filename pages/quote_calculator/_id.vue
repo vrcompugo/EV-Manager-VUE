@@ -439,6 +439,13 @@
                                     step="1"></v-text-field>
                                 </div>
                               </div>
+                              <div class="flex">
+                                <v-checkbox
+                                  label="Kein Cloud Angebot"
+                                  style="margin-right: 1em"
+                                  @change="calculateCloud"
+                                  v-model="data.no_cloud" />
+                              </div>
                             </div>
                           </div>
 
@@ -734,7 +741,7 @@
                               <v-select
                                 label="Modulart"
                                 v-model="data.module_type" :items="select_options.module_type_options"
-                                @change="changeKWP"
+                                @change="countModules(); changePVModules()"
                                 style="flex: 0 1 8em; margin-right: 1em;"
                                 item-text="label"
                                 item-value="value"></v-select>
@@ -2081,6 +2088,34 @@
                           v-model="data.heating_quote_extra_options"
                           value="bufferstorage" />
                       </div>
+                      <div class="flex" v-if="!data.has_pv_quote">
+                        <v-checkbox
+                          label="Neuer Zählerschrank"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.extra_options"
+                          value="new_power_closet" />
+                          <div v-if="data.extra_options.indexOf('new_power_closet') >= 0">
+                            <v-select
+                              label="Anzahl Zählerfelder"
+                              v-model="data.extra_options_new_power_closet_size" :items="[
+                                {'value':'2','label':'2 Zählerfelder'},
+                                {'value':'3','label':'3 Zählerfelder'},
+                                {'value':'4','label':'4 Zählerfelder'}
+                              ]"
+                              @input="calculateCloud"
+                              style="max-width: 14em;"
+                              item-text="label"
+                              item-value="value"></v-select>
+                          </div>
+                      </div>
+                      <div v-if="data.new_heating_type == 'heatpump' && data.has_pv_quote">
+                        <v-checkbox
+                          label="Keine Wärmecloud gewünscht"
+                          style="margin-right: 1em"
+                          @change="calculateUsageHeating(); calculateCloud()"
+                          v-model="data.no_heatcloud" />
+                      </div>
                     </div>
                     <h2>Finanzierung</h2>
                     <div class="layout horizontal">
@@ -2533,7 +2568,7 @@
           <v-btn
             color="primary"
             text
-            @click="$refs.roof_form.validate(); editRoofDialog = false"
+            @click="$refs.roof_form.validate(); calculateCloud(); editRoofDialog = false"
           >
             OK
           </v-btn>
@@ -3159,6 +3194,7 @@ export default {
   },
 
   mounted(){
+    this.countModules()
     this.calculateCloud()
   },
 
@@ -3393,7 +3429,7 @@ export default {
     },
     possible_storage_sizes () {
       const list = [{'value': 0 ,'label': `Automatische Auswahl`}]
-      let possible_sizes = [5, 7.5, 10, 15, 17.5, 20]
+      let possible_sizes = [5, 7.5, 10]
       let min = 5
       if (this.calculated["min_storage_size"]){
         min = this.calculated["min_storage_size"]
@@ -3416,21 +3452,25 @@ export default {
       this.calculateUsageHeating()
     },
     calculateUsageHeating () {
-      this.$axios.post(`/quote_calculator/${this.id}/calculate_heating_usage`, this.data).then(response => {
-        this.data.old_heating_type = response.data.data.old_heating_type
-        console.log("asd", this.data.old_heating_type)
-        this.data.heating_quote_usage_gas = response.data.data.heating_quote_usage_gas
-        this.data.heating_quote_usage_wp = response.data.data.heating_quote_usage_wp
-        this.data.heating_quote_usage = response.data.data.heating_quote_usage
-        this.addHeatingToCloud()
-      }).catch(err => {
-        this.calculated["invalid_form"] = true
-        if (!this.calculated["errors"]) {
-          this.calculated["errors"] = []
-        }
-        const result = err.response.data
-        this.calculated["errors"].push(result.message)
-      })
+      if (this.data.no_heatcloud === true) {
+        this.data.heater_usage = 0
+        this.data.ecloud_usage = 0
+      } else {
+        this.$axios.post(`/quote_calculator/${this.id}/calculate_heating_usage`, this.data).then(response => {
+          this.data.old_heating_type = response.data.data.old_heating_type
+          this.data.heating_quote_usage_gas = response.data.data.heating_quote_usage_gas
+          this.data.heating_quote_usage_wp = response.data.data.heating_quote_usage_wp
+          this.data.heating_quote_usage = response.data.data.heating_quote_usage
+          this.addHeatingToCloud()
+        }).catch(err => {
+          this.calculated["invalid_form"] = true
+          if (!this.calculated["errors"]) {
+            this.calculated["errors"] = []
+          }
+          const result = err.response.data
+          this.calculated["errors"].push(result.message)
+        })
+      }
     },
     addHeatingToCloud () {
       if (this.data.new_heating_type === 'hybrid_gas' || this.data.new_heating_type === 'gas') {
@@ -3513,16 +3553,26 @@ export default {
       }
     },
     changePVModules(){
+      let pv_kwp = 0
+      let pv_sqm = 0
       this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
       if(this.data.module_kwp){
-        this.data.pv_kwp = Math.round(Number(this.data.pv_count_modules) * this.data.module_kwp.kWp * 100) / 100
-        this.data.pv_sqm = Math.round(Number(this.data.pv_count_modules) * Number(this.data.module_kwp.qm) * 100) / 100
+        for (let roof of this.data.roofs) {
+          pv_kwp = pv_kwp + roof.pv_kwp_used
+          pv_sqm = pv_sqm + roof.pv_sqm_used
+        }
+        this.data.pv_kwp = Math.round(pv_kwp * 100) / 100
+        this.data.pv_sqm = Math.round(pv_sqm * 100) / 100
       }
     },
     countModules() {
       let possible_modules = 0
       for (let roof of this.data.roofs) {
-        possible_modules += Number(roof.pv_count_modules)
+        if(this.data.module_kwp){
+          possible_modules += Number(roof.pv_count_modules)
+          roof.pv_kwp_used = Number(roof.pv_count_modules) * this.data.module_kwp.kWp
+          roof.pv_sqm_used = Number(roof.pv_count_modules) * Number(this.data.module_kwp.qm)
+        }
       }
       this.data.pv_count_modules = possible_modules
       this.changePVModules()
