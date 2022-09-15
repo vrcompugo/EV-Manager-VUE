@@ -271,6 +271,7 @@
                     <div v-if="config.lightcloud.additional_power_meter_numbers && config.lightcloud.additional_power_meter_numbers.length > 0">
                       zus. Zählernummern: <span v-for="number in config.lightcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                     </div>
+                    benötigte kWp: {{ config.lightcloud.min_kwp | formatNumber }} kWp<br>
                     Mehrverbrauch: {{ (config.lightcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                     Abrechnungsbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
                     Abrechnungsende: {{ config.lightcloud.delivery_end | dateFormat }}<br>
@@ -299,6 +300,7 @@
                       zus. Zählernummern: <span v-for="number in config.heatcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                     </div>
                     Mehrverbrauch: {{ (config.heatcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
+                    benötigte kWp: {{ config.heatcloud.min_kwp | formatNumber }} kWp<br>
                     Abrechnungsbeginn: {{ config.heatcloud.delivery_begin | dateFormat }}<br>
                     Abrechnungsende: {{ config.heatcloud.delivery_end | dateFormat }}<br>
                     abgedeckter Verbrauch: {{ config.heatcloud.allowed_usage | formatNumber }} kWh<br>
@@ -322,6 +324,7 @@
                     </div>
                     Verbrauch: {{ config.ecloud.usage }} kWh<br>
                     Lieferbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
+                    benötigte kWp: {{ config.ecloud.min_kwp | formatNumber }} kWp<br>
                     Mehrverbrauch: {{ (config.ecloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                     Abrechnungsbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
                     Abrechnungsende: {{ config.ecloud.delivery_end | dateFormat }}<br>
@@ -466,6 +469,10 @@
                     label="Angenommener Autarkiegrad Wärmecloud"
                     v-model="manuellData[annualStatement.year].assumed_autocracy_heatcloud" type="number" step="1" suffix="%" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 </div>
+              </div>
+              <div class="layout horizontal">
+                <v-text-field label="Gutschrift Bezeichnung" v-model="manuellData[annualStatement.year].extra_credit_label"  style="flex: 1; margin-right: 1em" />
+                <v-text-field label="Gutschriftswert" v-model="manuellData[annualStatement.year].extra_credit_value" type="number" step="0.01" suffix="€" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
               </div>
               <v-textarea
                 label="Kommentarfeld"
