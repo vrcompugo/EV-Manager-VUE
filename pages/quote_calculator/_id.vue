@@ -3430,6 +3430,9 @@ export default {
     possible_storage_sizes () {
       const list = [{'value': 0 ,'label': `Automatische Auswahl`}]
       let possible_sizes = [5, 7.5, 10]
+      for(let i=12.6; i<=29.4; i=i+4.2) {
+        possible_sizes.push(i)
+      }
       let min = 5
       if (this.calculated["min_storage_size"]){
         min = this.calculated["min_storage_size"]
