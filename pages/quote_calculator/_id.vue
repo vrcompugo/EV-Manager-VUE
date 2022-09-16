@@ -3593,7 +3593,7 @@ export default {
         possible_modules += roof.pv_count_modules
       }
       this.data.pv_count_modules = possible_modules
-      this.changePVModules()
+      this.countModules()
       this.calculateCloud()
     },
     set_optimized_coverage () {
@@ -3615,7 +3615,7 @@ export default {
         }
       }
       this.data.pv_count_modules = possible_modules
-      this.changePVModules()
+      this.countModules()
       this.calculateCloud()
     },
     set_zero_coverage () {
@@ -3637,7 +3637,7 @@ export default {
         }
       }
       this.data.pv_count_modules = possible_modules
-      this.changePVModules()
+      this.countModules()
       this.calculateCloud()
     },
     changeRoofDirection(){
