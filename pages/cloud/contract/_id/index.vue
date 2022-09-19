@@ -87,6 +87,7 @@
                   zus. Zählernummern: <span v-for="number in config.lightcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                 </div>
                 Verbrauch: {{ config.lightcloud.usage }} kWh<br>
+                benötigte kWp: {{ config.lightcloud.min_kwp | formatNumber }} kWp<br>
                 Lieferbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
                 Mehrverbrauch: {{ (config.lightcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                 Bitrix Auftrag: <a v-if="config.lightcloud.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + config.lightcloud.deal.id + '/'" target="_blank">Link</a>
@@ -111,6 +112,7 @@
                   zus. Zählernummern: <span v-for="number in config.heatcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                 </div>
                 Verbrauch: {{ config.heatcloud.usage }} kWh<br>
+                benötigte kWp: {{ config.heatcloud.min_kwp | formatNumber }} kWp<br>
                 Lieferbeginn: {{ config.heatcloud.delivery_begin | dateFormat }}<br>
                 Mehrverbrauch: {{ (config.heatcloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                 Bitrix Auftrag: <a v-if="config.heatcloud.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + config.heatcloud.deal.id + '/'" target="_blank">Link</a>
@@ -125,6 +127,7 @@
                   zus. Zählernummern: <span v-for="number in config.ecloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                 </div>
                 Verbrauch: {{ config.ecloud.usage }} kWh<br>
+                benötigte kWp: {{ config.ecloud.min_kwp | formatNumber }} kWp<br>
                 Lieferbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
                 Mehrverbrauch: {{ (config.ecloud.extra_price_per_kwh * 100) | formatNumber }} Cent/kWh<br>
                 Bitrix Auftrag: <a v-if="config.ecloud.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + config.ecloud.deal.id + '/'" target="_blank">Link</a>
