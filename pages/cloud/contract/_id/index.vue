@@ -510,7 +510,7 @@
             </div>
           </div>
           <v-btn @click="generateAnnualStatement(annualStatement.year)" style="margin-right: 1em">Daten neuladen</v-btn>
-          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal && (annualStatement.deal.status === 'Neu' || annualStatement.deal.status === 'Abrechnungskorrektur erzeugen' || annualStatement.deal.status === 'Senec Werte-Abfrage BSH' || annualStatement.deal.status === 'Altvertrag manuelle bearbeitung' || annualStatement.deal.status === 'Spezialkunde' || annualStatement.deal.status === 'Consumer Daten erfragen'))" @click="generateAnnualStatementPDF(annualStatement.year)" style="margin-right: 1em">PDF erzeugen</v-btn>
+          <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal && (annualStatement.deal.status === 'Neu' || annualStatement.deal.status === 'Abrechnungskorrektur erzeugen' || annualStatement.deal.status === 'Senec Werte-Abfrage BSH' || annualStatement.deal.status === 'Altvertrag manuelle bearbeitung' || annualStatement.deal.status === 'Spezialkunde' || annualStatement.deal.status === 'Consumer Daten erfragen' || annualStatement.deal.status === 'Senec Wert gemeldet'))" @click="generateAnnualStatementPDF(annualStatement.year)" style="margin-right: 1em">PDF erzeugen</v-btn>
           <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal && (annualStatement.deal.status === 'Neu'))" @click="generateAnnualStatement(annualStatement.year)">verschicken</v-btn>
         </div>
       </div>
