@@ -55,6 +55,7 @@
 
         <div class="layout horizontal">
           <h4 class="flex">Cloud Konfigurationen</h4>
+          <v-btn @click="addCustomConfig">Neue Custom-Config</v-btn>
         </div>
         <div v-for="config in contract.configs" :key="config.cloud_number" class="box">
           <div style="display: grid; grid-template-columns: auto auto;justify-content: start;">
@@ -63,13 +64,17 @@
             <div v-if="config.delivery_end" class="label">Gekündigt zum:</div>
             <div v-if="config.delivery_end"><b>{{ config.delivery_end | dateFormat }}</b></div>
             <div class="label">Konfiguration:</div>
-            <div><a :href="config.pdf_link" target="_blank"><b>{{ config.cloud_number }}</b></a></div>
+            <div>
+              <a :href="config.pdf_link" target="_blank"><b>{{ config.cloud_number }}</b></a>
+              <span v-if="config.old_cloud_number">(zuvor {{ config.old_cloud_number }})</span>
+              <v-btn small v-if="config.old_cloud_number" @click="editConfig(config)">Bearbeiten</v-btn>
+            </div>
 
             <div class="label">Gesamtpreis:</div>
             <div>
               <div style="display: grid; grid-template-columns: auto auto">
-                <div>(netto)&nbsp;</div> <div style="text-align: right">{{ config.price_per_month_net | formatPrice}}</div>
-                <div>(brutto)&nbsp;</div> <div style="text-align: right">{{ config.price_per_month | formatPrice}}</div>
+                <div>(netto)&nbsp;</div> <div style="text-align: right">{{ config.cloud_price_incl_refund_net | formatPrice}}</div>
+                <div>(brutto)&nbsp;</div> <div style="text-align: right">{{ config.cloud_price_incl_refund | formatPrice}}</div>
               </div>
             </div>
 
@@ -86,6 +91,7 @@
                 <div v-if="config.lightcloud.additional_power_meter_numbers && config.lightcloud.additional_power_meter_numbers.length > 0">
                   zus. Zählernummern: <span v-for="number in config.lightcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                 </div>
+                Produktpreis: (brutto) {{ config.lightcloud.cloud_price | formatPrice }}<br>
                 Verbrauch: {{ config.lightcloud.usage }} kWh<br>
                 benötigte kWp: {{ config.lightcloud.min_kwp | formatNumber }} kWp<br>
                 Lieferbeginn: {{ config.lightcloud.delivery_begin | dateFormat }}<br>
@@ -97,6 +103,7 @@
                 <b>eMove</b><br>
                 <div v-if="config.emove">
                   Tarif: {{ config.emove.tarif }}<br>
+                  Produktpreis: {{ config.emove.cloud_price | formatPrice }}<br>
                   Verbrauch Zuhause: {{ config.emove.usage | formatNumber(0) }} kWh<br>
                   Verbrauch Außer Haus: {{ config.emove.usage_outside | formatNumber(0) }} kWh<br>
                 </div>
@@ -111,6 +118,7 @@
                 <div v-if="config.heatcloud.additional_power_meter_numbers && config.heatcloud.additional_power_meter_numbers.length > 0">
                   zus. Zählernummern: <span v-for="number in config.heatcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                 </div>
+                Produktpreis: (brutto) {{ config.heatcloud.cloud_price | formatPrice }}<br>
                 Verbrauch: {{ config.heatcloud.usage }} kWh<br>
                 benötigte kWp: {{ config.heatcloud.min_kwp | formatNumber }} kWp<br>
                 Lieferbeginn: {{ config.heatcloud.delivery_begin | dateFormat }}<br>
@@ -126,6 +134,7 @@
                 <div v-if="config.ecloud.additional_power_meter_numbers && config.ecloud.additional_power_meter_numbers.length > 0">
                   zus. Zählernummern: <span v-for="number in config.ecloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
                 </div>
+                Produktpreis: (brutto) {{ config.ecloud.cloud_price | formatPrice }}<br>
                 Verbrauch: {{ config.ecloud.usage }} kWh<br>
                 benötigte kWp: {{ config.ecloud.min_kwp | formatNumber }} kWp<br>
                 Lieferbeginn: {{ config.ecloud.delivery_begin | dateFormat }}<br>
@@ -139,6 +148,7 @@
                 <div v-for="(consumer, index) in config.consumers" :key="consumer.label">
                   <b>Consumer {{ index + 1 }}</b><br>
                   Zählernummer: {{ consumer.power_meter_number }}<br>
+                  Produktpreis: (brutto) {{ consumer.cloud_price | formatPrice }}<br>
                   Verbrauch: {{ consumer.usage }} kWh<br>
                   Lieferbeginn: {{ consumer.delivery_begin | dateFormat }}<br>
                   Bitrix Auftrag: <a v-if="consumer.deal" :href="'https://keso.bitrix24.de/crm/deal/details/' + consumer.deal.id + '/'" target="_blank">Link</a>
@@ -516,6 +526,40 @@
       </div>
     </div>
 
+    <v-dialog
+      v-model="editDialog"
+      width="1400"
+    >
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Cloud Angebot {{ editedConfigData.cloud_number }} bearbeiten
+        </v-card-title>
+
+        <v-card-text>
+          <EditForm ref="configEditDialog" :config="editedConfigData" v-model="editedConfigData2"></EditForm>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-btn
+            text
+            @click="editDialog = false"
+          >
+            Abbrechen
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="storeConfig(); editDialog = false"
+          >
+            Speichern
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-snackbar v-model="errorSnack">
       {{ errorMessage }}
       <v-btn text @click="errorSnack = false">
@@ -534,8 +578,13 @@
 
 <script>
 import { cloneDeep } from 'lodash'
+import EditForm from '~/components/cloud/editForm.vue'
 
 export default {
+
+  components: {
+    EditForm
+  },
 
   async asyncData({ $axios, params, route }) {
     return {
@@ -554,7 +603,10 @@ export default {
       errorMessage: '',
       editStatement: {},
       editedCounter: {},
-      manuellData: {}
+      manuellData: {},
+      editedConfigData: {},
+      editedConfigData2: {},
+      editDialog: false
     }
   },
 
@@ -581,6 +633,27 @@ export default {
         this.loading = false
       })
       .catch (error => this.showError(error))
+    },
+    editConfig (configData) {
+      this.editDialog = true
+      this.editedConfigData = configData
+      if (this.$refs['configEditDialog']) {
+        this.$refs['configEditDialog'].convert()
+      }
+    },
+    async storeConfig () {
+      this.editDialog = false
+      this.loading = true
+      await this.$store.dispatch('cloud_contract/storeCustomConfig', {
+        contractNumber: this.contract.contract_number,
+        configData: this.editedConfigData2
+      })
+      .then((response) => {
+        this.loading = false
+        this.reload(true)
+      })
+      .catch (error => this.showError(error))
+
     },
     async generateAnnualStatement (year) {
       this.loading = true
@@ -624,6 +697,17 @@ export default {
       .then((response) => {
         this.loading = false
         this.generateAnnualStatement(year)
+        this.reload(true)
+      })
+      .catch (error => this.showError(error))
+    },
+    async addCustomConfig() {
+      this.loading = true
+      await this.$store.dispatch('cloud_contract/addCustomConfig', {
+        contractNumber: this.contract.contract_number
+      })
+      .then((response) => {
+        this.loading = false
         this.reload(true)
       })
       .catch (error => this.showError(error))
