@@ -2661,7 +2661,7 @@
             <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Provision öffnen</v-btn>
           </div>
           <div v-if="pdf_contract_summary_part1_file_id">
-            <div v-if="(new Date(quote_datetime.replace(' ', 'T'))) > (new Date()) - 60 * 60 * 1000 * 24 * 30 || id === '39396' || id === '39772' || id === '39088' || id === '37828' || id === '43570' || id === '48766'">
+            <div v-if="(new Date(quote_datetime.replace(' ', 'T'))) > (new Date()) - 60 * 60 * 1000 * 24 * 30 || id === '60456' || id === '39396' || id === '39772' || id === '39088' || id === '37828' || id === '43570' || id === '48766'">
               <div style="border-top: 1px solid #333; margin: 1em 0"></div>
               <div style="font-size: 1.2em">InSign Integration</div>
               <div v-if="insignData.url">
