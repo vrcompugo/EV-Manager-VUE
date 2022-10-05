@@ -3609,7 +3609,6 @@ export default {
         if (possible_modules + roof.pv_count_modules > needed_pv_count_modules) {
           roof.pv_count_modules = needed_pv_count_modules - possible_modules
           possible_modules = needed_pv_count_modules
-          break
         } else {
           possible_modules += roof.pv_count_modules
         }
@@ -3631,7 +3630,6 @@ export default {
         if (possible_modules + roof.pv_count_modules > needed_pv_count_modules) {
           roof.pv_count_modules = needed_pv_count_modules - possible_modules
           possible_modules = needed_pv_count_modules
-          break
         } else {
           possible_modules += roof.pv_count_modules
         }
