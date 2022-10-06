@@ -245,6 +245,19 @@
                               <div>
                                 <h3>Cloud Optionen</h3>
                                 <v-select
+                                  v-if="checkCloudRights() || checkBookkeepingRights()"
+                                  label="Cloud Laufzeit"
+                                  v-model="data.price_guarantee" :items="[
+                                    {'value':'12_years','label':'12 Jahre'},
+                                    {'value':'2_years','label':'2 Jahre'},
+                                    {'value':'1_year','label':'1 Jahr'}
+                                  ]"
+                                  @input="calculateCloud"
+                                  style="max-width: 14em;"
+                                  item-text="label"
+                                  item-value="value"></v-select>
+                                <v-select
+                                  v-else
                                   label="Cloud Laufzeit"
                                   v-model="data.price_guarantee" :items="[
                                     {'value':'12_years','label':'12 Jahre'},
