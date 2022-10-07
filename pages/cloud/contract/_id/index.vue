@@ -484,6 +484,9 @@
                 </div>
               </div>
               <div class="layout horizontal">
+                <v-checkbox label="korrigierte Zeitraumberechnung" v-model="manuellData[annualStatement.year].corrected_datediff" style="margin-right: 1em"></v-checkbox>
+              </div>
+              <div class="layout horizontal">
                 <v-text-field label="Gutschrift Bezeichnung" v-model="manuellData[annualStatement.year].extra_credit_label"  style="flex: 1; margin-right: 1em" />
                 <v-text-field label="Gutschriftswert" v-model="manuellData[annualStatement.year].extra_credit_value" type="number" step="0.01" suffix="€" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
               </div>
