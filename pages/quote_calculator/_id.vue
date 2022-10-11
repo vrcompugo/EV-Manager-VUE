@@ -3583,6 +3583,9 @@ export default {
     },
     countModules() {
       let possible_modules = 0
+      if (!this.data.roofs) {
+        this.data.roofs = []
+      }
       for (let roof of this.data.roofs) {
         if(this.data.module_kwp){
           possible_modules += Number(roof.pv_count_modules)
