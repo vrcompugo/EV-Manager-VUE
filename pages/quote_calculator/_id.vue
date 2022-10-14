@@ -116,7 +116,7 @@
 
                         <v-divider></v-divider>
 
-                        <v-stepper-step :complete="stepper > 2" step="2" editable>
+                        <v-stepper-step :complete="stepper > 2" step="2" editable v-if="!['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])">
                           Finanzierung
                         </v-stepper-step>
 
@@ -134,7 +134,7 @@
 
                         <v-divider></v-divider>
 
-                        <v-stepper-step step="6" editable>
+                        <v-stepper-step step="6" editable v-if="!['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])">
                           WI-Anpassung
                         </v-stepper-step>
                       </v-stepper-header>
@@ -144,47 +144,138 @@
                         <v-stepper-content step="1">
                           <div class="layout horizontal wrap">
                             <div class="section" style="padding-bottom: 0">
-                              <div class="section">
-                                <h2>Verbrauch Lichtstrom</h2>
-                                <div class="layout horizontal">
-                                  <div class="flex">
-                                    <v-text-field
-                                      ref="power_usage"
-                                      v-model="data.power_usage"
-                                      :rules="[rules.required]"
-                                      @keyup.enter="calculateCloud"
-                                      @blur="calculateCloud"
-                                      label="Verbrauch in kWh"
-                                      class="align-right"
-                                      suffix="kWh"
-                                      type="number"
-                                      step="1"></v-text-field>
-                                  </div>
-                                </div>
-                                <small>mehr kWh werden mit {{ formatNumber(calculated.lightcloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small><br>
-                                <v-checkbox
-                                  v-model="data.additional_cloud_contract"
-                                  value="true"
-                                  label="Cloud Kombinationsvertrag (nur 2 Jahre Laufzeit)"
-                                  @change="calculateCloud" />
-                              </div>
+                              <h3>Verbrauch Lichtstrom</h3>
+                              <small>&nbsp;</small>
+                              <v-text-field
+                                ref="power_usage"
+                                v-model="data.power_usage"
+                                :rules="[rules.required]"
+                                @keyup.enter="calculateCloud"
+                                @blur="calculateCloud"
+                                label="Verbrauch in kWh"
+                                class="align-right"
+                                suffix="kWh"
+                                type="number"
+                                step="1"></v-text-field>
+                              <v-text-field
+                                v-if="['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])"
+                                v-model="data.power_extra_usage"
+                                @keyup.enter="calculateCloud"
+                                @blur="calculateCloud"
+                                label="Extra-Verbrauch in kWh"
+                                class="align-right"
+                                suffix="kWh"
+                                type="number"
+                                step="1"></v-text-field>
+                              <small>mehr kWh werden mit {{ formatNumber(calculated.lightcloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small><br>
                             </div>
-                            <div class="section" :disabled="true">
+                            <div class="section" :disabled="true" style="padding-bottom: 0">
                               <h3>Wärmecloud</h3>
                               <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
-                              <div class="layout horizontal">
-                                <div>
-                                  <v-text-field :disabled="data.has_heating_quote" v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
-                                </div>
-                              </div>
+                              <v-text-field :disabled="data.has_heating_quote" v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
                               <small>mehr kWh werden mit {{ formatNumber(calculated.heatcloud_extra_price_per_kwh * 100, 2) }} Cent abgerechnet</small>
                             </div>
-                            <div class="section" :disabled="true">
+                            <div class="section" :disabled="true" style="padding-bottom: 0">
                               <h3>E.Cloud</h3>
                               <small><b>Voraussetzung:</b> Gasheizung</small>
                               <v-text-field :disabled="true" v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
                               <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
                             </div>
+                          </div>
+                          <br />
+
+                          <h3>Cloud Optionen</h3>
+                          <div class="layout horizontal wrap">
+                            <div style="margin-right: 1em">
+                              <v-radio-group v-model="data.cloud_quote_type" @change="calculateCloud" style="margin-top: 0.3em">
+                                <v-radio
+                                  value=""
+                                  label="Standard" />
+                                <v-radio
+                                  value="no-cloud"
+                                  label="Keine Cloud" />
+                                <v-radio
+                                  value="combination_quote"
+                                  label="Cloud Kombinationsvertrag (nur 2 Jahre Laufzeit)" />
+                                <v-radio
+                                  v-if="checkCloudRights() || checkBookkeepingRights()"
+                                  value="followup_quote"
+                                  label="Cloud Folgeangebot (nur 1 Jahr Laufzeit)" />
+                                <v-radio
+                                  v-if="checkCloudRights() || checkBookkeepingRights()"
+                                  value="interim_quote"
+                                  label="Cloud Zwischenangebot (nur 1 Jahr Laufzeit)" />
+                              </v-radio-group>
+                            </div>
+                            <div>
+                              <v-select
+                                v-if="checkCloudRights() || checkBookkeepingRights()"
+                                label="Cloud Laufzeit"
+                                v-model="data.price_guarantee" :items="[
+                                  {'value':'12_years','label':'12 Jahre'},
+                                  {'value':'2_years','label':'2 Jahre'},
+                                  {'value':'1_year','label':'1 Jahr'}
+                                ]"
+                                @input="calculateCloud"
+                                style="max-width: 14em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                              <v-select
+                                v-else
+                                label="Cloud Laufzeit"
+                                v-model="data.price_guarantee" :items="[
+                                  {'value':'12_years','label':'12 Jahre'},
+                                  {'value':'2_years','label':'2 Jahre'}
+                                ]"
+                                @input="calculateCloud"
+                                style="max-width: 14em;"
+                                item-text="label"
+                                item-value="value"></v-select>
+                            </div>
+                            <!--
+                            <div>
+                              <h3>Cloud.Refresh</h3>
+                              <v-checkbox
+                                label="Kunde hat Altanlage"
+                                style="margin-right: 1em"
+                                @change="calculateCloud"
+                                v-model="data.has_old_pv" />
+                              <div v-if="data.has_old_pv">
+                                <v-menu
+                                  ref="datepickerMenu"
+                                  v-model="datepickerMenu"
+                                  :close-on-content-click="false"
+                                  transition="scale-transition"
+                                  offset-y
+                                  min-width="auto"
+                                >
+                                  <template v-slot:activator="{ on, attrs }">
+                                    <v-text-field
+                                      v-model="data.old_pv_build_date"
+                                      type="date"
+                                      label="Wann ist die Anlage in Betrieb gegangen"
+                                      prepend-icon="mdi-calendar"
+                                      readonly
+                                      v-bind="attrs"
+                                      v-on="on"
+                                    ></v-text-field>
+                                  </template>
+                                  <v-date-picker
+                                    v-model="data.old_pv_build_date"
+                                    :active-picker.sync="activePicker"
+                                    min="1950-01-01"
+                                    @change="datePickerSave"
+                                  ></v-date-picker>
+                                </v-menu>
+                                <v-text-field
+                                  v-model="data.old_pv_kwp"
+                                  @blur="calculateCloud"
+                                  label="Nennleistung der alten Anlage laut Einspeisevertrag"
+                                  type="number"
+                                  suffix="kWp"
+                                  style="width: 26em; margin-right: 1em"></v-text-field>
+                              </div>
+                            </div>-->
                           </div>
                         </v-stepper-content>
 
@@ -241,79 +332,6 @@
                         <v-stepper-content step="3">
 
                           <div class="section">
-                            <div class="layout horizontal wrap">
-                              <div>
-                                <h3>Cloud Optionen</h3>
-                                <v-select
-                                  v-if="checkCloudRights() || checkBookkeepingRights()"
-                                  label="Cloud Laufzeit"
-                                  v-model="data.price_guarantee" :items="[
-                                    {'value':'12_years','label':'12 Jahre'},
-                                    {'value':'2_years','label':'2 Jahre'},
-                                    {'value':'1_year','label':'1 Jahr'}
-                                  ]"
-                                  @input="calculateCloud"
-                                  style="max-width: 14em;"
-                                  item-text="label"
-                                  item-value="value"></v-select>
-                                <v-select
-                                  v-else
-                                  label="Cloud Laufzeit"
-                                  v-model="data.price_guarantee" :items="[
-                                    {'value':'12_years','label':'12 Jahre'},
-                                    {'value':'2_years','label':'2 Jahre'}
-                                  ]"
-                                  @input="calculateCloud"
-                                  style="max-width: 14em;"
-                                  item-text="label"
-                                  item-value="value"></v-select>
-                              </div>
-                              <!--
-                              <div>
-                                <h3>Cloud.Refresh</h3>
-                                <v-checkbox
-                                  label="Kunde hat Altanlage"
-                                  style="margin-right: 1em"
-                                  @change="calculateCloud"
-                                  v-model="data.has_old_pv" />
-                                <div v-if="data.has_old_pv">
-                                  <v-menu
-                                    ref="datepickerMenu"
-                                    v-model="datepickerMenu"
-                                    :close-on-content-click="false"
-                                    transition="scale-transition"
-                                    offset-y
-                                    min-width="auto"
-                                  >
-                                    <template v-slot:activator="{ on, attrs }">
-                                      <v-text-field
-                                        v-model="data.old_pv_build_date"
-                                        type="date"
-                                        label="Wann ist die Anlage in Betrieb gegangen"
-                                        prepend-icon="mdi-calendar"
-                                        readonly
-                                        v-bind="attrs"
-                                        v-on="on"
-                                      ></v-text-field>
-                                    </template>
-                                    <v-date-picker
-                                      v-model="data.old_pv_build_date"
-                                      :active-picker.sync="activePicker"
-                                      min="1950-01-01"
-                                      @change="datePickerSave"
-                                    ></v-date-picker>
-                                  </v-menu>
-                                  <v-text-field
-                                    v-model="data.old_pv_kwp"
-                                    @blur="calculateCloud"
-                                    label="Nennleistung der alten Anlage laut Einspeisevertrag"
-                                    type="number"
-                                    suffix="kWp"
-                                    style="width: 26em; margin-right: 1em"></v-text-field>
-                                </div>
-                              </div>-->
-                            </div>
-
                             <h3>Extra Pakete</h3>
                             <div class="layout horizontal wrap">
                               <div class="flex">
@@ -2360,29 +2378,31 @@
                 </div>
               </div>
               <div v-if="data.has_pv_quote">
-                <br>
-                <hr />
-                <br>
-                <div class="h2">PV-Angebot</div>
-                <div v-if="products" class="products">
-                  <v-checkbox label="Produkte anzeigen" v-model="showProducts" />
-                  <table v-if="showProducts" >
-                    <tr v-for="product in products" :key="product.id">
-                      <td>{{ formatNumber(product.quantity, null) }}</td>
-                      <td>{{ product.NAME }}</td>
-                      <td class="align-right">{{ formatPrice(product.total_price) }}</td>
-                    </tr>
-                  </table>
-                  <table>
-                    <tr>
-                      <td>Gesamtpreis Netto</td>
-                      <td class="align-right">{{ formatPrice(total_net) }}</td>
-                    </tr>
-                    <tr>
-                      <td>Gesamtpreis Brutto</td>
-                      <td class="align-right">{{ formatPrice(total) }}</td>
-                    </tr>
-                  </table>
+                <div v-if="total_net > 0">
+                  <br>
+                  <hr />
+                  <br>
+                  <div class="h2">PV-Angebot</div>
+                  <div v-if="products" class="products">
+                    <v-checkbox label="Produkte anzeigen" v-model="showProducts" />
+                    <table v-if="showProducts" >
+                      <tr v-for="product in products" :key="product.id">
+                        <td>{{ formatNumber(product.quantity, null) }}</td>
+                        <td>{{ product.NAME }}</td>
+                        <td class="align-right">{{ formatPrice(product.total_price) }}</td>
+                      </tr>
+                    </table>
+                    <table>
+                      <tr>
+                        <td>Gesamtpreis Netto</td>
+                        <td class="align-right">{{ formatPrice(total_net) }}</td>
+                      </tr>
+                      <tr>
+                        <td>Gesamtpreis Brutto</td>
+                        <td class="align-right">{{ formatPrice(total) }}</td>
+                      </tr>
+                    </table>
+                  </div>
                 </div>
                 <br>
                 <hr />
@@ -2547,7 +2567,7 @@
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
         <v-btn v-if="(!is_sent || checkCloudRights()) && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
-        <v-btn v-if="pdf_summary_link" @click="pdf_dialog = true" style="margin-left: 1em">PDFs</v-btn>
+        <v-btn v-if="pdf_quote_summary_link" @click="pdf_dialog = true" style="margin-left: 1em">PDFs</v-btn>
         <v-btn @click="links_dialog = true" style="margin-left: 1em">Links</v-btn>
         <v-btn v-if="!is_sent && pdf_link" :disabled="form_dirty" @click.stop="openOrderConfirmDialog" style="margin-left: 1em">Verbindlich Bestellen</v-btn>
         <v-btn v-if="is_sent" disabled style="margin-left: 1em">Bereits bestellt</v-btn>
@@ -3293,6 +3313,7 @@ export default {
     //}
     const data = {
       "id": params.id,
+      "deal_id": route.query.deal_id,
       "token": route.query.token,
       "loading": false,
       "quote_datetime": new Date(),
@@ -3800,6 +3821,7 @@ export default {
       this.formChanged()
     },
     async storeOffer(reason){
+      this.data["deal_id"] = this.deal_id
       if (this.data["has_pv_quote"]) {
         if(this.data.power_usage === undefined || this.data.power_usage === ''){
           this.$refs["power_usage"].validate(true)
@@ -3838,11 +3860,10 @@ export default {
         this.quote_datetime = response.data.data.quote_datetime
         if (response.data.data.select_options) {
           this.select_options = response.data.data.select_options
-          console.log(this.select_options)
         }
         this.loading_percent = 100 / 11 * 1
         this.loading_message = "Stromverbräuche und Preissteigerungen kalkulieren"
-        if (this.data["has_pv_quote"]) {
+        if (this.data["has_pv_quote"] && !['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
           const response3 = await this.$axios.put(`/quote_calculator/${this.id}/pv_pdf`, this.data)
         }
         this.loading_percent = 100 / 11 * 2
@@ -3851,54 +3872,68 @@ export default {
           const response2 = await this.$axios.put(`/quote_calculator/${this.id}/cloud_pdfs`, this.data)
         }
 
-        this.loading_percent = 100 / 11 * 3
-        this.loading_message = "Heizungs PDF erzeugen"
-        if (this.data["has_heating_quote"]) {
-          const response4 = await this.$axios.put(`/quote_calculator/${this.id}/heating_pdf`, this.data)
-        }
+        if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
+          this.loading_percent = 100 / 11 * 3
+          this.loading_message = "Heizungs PDF erzeugen"
+          if (this.data["has_heating_quote"]) {
+            const response4 = await this.$axios.put(`/quote_calculator/${this.id}/heating_pdf`, this.data)
+          }
 
-        this.loading_percent = 100 / 11 * 4
-        this.loading_message = "Dachsanierungs PDF erzeugen"
-        if (this.data["has_roof_reconstruction_quote"]) {
-          const response5 = await this.$axios.put(`/quote_calculator/${this.id}/roof_reconstruction_pdf`, this.data)
-        }
+          this.loading_percent = 100 / 11 * 4
+          this.loading_message = "Dachsanierungs PDF erzeugen"
+          if (this.data["has_roof_reconstruction_quote"]) {
+            const response5 = await this.$axios.put(`/quote_calculator/${this.id}/roof_reconstruction_pdf`, this.data)
+          }
 
-        this.loading_percent = 100 / 11 * 5
-        this.loading_message = "BlueGen PDF erzeugen"
-        if (this.data["has_bluegen_quote"]) {
-          const response_bluegen = await this.$axios.put(`/quote_calculator/${this.id}/bluegen_pdf`, this.data)
-        }
+          this.loading_percent = 100 / 11 * 5
+          this.loading_message = "BlueGen PDF erzeugen"
+          if (this.data["has_bluegen_quote"]) {
+            const response_bluegen = await this.$axios.put(`/quote_calculator/${this.id}/bluegen_pdf`, this.data)
+          }
 
-        this.loading_percent = 100 / 11 * 6
-        this.loading_message = "Kalkulations PDF erzeugen"
-        const response_commission = await this.$axios.put(`/quote_calculator/${this.id}/commission_pdf`, this.data)
-        this.pdf_commission_link = response_commission.data.data.pdf_commission_link
+          this.loading_percent = 100 / 11 * 6
+          this.loading_message = "Kalkulations PDF erzeugen"
+          const response_commission = await this.$axios.put(`/quote_calculator/${this.id}/commission_pdf`, this.data)
+          this.pdf_commission_link = response_commission.data.data.pdf_commission_link
+        } else {
+          this.pdf_commission_link = undefined
+        }
 
         this.loading_percent = 100 / 11 * 7
         this.loading_message = "Angebotssammlung PDF erzeugen"
         const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
         this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
 
-        this.loading_percent = 100 / 11 * 8
-        this.loading_message = "Datenblätter PDF erzeugen"
-        const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
-        this.pdf_datasheets_link = response7.data.data.pdf_datasheets_link
+        if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
+          this.loading_percent = 100 / 11 * 8
+          this.loading_message = "Datenblätter PDF erzeugen"
+          const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
+          this.pdf_datasheets_link = response7.data.data.pdf_datasheets_link
 
-        this.loading_percent = 100 / 11 * 9
-        this.loading_message = "Energiekonzept zusammenfassen"
-        const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
-        this.pdf_summary_link = response8.data.data.pdf_summary_link
-        if (response8.data.data.pdf_order_confirmation_link) {
-          this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
+          this.loading_percent = 100 / 11 * 9
+          this.loading_message = "Energiekonzept zusammenfassen"
+          const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
+          this.pdf_summary_link = response8.data.data.pdf_summary_link
+          if (response8.data.data.pdf_order_confirmation_link) {
+            this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
+          }
+
+          this.loading_percent = 100 / 11 * 10
+          this.loading_message = "Vertragsunterlagen PDF erzeugen"
+          const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
+          this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
+          this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
+          this.pdf_contract_summary_part4_file_link = response9.data.data.pdf_contract_summary_part4_file_link
+          this.pdf_contract_summary_part4_1_file_link = response9.data.data.pdf_contract_summary_part4_1_file_link
+        } else {
+          this.pdf_datasheets_link = undefined
+          this.pdf_summary_link = undefined
+          this.pdf_order_confirmation_link = undefined
+          this.pdf_contract_summary_link = undefined
+          this.pdf_contract_summary_part1_file_id = undefined
+          this.pdf_contract_summary_part4_file_link = undefined
+          this.pdf_contract_summary_part4_1_file_link = undefined
         }
-
-        this.loading_percent = 100 / 11 * 10
-        this.loading_message = "Vertragsunterlagen PDF erzeugen"
-        const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
-        this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
-        this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
-        this.pdf_contract_summary_part4_file_link = response9.data.data.pdf_contract_summary_part4_file_link
-        this.pdf_contract_summary_part4_1_file_link = response9.data.data.pdf_contract_summary_part4_1_file_link
         this.form_dirty = false
       } catch (error) {
 
