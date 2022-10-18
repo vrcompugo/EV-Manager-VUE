@@ -195,6 +195,7 @@
                                   value="no-cloud"
                                   label="Keine Cloud" />
                                 <v-radio
+                                  disabled
                                   value="combination_quote"
                                   label="Cloud Kombinationsvertrag (nur 2 Jahre Laufzeit)" />
                                 <v-radio
@@ -207,7 +208,7 @@
                                   label="Cloud Zwischenangebot (nur 1 Jahr Laufzeit)" />
                               </v-radio-group>
                             </div>
-                            <div>
+                            <div style="margin-right: 1em">
                               <v-select
                                 v-if="checkCloudRights() || checkBookkeepingRights()"
                                 label="Cloud Laufzeit"
@@ -231,6 +232,22 @@
                                 style="max-width: 14em;"
                                 item-text="label"
                                 item-value="value"></v-select>
+                            </div>
+                            <div v-if="checkCloudRights() || checkBookkeepingRights()">
+                              <v-radio-group v-model="data.old_price_calculation" @change="calculateCloud" style="margin-top: 0.3em">
+                                <v-radio
+                                  value=""
+                                  label="Standard" />
+                                <v-radio
+                                  value="l2k3fblk3baxv55"
+                                  label="Preisdefintion vor dem 16.12.2021" />
+                                <v-radio
+                                  value="VOgcqFFeQLpV9cxOA02lzXdAYX"
+                                  label="Preisdefintion vor dem 01.10.2022" />
+                                <v-radio
+                                  value="CXRsAMcrJw7V9wTA4L5ELE8xJx9NVNo9"
+                                  label="Preisdefintion vor dem 15.10.2022" />
+                              </v-radio-group>
                             </div>
                             <!--
                             <div>
@@ -2562,7 +2579,6 @@
         </div>
         <div v-if="data.has_pv_quote" style="padding-left: 0.5em">= {{ formatNumber(calculated.min_kwp, 2) }} kWp</div>
         <div class="flex-1"></div>
-        <v-checkbox v-if="checkCloudRights() || checkBookkeepingRights()" label="Alte Preise" v-model="data.old_price_calculation" value="l2k3fblk3baxv55" @change="calculateCloud" />
         <v-btn v-if="$auth.user.bitrix_department.indexOf('AEV Vertrieb GmbH') < 0" @click="adjustment_dialog = true" style="margin-left: 1em">Anpassungen</v-btn>
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
         <v-btn v-if="(!is_sent || checkCloudRights()) && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
