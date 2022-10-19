@@ -3805,6 +3805,7 @@ export default {
     },
     calculateCloud(){
       console.log(this.data.heating_quote_people)
+      this.data["deal_id"] = this.deal_id
       if (this.data.financing_bank == 'energie360') {
         this.data.financing_rate = 4.89
       }
