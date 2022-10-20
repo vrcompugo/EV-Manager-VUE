@@ -3642,7 +3642,7 @@ export default {
         if (roof.is_flat) {
           flat_multiplicator = 0.925
         }
-        roof.pv_count_modules = Math.floor(Number(roof.sqm) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
+        roof.pv_count_modules = Math.floor((Number(roof.sqm) * 0.94) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
         possible_modules += roof.pv_count_modules
       }
       this.data.pv_count_modules = possible_modules
@@ -3658,7 +3658,7 @@ export default {
         if (roof.is_flat) {
           flat_multiplicator = 0.925
         }
-        roof.pv_count_modules = Math.floor(Number(roof.sqm) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
+        roof.pv_count_modules = Math.floor((Number(roof.sqm) * 0.94) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
         if (possible_modules + roof.pv_count_modules > needed_pv_count_modules) {
           roof.pv_count_modules = needed_pv_count_modules - possible_modules
           possible_modules = needed_pv_count_modules
@@ -3679,7 +3679,7 @@ export default {
         if (roof.is_flat) {
           flat_multiplicator = 0.925
         }
-        roof.pv_count_modules = Math.floor(Number(roof.sqm) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
+        roof.pv_count_modules = Math.floor((Number(roof.sqm) * 0.94) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
         if (possible_modules + roof.pv_count_modules > needed_pv_count_modules) {
           roof.pv_count_modules = needed_pv_count_modules - possible_modules
           possible_modules = needed_pv_count_modules
