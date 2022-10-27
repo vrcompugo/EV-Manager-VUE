@@ -158,7 +158,7 @@
                                 type="number"
                                 step="1"></v-text-field>
                               <v-text-field
-                                v-if="['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])"
+                                v-if="checkCloudRights() || checkBookkeepingRights()"
                                 v-model="data.power_extra_usage"
                                 @keyup.enter="calculateCloud"
                                 @blur="calculateCloud"
@@ -788,7 +788,7 @@
                             <div class="layout horizontal">
                               <v-select
                                 label="Modulart"
-                                v-model="data.module_type" :items="select_options.module_type_options"
+                                v-model="data.module_type" :items="pv_modules_selections"
                                 @change="countModules(); changePVModules()"
                                 style="flex: 0 1 8em; margin-right: 1em;"
                                 item-text="label"
@@ -3443,6 +3443,13 @@ export default {
   },
 
   computed: {
+    pv_modules_selections () {
+      if (this.checkCloudRights() || this.checkBookkeepingRights()){
+        return this.select_options.module_type_options.concat(this.select_options.module_type_options_archive)
+      }else{
+        return this.select_options.module_type_options
+      }
+    },
     is_sent () {
       if (this.data.status_id === "WON" || this.data.status_id === "CONVERTED") {
         return true
@@ -3598,7 +3605,7 @@ export default {
       this.calculateCloud()
     },
     changeKWP(){
-      this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
+      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
       if(this.data.module_kwp){
         this.data.pv_count_modules = Math.ceil(Number(this.data.pv_kwp) / this.data.module_kwp.kWp)
         this.changePVModules()
@@ -3608,7 +3615,7 @@ export default {
     changePVModules(){
       let pv_kwp = 0
       let pv_sqm = 0
-      this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
+      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
       if(this.data.module_kwp){
         for (let roof of this.data.roofs) {
           pv_kwp = pv_kwp + roof.pv_kwp_used
@@ -3635,7 +3642,7 @@ export default {
       this.calculateCloud()
     },
     set_max_coverage () {
-      this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
+      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
       let possible_modules = 0
       for (let roof of this.data.roofs) {
         let flat_multiplicator = 1
@@ -3650,7 +3657,7 @@ export default {
       this.calculateCloud()
     },
     set_optimized_coverage () {
-      this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
+      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
       let needed_pv_count_modules = Math.ceil(Number(this.calculated.min_kwp) / this.data.module_kwp.kWp)
       let possible_modules = 0
       for (let roof of this.data.roofs) {
@@ -3671,7 +3678,7 @@ export default {
       this.calculateCloud()
     },
     set_zero_coverage () {
-      this.data.module_kwp = this.select_options.module_type_options.find(element => element.value === this.data.module_type);
+      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
       let needed_pv_count_modules = Math.ceil(Number(this.calculated.min_zero_kwp) / this.data.module_kwp.kWp)
       let possible_modules = 0
       for (let roof of this.data.roofs) {
