@@ -114,6 +114,9 @@
               <b>Wärmecloud</b><br>
               <div v-if="config.heatcloud">
                 SmartMe Zähler: {{ config.heatcloud.smartme_number }}<br>
+                <div v-if="config.heatcloud.additional_smartme_numbers && config.heatcloud.additional_smartme_numbers.length > 0">
+                  zus. SmartMe Zählernummern: <span v-for="number in config.heatcloud.additional_smartme_numbers" :key="number">{{ number }} </span>
+                </div>
                 Zählernummer: {{ config.heatcloud.power_meter_number }}<br>
                 <div v-if="config.heatcloud.additional_power_meter_numbers && config.heatcloud.additional_power_meter_numbers.length > 0">
                   zus. Zählernummern: <span v-for="number in config.heatcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
@@ -308,6 +311,9 @@
                   </div>
                   <div v-if="config.heatcloud">
                     SmartMe Zähler: {{ config.heatcloud.smartme_number }}<br>
+                    <div v-if="config.heatcloud.additional_smartme_numbers && config.heatcloud.additional_smartme_numbers.length > 0">
+                      zus. SmartMe Zählernummern: <span v-for="number in config.heatcloud.additional_smartme_numbers" :key="number">{{ number }} </span>
+                    </div>
                     Zählernummer: {{ config.heatcloud.power_meter_number }}<br>
                     <div v-if="config.heatcloud.additional_power_meter_numbers && config.heatcloud.additional_power_meter_numbers.length > 0">
                       zus. Zählernummern: <span v-for="number in config.heatcloud.additional_power_meter_numbers" :key="number">{{ number }} </span>
