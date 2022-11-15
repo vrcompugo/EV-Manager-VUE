@@ -242,6 +242,9 @@
                                   value="l2k3fblk3baxv55"
                                   label="Preisdefintion vor dem 16.12.2021" />
                                 <v-radio
+                                  value="5EQnMQSgTFhK3AlS"
+                                  label="Preisdefintion vor dem 28.02.2021" />
+                                <v-radio
                                   value="VOgcqFFeQLpV9cxOA02lzXdAYX"
                                   label="Preisdefintion vor dem 01.10.2022" />
                                 <v-radio
