@@ -470,8 +470,8 @@
                                   <v-select
                                     label="Variante"
                                     v-model="data.extra_options_wallbox_variant" :items="[
-                                      {'value':'11kW','label':'Heidelberg ECO Home 11 kw (nicht förderfähig)'},
-                                      {'value':'control-11kW','label':'Heidelberg Energy Control 11 kW'},
+                                      {'value':'11kW','label':'Heidelberg ECO Home 11 kw (nicht förderfähig)', disabled: true},
+                                      {'value':'control-11kW','label':'Heidelberg Energy Control 11 kW', disabled: true},
                                       {'value':'senec-pro-11kW','label':'Wallbox SENEC pro S (11kW)'},
                                       {'value':'senec-22kW','label':'Wallbox SENEC 22kW Pro', disabled: true}
                                     ]"
