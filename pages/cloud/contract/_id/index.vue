@@ -463,6 +463,7 @@
                 <v-text-field label="Mehrverbrauch Lichtcloud" v-model="manuellData[annualStatement.year].lightcloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right" style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Mehrverbrauch Wärmecloud" v-model="manuellData[annualStatement.year].heatcloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Mehrverbrauch eCloud" v-model="manuellData[annualStatement.year].ecloud_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
+                <v-text-field label="Mehrverbrauch Consumer" v-model="manuellData[annualStatement.year].consumer_extra_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Cashback" v-model="manuellData[annualStatement.year].cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
                 <v-text-field label="Cashback eCloud" v-model="manuellData[annualStatement.year].ecloud_cashback_price_per_kwh" type="number" step="0.01" suffix="Cent/kWh" class="right"  style="flex: 0 1 12em; margin-right: 1em" />
               </div>
