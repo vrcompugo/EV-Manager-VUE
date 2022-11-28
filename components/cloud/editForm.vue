@@ -155,6 +155,15 @@
           @blur="$emit('input', value)"
           label="Produktpreis (brutto)"
           style="margin-right: 0.5em"></v-text-field>
+          <v-checkbox v-model="value.consumer_min_kwp_overwrite" @click="$forceUpdate();" label="kWp überschreiben"></v-checkbox>
+          <v-text-field
+            v-if="value.consumer_min_kwp_overwrite"
+            v-model="value.consumer_min_kwp"
+            type="number"
+            step="0.01"
+            @blur="$emit('input', value)"
+            label="min. kWp"
+            style="margin-right: 0.5em"></v-text-field>
         <v-checkbox v-model="value.consumer_extra_price_per_kwh_overwrite" @click="$forceUpdate();" label="Mehrverbrauch überschreiben"></v-checkbox>
         <v-text-field
           v-if="value.consumer_extra_price_per_kwh_overwrite"
@@ -166,8 +175,20 @@
           suffix="€/kWh"
           style="margin-right: 0.5em"></v-text-field>
       </div>
+      <div>
+        <b>PV-Anlage</b><br />
+        <v-checkbox v-model="value.pv_kwp_overwrite" @click="$forceUpdate();" label="Größe der Anlage überschreiben"></v-checkbox>
+        <v-text-field
+          v-if="value.pv_kwp_overwrite"
+          v-model="value.pv_kwp"
+          type="number"
+          step="0.01"
+          @blur="$emit('input', value)"
+          label="Größe der Anlage"
+          suffix="kWp"
+          style="margin-right: 0.5em"></v-text-field>
+      </div>
     </div>
-
   </div>
 </template>
 
