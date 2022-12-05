@@ -251,6 +251,9 @@
                                   value="CXRsAMcrJw7V9wTA4L5ELE8xJx9NVNo9"
                                   label="Preisdefintion vor dem 15.10.2022" />
                               </v-radio-group>
+                              <v-checkbox
+                                v-model="data.cloud_quote_heat_seperate"
+                                label="Wärmecloud gesondert ausweisen" />
                             </div>
                             <!--
                             <div>
