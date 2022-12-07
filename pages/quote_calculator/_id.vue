@@ -394,7 +394,7 @@
                                   @change="calculateCloud"
                                   v-model="data.extra_options"
                                   value="emove.zoe" />
-                              </div>-->
+                              </div>
                               <div class="flex">
                                 <v-checkbox
                                   label="Steuerliche Beratung"
@@ -402,7 +402,7 @@
                                   @change="calculateCloud"
                                   v-model="data.extra_options"
                                   value="tax_consult" />
-                              </div>
+                              </div>-->
                               <div class="flex">
                                 <v-checkbox
                                   label="Wärmepumpe"
@@ -529,7 +529,7 @@
                                   @change="calculateCloud"
                                   v-model="data.extra_options_zero"
                                   value="emove.zoe" />
-                              </div>-->
+                              </div>
                               <div class="flex">
                                 <v-checkbox
                                   label="Steuerliche Beratung"
@@ -537,7 +537,7 @@
                                   @change="calculateCloud"
                                   v-model="data.extra_options_zero"
                                   value="tax_consult" />
-                              </div>
+                              </div>-->
                               <div class="flex">
                                 <v-checkbox
                                   label="Brauchwasserwärmepume"
