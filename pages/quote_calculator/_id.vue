@@ -795,7 +795,7 @@
                               <v-select
                                 label="Modulart"
                                 v-model="data.module_type" :items="pv_modules_selections"
-                                @change="countModules(); changePVModules()"
+                                @change="changePVModules(); countModules();"
                                 style="flex: 0 1 8em; margin-right: 1em;"
                                 item-text="label"
                                 item-value="value"></v-select>
@@ -843,6 +843,7 @@
                                 <v-text-field
                                   v-model="roof.label"
                                   @input="formChanged"
+                                  :rules="[rules.required]"
                                   label="Bezeichnung"
                                   style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
                                 <v-btn @click="showEditRoof(index)" small style="margin-right: 1em">
