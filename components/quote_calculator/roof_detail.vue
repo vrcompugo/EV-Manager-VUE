@@ -288,9 +288,9 @@
           </template>
         </v-radio>
       </v-radio-group>
-      <div>
+      <!--<div>
         <v-checkbox v-model="roofs[index].extra_roof_topping_available" :rules="[rules.required]" label="Ich habe mindestens 20 Ersatzdachziegeln/Ersatzschiefern für die Montage bereit zu stellen"></v-checkbox>
-      </div>
+      </div>-->
     </div>
     <h3>3. Daten Belegungsfläche</h3>
     <div class="layout horizontal" v-if="!['Flachdach'].includes(roofs[index].roof_type)">
