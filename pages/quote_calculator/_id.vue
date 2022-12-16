@@ -134,6 +134,12 @@
 
                         <v-divider></v-divider>
 
+                        <v-stepper-step :complete="stepper > 5" step="5" editable>
+                          TAB
+                        </v-stepper-step>
+
+                        <v-divider></v-divider>
+
                         <v-stepper-step step="6" editable v-if="!['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])">
                           WI-Anpassung
                         </v-stepper-step>
@@ -896,7 +902,12 @@
 
                           </div>
                         </v-stepper-content>
-
+                        <v-stepper-content step="5">
+                          <div class="section">
+                            <h2>Technischer Aufnahmebogen</h2>
+                            <TabForm :id="id" :data="data" />
+                          </div>
+                        </v-stepper-content>
                         <!--<v-stepper-content step="5">
                           <div class="layout horizontal wrap">
                             <div class="section" style="padding-bottom: 0">
@@ -3256,13 +3267,15 @@
 import HistorySelect from '~/components/quote_calculator/history_select'
 import AddressForm from '~/components/address/form'
 import RoofForm from '~/components/quote_calculator/roof_detail'
+import TabForm from '~/components/quote_calculator/tabform'
 
 export default {
 
   components: {
     AddressForm,
     HistorySelect,
-    RoofForm
+    RoofForm,
+    TabForm
   },
 
   mounted(){

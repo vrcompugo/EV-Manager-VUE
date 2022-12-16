@@ -143,7 +143,21 @@
               <div>
                 <b>Betonziegel<br>(Frankfurter Pfanne)</b><br>
                 Decklänge: 33,0 cm<br>
-                Deckbreite: 30,0 cm
+                Deckbreite: 30,0 cm<br>
+                <v-select
+                  v-if="roofs[index].roof_topping === 'Betonziegel'"
+                  label="Befestigung"
+                  v-model="roofs[index].roof_topping_fixture" :items="[
+                    'Verklebt',
+                    'Verschraubt',
+                    'Genagelt',
+                    'mit Sturmklammern',
+                    'ohne Befestigung verlegt',
+                  ]"
+                  @input="calculateCloud"
+                  style="max-width: 14em;"
+                  item-text="label"
+                  item-value="value"></v-select>
               </div>
             </div>
           </template>
@@ -156,7 +170,21 @@
                 <b>Tonziegel<br>(Flachdachpfanne)</b><br>
                 <v-text-field v-if="roofs[index].roof_topping === 'Tonziegel'" ref="tonziegel_decklange" label="Decklänge" v-model="roofs[index].tonziegel_decklange" suffix="cm" type="number" step="0.01" :rules="[rules.required]"/>
                 <v-text-field v-else label="Decklänge" v-model="roofs[index].tonziegel_decklange" suffix="cm" type="number" step="0.01" />
-                Deckbreite: 24,3 cm
+                Deckbreite: 24,3 cm<br>
+                <v-select
+                  v-if="roofs[index].roof_topping === 'Tonziegel'"
+                  label="Befestigung"
+                  v-model="roofs[index].roof_topping_fixture" :items="[
+                    'Verklebt',
+                    'Verschraubt',
+                    'Genagelt',
+                    'mit Sturmklammern',
+                    'ohne Befestigung verlegt',
+                  ]"
+                  @input="calculateCloud"
+                  style="max-width: 14em;"
+                  item-text="label"
+                  item-value="value"></v-select>
               </div>
             </div>
           </template>
