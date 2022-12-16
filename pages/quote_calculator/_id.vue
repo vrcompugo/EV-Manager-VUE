@@ -1846,6 +1846,7 @@
                 <div class="main-content flex-1">
                   <div v-if="data.has_heating_quote">
                     <h2>Heizungsanlage</h2>
+                    <div v-if="data.heating_quote_house_build_year >= 2001" style="margin: 0.2em 1em; padding: 0.2em 0.5em; background-color: #D32F2F; color: #fff">Eine volle 40% Bafa-Förderung kann nicht erreicht werden, bei einem Baujahr neuer als 2001</div>
                     <div class="layout horizontal wrap" style="align-items: center;">
                       <v-select
                         label="Hausart"
@@ -1858,7 +1859,14 @@
                         item-text="label"
                         item-value="value"></v-select>
                       <v-select
-                        label="Baujahr Haus (Dämmwert)"
+                        label="Baujahr"
+                        v-model="data.heating_quote_house_build_year" :items="buildyears"
+                        @input="calculateUsageHeating();"
+                        style="margin-left: 1em; max-width: 14em"
+                        item-text="label"
+                        item-value="value"></v-select>
+                      <v-select
+                        label="Dämmwert"
                         v-model="data.heating_quote_house_build" :items="[
                           {'value':'1940-1969','label':'1940-1969'},
                           {'value':'1970-1979','label':'1970-1979'},
@@ -1867,7 +1875,7 @@
                           {'value':'2016 und neuer','label':'2016 und neuer'},
                           {'value':'new_building','label':'Neubau'}
                         ]"
-                        @input="calculateUsageHeating();calculateCloud();"
+                        @input="calculateUsageHeating();"
                         style="margin-left: 1em; max-width: 14em"
                         item-text="label"
                         item-value="value"></v-select>
@@ -1883,7 +1891,7 @@
                           {'value':'nightofen','label':'Nachtspeicheröfen'},
                           {'value':'other','label':'Sonstige'},
                         ]"
-                        @input="calculateUsageHeating();calculateCloud();"
+                        @input="calculateUsageHeating();"
                         style="margin-left: 1em; width: 7em"
                         item-text="label"
                         item-value="value"></v-select>
@@ -1895,7 +1903,7 @@
                           {'value':'7-12_years','label':'7-12 Jahre'},
                           {'value':'older','label':'Über 12 Jahre'}
                         ]"
-                        @input="calculateUsageHeating();calculateCloud();"
+                        @input="calculateUsageHeating();"
                         style="margin-left: 1em; width: 7em"
                         item-text="label"
                         item-value="value"></v-select>
@@ -1906,7 +1914,7 @@
                           {'value': 'heatpump', 'label':' Wärmepumpe'},
                           {'value': 'hybrid_gas', 'label':' Hybrid Gas/WP'}
                         ]"
-                        @input="calculateUsageHeating();calculateCloud();"
+                        @input="calculateUsageHeating();"
                         style="margin-left: 1em; width: 8em;"
                         item-text="label"
                         item-value="value"></v-select>
@@ -2033,7 +2041,7 @@
                       <v-text-field
                         label="Personen im Haushalt"
                         v-model="data.heating_quote_people"
-                        @input="calculateCloud"
+                        @input="calculateUsageHeating();"
                         style="margin-left: 1em; max-width: 14em;"
                         type="number"
                         step="1"></v-text-field>
@@ -2079,6 +2087,14 @@
                     </div>
                     <b>Extra Optionen</b>
                     <div class="layout horizontal wrap" style="justify-content: flex-start">
+                      <div v-if="data.new_heating_type == 'heatpump'">
+                        <v-checkbox
+                          label="Fundament für Wärmepumpe"
+                          style="margin-right: 1em"
+                          @change="calculateCloud"
+                          v-model="data.heating_quote_extra_options"
+                          value="build_platform" />
+                      </div>
                       <div>
                         <v-checkbox
                           label="Ausbau der alten Heizung ohne Tanks"
@@ -2139,7 +2155,7 @@
                         <v-checkbox
                           label="Heizungspufferspeicher"
                           style="margin-right: 1em"
-                          @change="calculateUsageHeating(); calculateCloud()"
+                          @change="calculateUsageHeating();"
                           v-model="data.heating_quote_extra_options"
                           value="bufferstorage" />
                       </div>
@@ -2168,7 +2184,7 @@
                         <v-checkbox
                           label="Keine Wärmecloud gewünscht"
                           style="margin-right: 1em"
-                          @change="calculateUsageHeating(); calculateCloud()"
+                          @change="calculateUsageHeating();"
                           v-model="data.no_heatcloud" />
                       </div>
                     </div>
@@ -2717,7 +2733,7 @@
             <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Provision öffnen</v-btn>
           </div>
           <div v-if="pdf_contract_summary_part1_file_id">
-            <div v-if="(new Date(quote_datetime.replace(' ', 'T'))) > (new Date()) - 60 * 60 * 1000 * 24 * 30 || id === '60456' || id === '39396' || id === '39772' || id === '39088' || id === '37828' || id === '43570' || id === '48766'">
+            <div v-if="(new Date(quote_datetime.replace(' ', 'T'))) > (new Date()) - 60 * 60 * 1000 * 24 * 14 || id === '60456' || id === '39396' || id === '39772' || id === '39088' || id === '37828' || id === '43570' || id === '48766'">
               <div style="border-top: 1px solid #333; margin: 1em 0"></div>
               <div style="font-size: 1.2em">InSign Integration</div>
               <div v-if="insignData.url">
@@ -3450,6 +3466,13 @@ export default {
   },
 
   computed: {
+    buildyears () {
+      const years = []
+      for (let i=1900;i<(new Date().getFullYear());i++) {
+        years.push({'value':i,'label':i})
+      }
+      return years
+    },
     pv_modules_selections () {
       if (this.checkCloudRights() || this.checkBookkeepingRights()){
         return this.select_options.module_type_options.concat(this.select_options.module_type_options_archive)
@@ -3529,6 +3552,7 @@ export default {
           this.data.heating_quote_usage_wp = response.data.data.heating_quote_usage_wp
           this.data.heating_quote_usage = response.data.data.heating_quote_usage
           this.addHeatingToCloud()
+          this.calculateCloud()
         }).catch(err => {
           this.calculated["invalid_form"] = true
           if (!this.calculated["errors"]) {
