@@ -220,6 +220,7 @@
                                 label="Cloud Laufzeit"
                                 v-model="data.price_guarantee" :items="[
                                   {'value':'12_years','label':'12 Jahre'},
+                                  {'value':'10_years','label':'10 Jahre'},
                                   {'value':'2_years','label':'2 Jahre'},
                                   {'value':'1_year','label':'1 Jahr'}
                                 ]"
