@@ -14,7 +14,7 @@
     </span>
     <div v-if="deal.enbw_data">
       Hauptvertrag: {{ deal.enbw_data.main_contract_number }}<br />
-      Subvertrag: {{ deal.enbw_data.sub_contract_number }}<br />
+      Subvertrag: {{ deal.enbw_data.sub_contract_number }} (Auftrag ID: {{ deal.enbw_data.deal_id }})<br />
       Status: {{ deal.enbw_data.status_message }} ({{ deal.enbw_data.status }})<br />
       Joules ID: {{ deal.enbw_data.joulesId }}<br />
       Log:<br />
