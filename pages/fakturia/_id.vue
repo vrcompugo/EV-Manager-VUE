@@ -47,7 +47,7 @@
       </table>
     </div>
     <div v-if="deal.id">
-      <Cloud v-if="deal.category_id === '15' || deal.category_id === '176'" :deal="deal" :dealId="dealId" @loading="loading = true" @error="showError" @success="loading = false" />
+      <Cloud v-if="deal.category_id === '15' || deal.category_id === '176'" :deal="deal" :dealId="dealId" @loading="loading = true" @error="showError" @success="loading = false" @reload="reload" />
       <Contracting v-if="deal.category_id === '68' || deal.category_id === '70'" :deal="deal" @loading="loading = true" @error="showError" @success="loading = false" />
       <HVContract v-if="deal.category_id === '202'" :deal="deal" @loading="loading = true" @error="showError" @success="loading = false" />
     </div>
