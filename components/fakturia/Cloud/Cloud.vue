@@ -7,7 +7,7 @@
     Lieferbegin: {{ deal.cloud_delivery_start | dateTimeFormat }}<br>
     <v-btn :href="sherpa_link()" target="_blank">Sherpa Excel runterladen</v-btn> oder
     <span v-if="deal.is_cloud_master_deal">
-      <v-btn :loading="loading" @click="enbw_transfer" target="_blank">Direkt an ENBW übertragen</v-btn>
+      <v-btn :loading="loading" @click="enbw_transfer" target="_blank">Direkt an ENBW übertragen (Testsystem)</v-btn>
     </span>
     <span v-else>
       ENBW nur beim Hauptauftrag möglich
