@@ -136,18 +136,20 @@ export default {
           if(Array.isArray(element)){
             element = element[0]
           }
-          if(element !== undefined && element._isVue && !element.validate(true)){
+          if(element !== undefined && element._isVue && !element.validate()){
             found = true
           }
         }
-        this.roofs[this.index].is_valid = !found
+        this.roofs[this.index].is_valid_header = !found
+        this.roofs[this.index].is_valid = this.roofs[this.index].is_valid_body && this.roofs[this.index].is_valid_header
       })
+    },
+    emitInput(){
+      this.validate()
+      this.$emit('input', {})
     },
     preventBubble (e) {
       e.stopPropagation()
-    },
-    emitInput(){
-      this.$emit('input', {})
     },
     deleteRoof (index) {
       this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich löschen?</div>').then(res => {

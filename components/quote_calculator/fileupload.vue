@@ -81,7 +81,6 @@ export default {
         } else {
           this.comment = this.value[`tab_comment_${this.filekey}`]
           this.file_id = this.value[`tab_img_${this.filekey}`]
-          console.log(this.value, this.filekey, this.file_id)
           this.refresh()
         }
       }
@@ -94,7 +93,6 @@ export default {
         } else {
           this.comment = this.value[`tab_comment_${this.filekey}`]
           this.file_id = this.value[`tab_img_${this.filekey}`]
-          console.log(this.value, this.filekey, this.file_id)
           this.refresh()
         }
       }

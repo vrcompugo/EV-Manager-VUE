@@ -120,12 +120,48 @@
               <div><v-checkbox v-model="data.has_bluegen_quote" @change="calculateCloud" label="Brennstoffzellen" style="margin: 0" /></div>
             </div>
             <v-tabs class="flex-1" v-model="tab">
-              <v-tab v-if="data.has_pv_quote">Cloud/PV</v-tab>
-              <v-tab v-if="data.has_roof_reconstruction_quote">Dachsanierung</v-tab>
-              <v-tab v-if="data.has_heating_quote">Heizung</v-tab>
-              <v-tab v-if="data.has_bluegen_quote">Brennstoffzellen</v-tab>
-              <v-tab v-if="data.has_pv_quote || data.has_heating_quote || data.has_bluegen_quote">Elektrik</v-tab>
-              <v-tab>Kundendaten</v-tab>
+              <v-tab v-if="data.has_pv_quote">
+                <div>
+                  Cloud/PV
+                  <v-icon v-if="!this.data.is_valid_cloud_pv" style="color:#D32F2F;">mdi-close</v-icon>
+                  <v-icon v-if="this.data.is_valid_cloud_pv" style="color:#2E7D32;">mdi-check</v-icon>
+                </div>
+              </v-tab>
+              <v-tab v-if="data.has_roof_reconstruction_quote">
+                <div>
+                  Dachsanierung
+                  <v-icon v-if="!this.data.is_valid_roof" style="color:#D32F2F;">mdi-close</v-icon>
+                  <v-icon v-if="this.data.is_valid_roof" style="color:#2E7D32;">mdi-check</v-icon>
+                </div>
+              </v-tab>
+              <v-tab v-if="data.has_heating_quote">
+                <div>
+                  Heizung
+                  <v-icon v-if="!this.data.is_valid_heating" style="color:#D32F2F;">mdi-close</v-icon>
+                  <v-icon v-if="this.data.is_valid_heating" style="color:#2E7D32;">mdi-check</v-icon>
+                </div>
+              </v-tab>
+              <v-tab v-if="data.has_bluegen_quote">
+                <div>
+                  Brennstoffzellen
+                  <v-icon v-if="!this.data.is_valid_fuelcell" style="color:#D32F2F;">mdi-close</v-icon>
+                  <v-icon v-if="this.data.is_valid_fuelcell" style="color:#2E7D32;">mdi-check</v-icon>
+                </div>
+              </v-tab>
+              <v-tab v-if="data.has_pv_quote || data.has_heating_quote || data.has_bluegen_quote">
+                <div>
+                  Elektrik
+                  <v-icon v-if="!this.data.is_valid_electric" style="color:#D32F2F;">mdi-close</v-icon>
+                  <v-icon v-if="this.data.is_valid_electric" style="color:#2E7D32;">mdi-check</v-icon>
+                </div>
+              </v-tab>
+              <v-tab>
+                <div>
+                  Kundendaten
+                  <v-icon v-if="!this.data.is_valid_customer_data" style="color:#D32F2F;">mdi-close</v-icon>
+                  <v-icon v-if="this.data.is_valid_customer_data" style="color:#2E7D32;">mdi-check</v-icon>
+                </div>
+              </v-tab>
             </v-tabs>
             <v-tabs-items v-model="tab">
               <v-tab-item key="pv" v-if="data.has_pv_quote">

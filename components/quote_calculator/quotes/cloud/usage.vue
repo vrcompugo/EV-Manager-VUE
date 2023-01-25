@@ -25,19 +25,19 @@
           suffix="kWh"
           type="number"
           step="1"></v-text-field>
-        <small>mehr kWh werden mit {{ formatNumber(calculated.lightcloud_extra_price_per_kwh * 100, 2) }} Cent kWh abgerechnet</small><br>
+        <small>mehr kWh werden mit {{ (calculated.lightcloud_extra_price_per_kwh * 100) | formatNumber(2) }} Cent kWh abgerechnet</small><br>
       </div>
       <div class="section" :disabled="true" style="padding-bottom: 0">
         <h3>Wärmecloud</h3>
         <small><b>Voraussetzung:</b> 2ter Zähler / Wärmezähler und Konzept 8</small>
         <v-text-field :disabled="data.has_heating_quote" v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
-        <small>mehr kWh werden mit {{ formatNumber(calculated.heatcloud_extra_price_per_kwh * 100, 2) }} Cent abgerechnet</small>
+        <small>mehr kWh werden mit {{ (calculated.heatcloud_extra_price_per_kwh * 100) | formatNumber(2) }} Cent abgerechnet</small>
       </div>
       <div class="section" :disabled="true" style="padding-bottom: 0">
         <h3>E.Cloud</h3>
         <small><b>Voraussetzung:</b> Gasheizung</small>
         <v-text-field :disabled="true" v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
-        <small>mehr kWh werden mit {{ formatNumber(calculated.ecloud_extra_price_per_kwh * 100, 2) }} Cent kWh Gas abgerechnet</small>
+        <small>mehr kWh werden mit {{ (calculated.ecloud_extra_price_per_kwh * 100) | formatNumber(2) }} Cent kWh Gas abgerechnet</small>
       </div>
     </div>
     <br />
@@ -167,7 +167,6 @@
 
 
 <script>
-import {formatNumber, formatPrice} from '~/plugins/formatNumber'
 
 export default {
 
@@ -213,11 +212,11 @@ export default {
           if(Array.isArray(element)){
             element = element[0]
           }
-          if(element !== undefined && element._isVue && !element.validate(true)){
+          if(element !== undefined && element._isVue && !element.validate()){
             found = true
           }
         }
-        this.roofs[this.index].is_valid = !found
+        this.data.is_valid_pv_usage = !found
       })
     },
     addRoof() {
@@ -233,18 +232,9 @@ export default {
       this.$emit('input', {})
     },
     calculateCloud () {
+      console.log('ads', this.$refs, this.data.is_valid_pv_usage)
+      this.validate()
       this.$emit('calculateCloud')
-    },
-    formatNumber() {
-      // legacy
-      return formatNumber()
-    },
-    formatPrice() {
-      // legacy
-      return formatPrice()
-    },
-    formChanged () {
-      // legacy
     },
     datePickerSave (date) {
       this.$refs.datepickerMenu.save(date)

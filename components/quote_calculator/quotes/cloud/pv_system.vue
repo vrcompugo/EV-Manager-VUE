@@ -30,37 +30,37 @@
           <div
             v-if="calculated.min_kwp_refresh > 0"
             :style="`background-color: #43A047; flex: 1 1 ${calculated.min_kwp_refresh / calculated.max_kwp * 100}%`">
-            Refresh {{ formatNumber(calculated.min_kwp_refresh, 2) }}kWp
+            Refresh {{ calculated.min_kwp_refresh | formatNumber(2) }}kWp
           </div>
           <div
             v-if="calculated.min_kwp_emove > 0"
             :style="`background-color: #0097A7; flex: 1 1 ${calculated.min_kwp_emove / calculated.max_kwp * 100}%`">
-            eMove {{ formatNumber(calculated.min_kwp_emove, 2) }}kWp
+            eMove {{ calculated.min_kwp_emove | formatNumber(2) }}kWp
           </div>
           <div
             v-if="calculated.min_kwp_light > 0"
             :style="`background-color: #FDD835; color: #333; flex: 1 1 ${calculated.min_kwp_light / calculated.max_kwp * 100}%`">
-            Lichtstrom {{ formatNumber(calculated.min_kwp_light, 2) }}kWp
+            Lichtstrom {{ calculated.min_kwp_light | formatNumber(2) }}kWp
           </div>
           <div
             v-if="calculated.min_kwp_heatcloud > 0"
             :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_heatcloud / calculated.max_kwp * 100}%`">
-            Wärmecloud {{ formatNumber(calculated.min_kwp_heatcloud, 2) }}kWp
+            Wärmecloud {{ calculated.min_kwp_heatcloud | formatNumber(2) }}kWp
           </div>
           <div
             v-if="calculated.min_kwp_ecloud > 0"
             :style="`background-color: #F4511E; flex: 1 1 ${calculated.min_kwp_ecloud / calculated.max_kwp * 100}%`">
-            eCloud {{ formatNumber(calculated.min_kwp_ecloud, 2) }}kWp
+            eCloud {{ calculated.min_kwp_ecloud | formatNumber(2) }}kWp
           </div>
           <div
             v-if="calculated.min_kwp_consumer > 0"
             :style="`background-color: #009688; flex: 1 1 ${calculated.min_kwp_consumer / calculated.max_kwp * 100}%`">
-            Consumer {{ formatNumber(calculated.min_kwp_consumer, 2) }}kWp
+            Consumer {{ calculated.min_kwp_consumer | formatNumber(2) }}kWp
           </div>
           <div
             v-if="calculated.kwp_extra > 0 && calculated.kwp_extra / calculated.max_kwp * 100 > 0.012"
             :style="`background-color: #43A047; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * 100}%`">
-            Mehrverbau {{ formatNumber(calculated.kwp_extra, 2) }}kWp
+            Mehrverbau {{ calculated.kwp_extra | formatNumber(2) }}kWp
           </div>
         </div>
       </div>
@@ -72,11 +72,11 @@
           <div
             v-if="Number(data.pv_kwp) > 0"
             :style="`background-color: #43A047; flex: 1 1 ${Number(data.pv_kwp) / calculated.max_kwp * 100}%`">
-            PV-Anlage {{ formatNumber(data.pv_kwp, 2)}}kWp</div>
+            PV-Anlage {{ data.pv_kwp | formatNumber(2) }}kWp</div>
           <div
             v-if="Number(data.pv_kwp) === 0 || data.pv_kwp === undefined || data.pv_kwp === ''"
             :style="`background-color: #43A047; flex: 1 1 100%`">
-            Benötigte PV-Anlage {{ formatNumber(calculated.min_kwp, 2)}}kWp</div>
+            Benötigte PV-Anlage {{ calculated.min_kwp | formatNumber(2)}}kWp</div>
           <div
             v-if="calculated.kwp_extra < 0 && calculated.kwp_extra / calculated.max_kwp * -100 > 0.012"
             :style="`background-color: #E53935; flex: 1 1 ${calculated.kwp_extra / calculated.max_kwp * -100}%`">
@@ -120,7 +120,7 @@
         item-text="label"
         item-value="value"></v-select>
     </div>
-    <v-text-field @change="calculateCloud" label="Solaredge Designer Link" v-model="data.solaredge_designer_link" :rules="[rules.required]"/><br />
+    <v-text-field @change="calculateCloud" label="Solaredge Designer Link" ref="solaredge_designer_link" v-model="data.solaredge_designer_link" :rules="[rules.required]"/><br />
     <b>Dachflächen</b>
     <v-expansion-panels>
       <v-expansion-panel v-for="(roof, index) in data.roofs" :key="index">
@@ -144,8 +144,6 @@
 <script>
 import RoofHeaderForm from '~/components/quote_calculator/quotes/cloud/roof_header'
 import RoofForm from '~/components/quote_calculator/quotes/cloud/roof_detail'
-import {formatNumber, formatPrice} from '~/plugins/formatNumber'
-
 export default {
 
   components: {
@@ -192,17 +190,18 @@ export default {
           if(Array.isArray(element)){
             element = element[0]
           }
-          if(element !== undefined && element._isVue && !element.validate(true)){
+          if(element !== undefined && element._isVue && !element.validate()){
             found = true
           }
         }
-        this.roofs[this.index].is_valid = !found
+        this.data.is_valid_pv_system = !found
       })
     },
     emitInput(){
       this.$emit('input', {})
     },
     calculateCloud () {
+      this.validate()
       this.$emit('calculateCloud')
     },
     addRoof() {
@@ -213,14 +212,6 @@ export default {
         }
       }
       this.calculateCloud()
-    },
-    formatNumber() {
-      // legacy
-      return formatNumber()
-    },
-    formatPrice() {
-      // legacy
-      return formatPrice()
     },
     formChanged () {
       // legacy

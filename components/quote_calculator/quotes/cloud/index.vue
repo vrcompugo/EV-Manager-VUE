@@ -5,37 +5,58 @@
         <v-stepper-header>
 
           <v-stepper-step :complete="stepper > 1" step="1" editable>
-            Verbrauchsdaten
+            <div>
+              Verbrauchsdaten
+              <v-icon v-if="!this.data.is_valid_pv_usage" style="color:#D32F2F;">mdi-close</v-icon>
+              <v-icon v-if="this.data.is_valid_pv_usage" style="color:#2E7D32;">mdi-check</v-icon>
+            </div>
           </v-stepper-step>
 
           <v-divider></v-divider>
 
           <v-stepper-step :complete="stepper > 2" step="2" editable v-if="!['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])">
-            Finanzierung
+            <div>
+              Finanzierung
+              <v-icon style="color:#2E7D32;">mdi-check</v-icon>
+            </div>
           </v-stepper-step>
 
           <v-divider></v-divider>
 
           <v-stepper-step :complete="stepper > 3" step="3" editable>
-            Zusatzoptionen
+            <div>
+              Zusatzoptionen
+              <v-icon style="color:#2E7D32;">mdi-check</v-icon>
+            </div>
           </v-stepper-step>
 
           <v-divider></v-divider>
 
           <v-stepper-step :complete="stepper > 4" step="4" editable>
-            PV-Anlage
+            <div>
+              PV-Anlage
+              <v-icon v-if="!this.data.is_valid_pv_system" style="color:#D32F2F;">mdi-close</v-icon>
+              <v-icon v-if="this.data.is_valid_pv_system" style="color:#2E7D32;">mdi-check</v-icon>
+            </div>
           </v-stepper-step>
 
           <v-divider></v-divider>
 
           <v-stepper-step :complete="stepper > 5" step="5" editable>
-            Bilder
+            <div>
+              Bilder
+              <v-icon v-if="!this.data.is_valid_pictures" style="color:#D32F2F;">mdi-close</v-icon>
+              <v-icon v-if="this.data.is_valid_pictures" style="color:#2E7D32;">mdi-check</v-icon>
+            </div>
           </v-stepper-step>
 
           <v-divider></v-divider>
 
           <v-stepper-step step="6" editable v-if="!['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])">
-            WI-Anpassung
+            <div>
+              WI-Anpassung
+              <v-icon style="color:#2E7D32;">mdi-check</v-icon>
+            </div>
           </v-stepper-step>
         </v-stepper-header>
 
@@ -155,23 +176,14 @@ export default {
   methods: {
     validate () {
       this.$nextTick(() => {
-        let found = false
-        for (let field in this.$refs) {
-          let element = this.$refs[field]
-          if(Array.isArray(element)){
-            element = element[0]
-          }
-          if(element !== undefined && element._isVue && !element.validate(true)){
-            found = true
-          }
-        }
-        this.roofs[this.index].is_valid = !found
+        this.data.is_valid_cloud_pv = this.data.is_valid_pv_system && this.data.is_valid_pv_usage && this.data.is_valid_pictures
       })
     },
     emitInput(){
       this.$emit('input', {})
     },
     calculateCloud () {
+      this.validate()
       this.$emit('calculateCloud')
     },
     formatNumber() {
