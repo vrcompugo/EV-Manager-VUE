@@ -2484,44 +2484,44 @@
                   <b style="font-size: 1.1em">Elektrik-Bilder</b>
                   <div class="layout horizontal wrap">
                     <FileUpload label="Zählerschrank offen*" filekey="zahlerschrank_offen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em"  @input="calculateCloud"/>
-                    <FileUpload label="Zählerschrank Umgebung*" filekey="zahlerschrank_geschlossen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Typenschild Zählerschrank*" filekey="zahlerschrank_typshild" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Zählerschrank Umgebung*" filekey="zahlerschrank_geschlossen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Typenschild Zählerschrank*" filekey="zahlerschrank_typshild" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
                   </div>
                   <div class="layout horizontal wrap">
-                    <FileUpload label="Hausanschluss (HAK)" filekey="hak_innen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload v-if="!data.is_new_building" label="Hauptzähler mit lesbarer Zählernummer*" filekey="zahlerschrank_zahlernummer" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload v-if="!data.is_new_building && data.heater_usage > 0" label="Wärmezähler mit lesbarer Zählernummer" filekey="zahlerschrank_warmezahlernummer" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload v-if="!data.is_new_building && data.power_meter_number_extra1_label || data.power_meter_number_extra1" label="Extra Zähler 1 mit lesbarer Zählernummer" filekey="zahlerschrank_zahlernummer1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload v-if="!data.is_new_building && data.power_meter_number_extra2_label || data.power_meter_number_extra2" label="Extra Zähler 2 mit lesbarer Zählernummer" filekey="zahlerschrank_zahlernummer2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Hausanschluss (HAK)" filekey="hak_innen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building" label="Hauptzähler mit lesbarer Zählernummer*" filekey="zahlerschrank_zahlernummer" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building && data.heater_usage > 0" label="Wärmezähler mit lesbarer Zählernummer" filekey="zahlerschrank_warmezahlernummer" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building && data.power_meter_number_extra1_label || data.power_meter_number_extra1" label="Extra Zähler 1 mit lesbarer Zählernummer" filekey="zahlerschrank_zahlernummer1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building && data.power_meter_number_extra2_label || data.power_meter_number_extra2" label="Extra Zähler 2 mit lesbarer Zählernummer" filekey="zahlerschrank_zahlernummer2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
                   </div>
                   <b>Raum für mögliche Aufstellorte (Speicher, Wechselrichter, neuer Zählerschrank)</b>
                   <div class="layout horizontal wrap">
-                    <FileUpload label="Aufstellort 1" filekey="aufstellort1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Aufstellort 2" filekey="aufstellort2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Panoramaaufnahme" filekey="panorama" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Aufstellort 1" filekey="aufstellort1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Aufstellort 2" filekey="aufstellort2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Panoramaaufnahme" filekey="panorama" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
                   </div>
                   <b>Kabelweg / Erdweg von Garage, Scheune usw.</b>
                   <div class="layout horizontal wrap">
-                    <FileUpload label="Kabelweg 1" filekey="kabelweg1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Kabelweg 2" filekey="kabelweg2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Kabelweg 3" filekey="kabelweg3" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Kabelweg 4" filekey="kabelweg4" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Kabelweg 5" filekey="kabelweg5" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Kabelweg 6" filekey="kabelweg6" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 1" filekey="kabelweg1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 2" filekey="kabelweg2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 3" filekey="kabelweg3" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 4" filekey="kabelweg4" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 5" filekey="kabelweg5" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 6" filekey="kabelweg6" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
                   </div>
                   <div v-if="data.extra_options.indexOf('wallbox') >= 0">
                     <b>Kabelwege / Platz für Wallbox </b>
                     <div class="layout horizontal wrap">
-                      <FileUpload label="Kabelweg Wallbox 1" filekey="kabelweg_wallbox_1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                      <FileUpload label="Kabelweg Wallbox 2" filekey="kabelweg_wallbox_2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                      <FileUpload label="Kabelweg Wallbox 1" filekey="kabelweg_wallbox_1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                      <FileUpload label="Kabelweg Wallbox 2" filekey="kabelweg_wallbox_2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
                     </div>
                   </div>
                   <b>Sonstige Bilder (andere Besonderheiten)</b>
                   <div class="layout horizontal wrap">
-                    <FileUpload label="Bereits vorhandene Wallbox" filekey="vorhandene_wallbox" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Große Verbraucher" filekey="große_verbraucher" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Bereits bestehende PV - Anlage ( mit Typenschild)" filekey="bereits_bestehende_pv" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
-                    <FileUpload label="Falls vorhanden Grundriss (Bei Neubau immer!)" filekey="grundriss" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Bereits vorhandene Wallbox" filekey="vorhandene_wallbox" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Große Verbraucher" filekey="große_verbraucher" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Bereits bestehende PV - Anlage ( mit Typenschild)" filekey="bereits_bestehende_pv" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
+                    <FileUpload label="Falls vorhanden Grundriss (Bei Neubau immer!)" filekey="grundriss" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" @input="calculateCloud" style="margin-right: 1em" />
                   </div>
                 </div>
               </v-tab-item>
