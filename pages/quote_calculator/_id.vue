@@ -79,6 +79,29 @@
     padding: 1em 0;
     color: #E53935;
   }
+  .v-expansion-panel-header {
+    padding: 0.7em 1em 0;
+  }
+  .v-expansion-panel {
+    margin-bottom: 5px;
+    margin-left: 1px;
+  }
+  .radio-image3 {
+    height: 8em;
+    margin-right: 1em;
+    img {
+      width: auto;
+      height: 100%;
+    }
+  }
+</style>
+<style lang="scss">
+  .image-placeholder {
+    display: inline-block;
+    width: 19em;
+    height: 11em;
+    background-color: #cccccc;
+  }
 </style>
 
 
@@ -101,7 +124,8 @@
               <v-tab v-if="data.has_roof_reconstruction_quote">Dachsanierung</v-tab>
               <v-tab v-if="data.has_heating_quote">Heizung</v-tab>
               <v-tab v-if="data.has_bluegen_quote">Brennstoffzellen</v-tab>
-              <v-tab>Allgemein</v-tab>
+              <v-tab v-if="data.has_pv_quote || data.has_heating_quote || data.has_bluegen_quote">Elektrik</v-tab>
+              <v-tab>Kundendaten</v-tab>
             </v-tabs>
             <v-tabs-items v-model="tab">
               <v-tab-item key="pv" v-if="data.has_pv_quote">
@@ -135,7 +159,7 @@
                         <v-divider></v-divider>
 
                         <v-stepper-step :complete="stepper > 5" step="5" editable>
-                          TAB
+                          Bilder
                         </v-stepper-step>
 
                         <v-divider></v-divider>
@@ -257,6 +281,9 @@
                                 <v-radio
                                   value="CXRsAMcrJw7V9wTA4L5ELE8xJx9NVNo9"
                                   label="Preisdefintion vor dem 15.10.2022" />
+                                <v-radio
+                                  value="oTv8BT9RzG3ms7QJcq7Y"
+                                  label="Preisdefintion vor dem 25.02.2022" />
                               </v-radio-group>
                               <v-checkbox
                                 v-model="data.cloud_quote_heat_seperate"
@@ -804,7 +831,7 @@
                               <v-select
                                 label="Modulart"
                                 v-model="data.module_type" :items="pv_modules_selections"
-                                @change="changePVModules(); countModules();"
+                                @change="calculateCloud();"
                                 style="flex: 0 1 8em; margin-right: 1em;"
                                 item-text="label"
                                 item-value="value"></v-select>
@@ -828,15 +855,6 @@
                                 suffix="kWp"
                                 type="number"
                                 step="0.01"></v-text-field>
-                              <v-text-field
-                                v-model="data.pv_sqm"
-                                disabled="disabled"
-                                label="benötigte Dachfläche"
-                                class="flex-1 align-right"
-                                style="margin-left: 1em;"
-                                suffix="m²"
-                                type="number"
-                                step="0.01"></v-text-field>
                               <v-select
                                 v-model="data.overwrite_storage_size" :items="possible_storage_sizes"
                                 label="Speichergröße überschreiben"
@@ -845,69 +863,27 @@
                                 item-text="label"
                                 item-value="value"></v-select>
                             </div>
+                            <v-text-field @change="calculateCloud" label="Solaredge Designer Link" v-model="data.solaredge_designer_link" :rules="[rules.required]"/><br />
                             <b>Dachflächen</b>
-
-                            <div v-for="(roof, index) in data.roofs" :key="index">
-                              <div class="layout horizontal center">
-                                <v-text-field
-                                  v-model="roof.label"
-                                  @input="formChanged"
-                                  :rules="[rules.required]"
-                                  label="Bezeichnung"
-                                  style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                                <v-btn @click="showEditRoof(index)" small style="margin-right: 1em">
-                                  <v-icon v-if="!roof.is_valid" style="color:#D32F2F;">mdi-close</v-icon>
-                                  <v-icon v-if="roof.is_valid" style="color:#2E7D32;">mdi-check</v-icon>
-                                  Konfigurieren
-                                </v-btn>
-                                <v-select
-                                  v-if="!roof.is_flat"
-                                  v-model="roof.direction" :items="[
-                                    {'value':'north','label':'Nord'},
-                                    {'value':'north_west_east','label':'Nord West/Ost'},
-
-                                    {'value':'west_east','label':'West/Ost'},
-                                    {'value':'south_west_east','label':'Süd West/Ost'},
-                                    {'value':'south','label':'Süd'}
-                                  ]"
-                                  @change="calculateCloud()"
-                                  style="flex: 0 1 8em;"
-                                  item-text="label"
-                                  item-value="value"></v-select>
-                                <v-text-field
-                                  v-model="roof.sqm"
-                                  @input="validateModules"
-                                  label="Fläche"
-                                  suffix="m²"
-                                  step="0.01"
-                                  type="number"
-                                  class="align-right"
-                                  style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
-                                <v-text-field
-                                  :ref="`roof_v_count_modules_${index}`"
-                                  v-model="roof.pv_count_modules"
-                                  @input="countModules"
-                                  label="Anzahl Module"
-                                  step="1"
-                                  type="number"
-                                  class="align-right"
-                                  style="flex: 0 1 8em;"></v-text-field>
-
-                                <svg @click="data.roofs.splice(index, 1); calculateCloud()" xmlns="http://www.w3.org/2000/svg" style="margin-left: 1em" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                              </div>
-                            </div>
+                            <v-expansion-panels>
+                              <v-expansion-panel v-for="(roof, index) in data.roofs" :key="index">
+                                <v-expansion-panel-header>
+                                  <RoofHeaderForm :roofs="data.roofs" :index="index" @input="calculateCloud"></RoofHeaderForm>
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                  <RoofForm :roofs="data.roofs" :index="index" :data="data" :id="id" @input="calculateCloud"></RoofForm>
+                                </v-expansion-panel-content>
+                              </v-expansion-panel>
+                            </v-expansion-panels>
                             <div>
                               <v-btn @click="addRoof" style="margin-right: 1em">Hinzufügen</v-btn>
-                              <v-btn @click="set_max_coverage">Maximale Belegung</v-btn>
-                              <v-btn @click="set_optimized_coverage">Cloud Belegung</v-btn>
-                              <v-btn @click="set_zero_coverage">ZERO Belegung</v-btn>
                             </div>
 
                           </div>
                         </v-stepper-content>
                         <v-stepper-content step="5">
                           <div class="section">
-                            <h2>Technischer Aufnahmebogen</h2>
+                            <h2>Bilder</h2>
                             <TabForm :id="id" :data="data" />
                           </div>
                         </v-stepper-content>
@@ -1259,15 +1235,6 @@
                                 suffix="kWp"
                                 type="number"
                                 step="0.01"></v-text-field>
-                              <v-text-field
-                                v-model="data.pv_sqm"
-                                disabled="disabled"
-                                label="benötigte Dachfläche"
-                                class="flex-1 align-right"
-                                style="margin-left: 1em;"
-                                suffix="m²"
-                                type="number"
-                                step="0.01"></v-text-field>
                               <v-select
                                 v-model="data.investment_type" :items="[
                                   {'value':'financing','label':'Finanzierung'},
@@ -1306,16 +1273,6 @@
                                   style="flex: 0 1 8em;"
                                   item-text="label"
                                   item-value="value"></v-select>
-                                <v-text-field
-                                  v-model="roof.sqm"
-                                  @input="calculateCloud"
-                                  @blur="$refs.pv_kwp.validate(true)"
-                                  label="Fläche"
-                                  suffix="m²"
-                                  step="0.01"
-                                  type="number"
-                                  class="align-right"
-                                  style="flex: 0 0 12em; margin: 0 1em;"></v-text-field>
                                 <v-text-field
                                   v-model="roof.pv_count_modules"
                                   @input="calculateCloud"
@@ -2274,6 +2231,300 @@
                   </div>
                 </div>
               </v-tab-item>
+              <v-tab-item key="electric" v-if="data.has_pv_quote || data.has_heating_quote || data.has_bluegen_quote">
+                <div class="main-content flex-1">
+                  <h2>Elektroinstallation</h2>
+                  <div v-if="data.has_pv_quote">
+                    <div class="layout horizontal wrap">
+                      <v-select
+                        label="Gebäudeart"
+                        v-model="data.tab_building_type" :items="[
+                          'Einzelhaus',
+                          'Doppelhaus',
+                          'Scheune / Schuppen',
+                          'Garage',
+                        ]"
+                        @input="calculateCloud"
+                        style="max-width: 14em; margin-right: 1em"></v-select>
+                    </div>
+
+                    <div>
+                      <div class="radio-group-label">Besteht eine Oberleitung:</div>
+                      <v-radio-group ref="oberleitung_vorhanden" v-model="data.oberleitung_vorhanden" class="no-margin" row :rules="[rules.requiredBoolean]">
+                        <v-radio :value="true" label="Ja" />
+                        <v-radio :value="false" label="Nein" />
+                      </v-radio-group>
+                    </div>
+
+                    <div>
+                      <div class="radio-group-label">Als Kabelkanal aussen am Haus soll folgende Farbe verwendet werden:</div>
+                      <v-radio-group ref="kabelkanal_color" v-model="data.kabelkanal_color" class="no-margin" :rules="[rules.requiredBoolean]">
+                        <v-radio value="Weiss" label="Weiss" />
+                        <v-radio value="Braun" label="Braun" />
+                        <v-radio value="Weiss & Braun" label="Weiss & Braun" />
+                        <v-radio value="keines von beiden, der Kanal wird bauseits gestellt" label="keines von beiden, der Kanal wird bauseits gestellt" />
+                      </v-radio-group>
+                    </div>
+
+                    <v-select
+                      label="Keller mit Außenzugang"
+                      v-model="data.tab_has_cellar_external_entrance" :items="[
+                        {label: 'Ja', value: true},
+                        {label: 'Nein', value: false}
+                      ]"
+                      @input="calculateCloud"
+                      style="max-width: 14em;"
+                      item-text="label"
+                      item-value="value"></v-select>
+                    <div>
+                      <div class="radio-group-label">Blitzschutz vorhanden:</div>
+                      <v-radio-group ref="lightning_protection" v-model="data.lightning_protection" class="no-margin" row :rules="[rules.requiredBoolean]">
+                        <v-radio :value="true" label="Ja" />
+                        <v-radio :value="false" label="Nein" />
+                      </v-radio-group>
+                    </div>
+                    <div class="layout horizontal" v-if="data.lightning_protection">
+                      <div class="radio-group-label">Blitzschutz soll demontiert werden: zusätzlicher Kostenaufwand: 290€</div>
+                      <v-radio-group ref="lightning_protection_removal" v-model="data.lightning_protection_removal" class="no-margin" row :rules="[rules.requiredBoolean]">
+                        <v-radio :value="true" label="Ja" />
+                        <v-radio :value="false" label="Nein" />
+                      </v-radio-group>
+                    </div>
+                    <div class="layout horizontal" v-if="data.lightning_protection">
+                      <div class="radio-group-label">Blitzschutz soll integriert werden: Ja zusätzlicher Kostenaufwand: 1.200€</div>
+                      <v-radio-group ref="lightning_protection_installation" v-model="data.lightning_protection_installation" class="no-margin" row :rules="[rules.requiredBoolean]">
+                        <v-radio :value="true" label="Ja" />
+                        <v-radio :value="false" label="Nein" />
+                      </v-radio-group>
+                    </div>
+                    <div v-if="data.lightning_protection && !data.lightning_protection_removal && !data.lightning_protection_installation">
+                      Blitzschutz wird bauseits in die Pv Anlage integriert.
+                    </div>
+                    <b>Zählernummern</b><br>
+                    <v-checkbox v-model="data.is_new_building" label="Es handelt sich um einen Neubau" style="margin: 0" />
+                    <div v-if="!data.is_new_building">
+                      <div class="layout horizontal">
+                        <v-text-field
+                          ref="power_meter_number"
+                          v-model="data.power_meter_number"
+                          :rules="[rules.required_for_order]"
+                          @keyup="formChanged"
+                          label="Haupt Zählernummer"
+                          style="margin-right: 1em"></v-text-field>
+                        <v-text-field
+                          v-model="data.main_malo_id"
+                          :rules="[rules.required_for_order]"
+                          @keyup="formChanged"
+                          label="Haupt Malo ID"
+                          style="margin-right: 1em"></v-text-field>
+                      </div>
+                      <v-text-field
+                        v-if="data.heater_usage > 0"
+                        v-model="data.heatcloud_power_meter_number"
+                        @input="formChanged"
+                        label="Wärmecloud Zählernummer"
+                        style="margin-right: 1em"></v-text-field>
+                    </div>
+                    <div v-for="(consumer, index) in data.consumers" :key="index">
+                      <div class="layout horizontal">
+                        <v-text-field
+                          v-model="consumer.power_meter_number"
+                          @input="formChanged"
+                          label="Consumer Zählernummer"
+                          style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
+                        <v-text-field
+                          v-model="consumer.malo_id"
+                          @keyup="formChanged"
+                          label="Consumer Malo ID"
+                          style="margin-right: 1em"></v-text-field>
+                      </div>
+                    </div>
+                    <div v-if="!data.is_new_building">
+                      <b>Extra Zähler</b>
+                      <div class="layout horizontal">
+                        <v-text-field
+                          v-model="data.power_meter_number_extra1_label"
+                          :rules="[rules.required_for_order]"
+                          @keyup="formChanged"
+                          label="Weiterer Zähler Bezeichnung"
+                          style="margin-right: 1em"></v-text-field>
+                        <v-text-field
+                          v-model="data.power_meter_number_extra1"
+                          :rules="[rules.required_for_order]"
+                          @keyup="formChanged"
+                          label="Zählernummer"
+                          style="margin-right: 1em"></v-text-field>
+                      </div>
+                      <div class="layout horizontal">
+                        <v-text-field
+                          v-model="data.power_meter_number_extra2_label"
+                          :rules="[rules.required_for_order]"
+                          @keyup="formChanged"
+                          label="Weiterer Zähler Bezeichnung"
+                          style="margin-right: 1em"></v-text-field>
+                        <v-text-field
+                          v-model="data.power_meter_number_extra2"
+                          :rules="[rules.required_for_order]"
+                          @keyup="formChanged"
+                          label="Zählernummer"
+                          style="margin-right: 1em"></v-text-field>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <v-select
+                      label="Zählerzusammenlegung gewünscht"
+                      v-model="data.tab_zahlerzusammenlegung" :items="[
+                        {label: 'Ja', value: true},
+                        {label: 'Nein', value: false}
+                      ]"
+                      @input="calculateCloud"
+                      style="max-width: 14em;"
+                      item-text="label"
+                      item-value="value"></v-select>
+                    <div class="layout horizontal wrap">
+                      <v-text-field label="alte Nebenzählernummer 1" v-model="data.tab_extra_counter_number1" style="margin-right: 1em" v-if="data.tab_zahlerzusammenlegung" />
+                      <v-text-field label="alte Nebenzählernummer 2" v-model="data.tab_extra_counter_number2" style="margin-right: 1em" v-if="data.tab_zahlerzusammenlegung" />
+                      <v-text-field label="alte Nebenzählernummer 3" v-model="data.tab_extra_counter_number3" style="margin-right: 1em" v-if="data.tab_zahlerzusammenlegung" />
+                    </div>
+                    <br />
+
+                  </div>
+                  <div class="layout horizontal wrap">
+                    <v-select
+                      label="Standort HAK"
+                      v-model="data.tab_hak_position" :items="[
+                        'Keller',
+                        'Aussen',
+                        'Dachboden',
+                        'anderes Gebäude'
+                      ]"
+                      @input="calculateCloud"
+                      style="max-width: 14em;margin-right: 1em"></v-select>
+                    <v-select
+                      label="Entfernung HAK zum Zählerschrank"
+                      v-model="data.tab_distance_hak" :items="[
+                        'bis 5m',
+                        '5-10m',
+                        '10-15m',
+                        'über 20m'
+                      ]"
+                      @input="calculateCloud"
+                      style="max-width: 14em;margin-right: 1em; margin-left: 1em"></v-select>
+                      <v-text-field label="Höhe des Raums mit Zählerschrank" v-model="data.tab_roomheight_power_cabinet" suffix="cm" />
+                  </div>
+                  <div>
+                    <b>Extra Stromverbraucher</b>
+                    <v-checkbox
+                      label="Eine Wärmepumpe ist vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="Eine Wärmepumpe ist vorhanden" />
+                    <v-checkbox
+                      label="Elektro Heizungen sind vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="Elektro Heizungen sind vorhanden" />
+                    <v-checkbox
+                      label="Durchlauferhitzer sind vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="Durchlauferhitzer sind vorhanden" />
+                    <v-checkbox
+                      label="Pool ist vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="Pool ist vorhanden" />
+                    <v-checkbox
+                      label="Sauna ist vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="Sauna ist vorhanden" />
+                    <v-checkbox
+                      label="grosse Werkgeräte, mit Starkstrom z.B.: Kreissäge, Schweissgerät vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="grosse Werkgeräte, mit Starkstrom z.B.: Kreissäge, Schweissgerät vorhanden" />
+                    <v-checkbox
+                      label="Wallbox ist vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="Wallbox ist vorhanden" />
+                    <v-checkbox
+                      label="Wasserpumpe/Brunnen ist vorhanden"
+                      style="margin: 0"
+                      v-model="data.tab_power_usage_options"
+                      value="Wasserpumpe/Brunnen ist vorhanden" />
+                  </div>
+                  <v-select
+                    label="kWh Gesamtleistung (Großverbraucher)"
+                    v-model="data.tab_power_usage_total_power" :items="[
+                      'bis 11kWh',
+                      '11-15 kWh',
+                      '15-20 kWh',
+                      '20-25 kWh'
+                    ]"
+                    @input="calculateCloud"
+                    style="max-width: 14em;margin-right: 1em"
+                    item-text="label"
+                    item-value="value"></v-select>
+                  <v-select
+                    v-if="data.extra_options.indexOf('wallbox') >= 0"
+                    label="Wallbox Montageort"
+                    v-model="data.wallbox_mountpoint" :items="[
+                      'In der Garage ',
+                      'Carport',
+                      'Hausfassade',
+                      'Außenwand Garage'
+                    ]"
+                    @input="calculateCloud"
+                    style="max-width: 14em;margin-right: 1em"
+                    item-text="label"
+                    item-value="value"></v-select>
+                  <b style="font-size: 1.1em">Elektrik-Bilder</b>
+                  <div class="layout horizontal wrap">
+                    <FileUpload label="Zählerschrank offen*" filekey="zahlerschrank_offen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em"  @input="calculateCloud"/>
+                    <FileUpload label="Zählerschrank Umgebung*" filekey="zahlerschrank_geschlossen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Typenschild Zählerschrank*" filekey="zahlerschrank_typshild" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                  </div>
+                  <div class="layout horizontal wrap">
+                    <FileUpload label="Hausanschluss (HAK)" filekey="hak_innen" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building" label="Hauptzähler mit lesbarer Zählernummer*" filekey="zahlerschrank_zahlernummer" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building && data.heater_usage > 0" label="Wärmezähler mit lesbarer Zählernummer" filekey="zahlerschrank_warmezahlernummer" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building && data.power_meter_number_extra1_label || data.power_meter_number_extra1" label="Extra Zähler 1 mit lesbarer Zählernummer" filekey="zahlerschrank_zahlernummer1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload v-if="!data.is_new_building && data.power_meter_number_extra2_label || data.power_meter_number_extra2" label="Extra Zähler 2 mit lesbarer Zählernummer" filekey="zahlerschrank_zahlernummer2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                  </div>
+                  <b>Raum für mögliche Aufstellorte (Speicher, Wechselrichter, neuer Zählerschrank)</b>
+                  <div class="layout horizontal wrap">
+                    <FileUpload label="Aufstellort 1" filekey="aufstellort1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Aufstellort 2" filekey="aufstellort2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Panoramaaufnahme" filekey="panorama" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                  </div>
+                  <b>Kabelweg / Erdweg von Garage, Scheune usw.</b>
+                  <div class="layout horizontal wrap">
+                    <FileUpload label="Kabelweg 1" filekey="kabelweg1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 2" filekey="kabelweg2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 3" filekey="kabelweg3" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 4" filekey="kabelweg4" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 5" filekey="kabelweg5" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Kabelweg 6" filekey="kabelweg6" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                  </div>
+                  <div v-if="data.extra_options.indexOf('wallbox') >= 0">
+                    <b>Kabelwege / Platz für Wallbox </b>
+                    <div class="layout horizontal wrap">
+                      <FileUpload label="Kabelweg Wallbox 1" filekey="kabelweg_wallbox_1" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                      <FileUpload label="Kabelweg Wallbox 2" filekey="kabelweg_wallbox_2" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    </div>
+                  </div>
+                  <b>Sonstige Bilder (andere Besonderheiten)</b>
+                  <div class="layout horizontal wrap">
+                    <FileUpload label="Bereits vorhandene Wallbox" filekey="vorhandene_wallbox" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Große Verbraucher" filekey="große_verbraucher" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Bereits bestehende PV - Anlage ( mit Typenschild)" filekey="bereits_bestehende_pv" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                    <FileUpload label="Falls vorhanden Grundriss (Bei Neubau immer!)" filekey="grundriss" filetype="jpg" path="Elektrik-Bilder" v-model="data" :id="id" style="margin-right: 1em" />
+                  </div>
+                </div>
+              </v-tab-item>
               <v-tab-item key="general">
                 <div class="main-content flex-1">
                   <h2>Allgemeine Angaben</h2>
@@ -2316,47 +2567,6 @@
                         @change="datePickerSave2"
                       ></v-date-picker>
                     </v-menu>
-                    <div v-if="data.has_pv_quote">
-                      <b>Zählernummern</b><br>
-                      <v-checkbox v-model="data.is_new_building" label="Es handelt sich um einen Neubau" style="margin: 0" />
-                      <div v-if="!data.is_new_building">
-                        <div class="layout horizontal">
-                          <v-text-field
-                            ref="power_meter_number"
-                            v-model="data.power_meter_number"
-                            :rules="[rules.required_for_order]"
-                            @keyup="formChanged"
-                            label="Haupt Zählernummer"
-                            style="margin-right: 1em"></v-text-field>
-                          <v-text-field
-                            v-model="data.main_malo_id"
-                            :rules="[rules.required_for_order]"
-                            @keyup="formChanged"
-                            label="Haupt Malo ID"
-                            style="margin-right: 1em"></v-text-field>
-                        </div>
-                        <v-text-field
-                          v-if="data.heater_usage > 0"
-                          v-model="data.heatcloud_power_meter_number"
-                          @input="formChanged"
-                          label="Wärmecloud Zählernummer"
-                          style="margin-right: 1em"></v-text-field>
-                      </div>
-                      <div v-for="(consumer, index) in data.consumers" :key="index">
-                        <div class="layout horizontal">
-                          <v-text-field
-                            v-model="consumer.power_meter_number"
-                            @input="formChanged"
-                            label="Consumer Zählernummer (falls vorhanden)"
-                            style="flex: 0 0 12em; margin-right: 1em"></v-text-field>
-                          <v-text-field
-                            v-model="consumer.malo_id"
-                            @keyup="formChanged"
-                            label="Consumer Malo ID"
-                            style="margin-right: 1em"></v-text-field>
-                        </div>
-                      </div>
-                    </div>
 
                     <b>Bankdaten</b>
                     <div class="layout horizontal">
@@ -2378,7 +2588,6 @@
                       v-model="data.extra_notes"
                       label="ergänzende Angaben für den Innendienst"
                       hint="Diese Eingabe wird nicht im Vertrag zu sehen sein, hier kann eine Information für den Innendienst eingestellt werden"></v-text-field>
-                    <v-btn @click="storeExtraData" style="margin: 0 1em 0 0">Vertragsdaten speichern</v-btn><br>
                   </div>
                   <br>
                   <b>Sonderkonditionen</b>
@@ -2756,8 +2965,8 @@
               <div v-if="insignData.is_sent">
                 Daten wurden an {{ insignData.email }} versendet<br>
               </div>
-              <div v-if="(!data.iban || !data.bic || !data.bankname || !data.birthdate) || (data.has_pv_quote && (!data.power_meter_number || !data.main_malo_id))">
-                Fehlende Daten bitte unter 'Allgemein' ergänzen.
+              <div v-if="(!data.iban || !data.bic || !data.bankname || !data.birthdate)">
+                Fehlende Daten bitte unter 'Kundendaten' ergänzen.
               </div>
               <div v-else class="layout horizontal center center">
                 <v-btn @click="requestInsignData" :loading="insignLoading" style="margin: 0 1em 0 0">Vorort Daten abrufen</v-btn>
@@ -2767,6 +2976,9 @@
             <div v-else>
               Angebot zu alt für automatische Bearbeitung
             </div>
+          </div>
+          <div v-else>
+            Unterschrift nur nach vollständiger Eingabe der Daten möglich.
           </div>
         </v-card-text>
 
@@ -3269,16 +3481,20 @@
 <script>
 import HistorySelect from '~/components/quote_calculator/history_select'
 import AddressForm from '~/components/address/form'
+import RoofHeaderForm from '~/components/quote_calculator/roof_header'
 import RoofForm from '~/components/quote_calculator/roof_detail'
 import TabForm from '~/components/quote_calculator/tabform'
+import FileUpload from '~/components/quote_calculator/fileupload'
 
 export default {
 
   components: {
     AddressForm,
     HistorySelect,
+    RoofHeaderForm,
     RoofForm,
-    TabForm
+    TabForm,
+    FileUpload
   },
 
   mounted(){
@@ -3333,9 +3549,7 @@ export default {
           return true
         },
         pv_kwp_limit: value => {
-          let max_sqm = 0
-          this.data.roofs.forEach(roof => max_sqm += Number(roof.sqm))
-          return max_sqm >= Number(this.data.pv_sqm) || "Größe der Anlage durch Dachfläche nicht begrenzt."
+          return true
         },
         email: value => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -3596,6 +3810,9 @@ export default {
     },
     checkBookkeepingRights(){
       let result = false
+      if (this.$auth.user.id === 48){
+        return true
+      }
       const departments = ["Innendienst", "After Sales ???", "After Sales Neu", "Buchhaltung", "Extern IT Unterstützung", "KeSO"]
       for(let i=0; i<departments.length; i++){
         if (this.$auth.user.bitrix_department.indexOf(departments[i]) >= 0){
@@ -3606,6 +3823,10 @@ export default {
     },
     checkCloudRights(){
       let result = false
+      console.log(this.$auth.user.id)
+      if (this.$auth.user.id === 48){
+        return true
+      }
       const departments = ["efi-Strom (Cloud)", "e360 (Cloud)", "Extern IT Unterstützung", "KeSO"]
       for(let i=0; i<departments.length; i++){
         if (this.$auth.user.bitrix_department.indexOf(departments[i]) >= 0){
@@ -3661,15 +3882,12 @@ export default {
     },
     changePVModules(){
       let pv_kwp = 0
-      let pv_sqm = 0
       this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
       if(this.data.module_kwp){
         for (let roof of this.data.roofs) {
           pv_kwp = pv_kwp + roof.pv_kwp_used
-          pv_sqm = pv_sqm + roof.pv_sqm_used
         }
         this.data.pv_kwp = Math.round(pv_kwp * 100) / 100
-        this.data.pv_sqm = Math.round(pv_sqm * 100) / 100
       }
     },
     countModules() {
@@ -3681,70 +3899,11 @@ export default {
         if(this.data.module_kwp){
           possible_modules += Number(roof.pv_count_modules)
           roof.pv_kwp_used = Number(roof.pv_count_modules) * this.data.module_kwp.kWp
-          roof.pv_sqm_used = Number(roof.pv_count_modules) * Number(this.data.module_kwp.qm)
         }
       }
       this.data.pv_count_modules = possible_modules
-      this.changePVModules()
-      this.calculateCloud()
     },
-    set_max_coverage () {
-      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
-      let possible_modules = 0
-      for (let roof of this.data.roofs) {
-        let flat_multiplicator = 1
-        if (roof.is_flat) {
-          flat_multiplicator = 0.925
-        }
-        roof.pv_count_modules = Math.floor((Number(roof.sqm) * 0.94) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
-        possible_modules += roof.pv_count_modules
-      }
-      this.data.pv_count_modules = possible_modules
-      this.countModules()
-      this.calculateCloud()
-    },
-    set_optimized_coverage () {
-      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
-      let needed_pv_count_modules = Math.ceil(Number(this.calculated.min_kwp) / this.data.module_kwp.kWp)
-      let possible_modules = 0
-      for (let roof of this.data.roofs) {
-        let flat_multiplicator = 1
-        if (roof.is_flat) {
-          flat_multiplicator = 0.925
-        }
-        roof.pv_count_modules = Math.floor((Number(roof.sqm) * 0.94) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
-        if (possible_modules + roof.pv_count_modules > needed_pv_count_modules) {
-          roof.pv_count_modules = needed_pv_count_modules - possible_modules
-          possible_modules = needed_pv_count_modules
-        } else {
-          possible_modules += roof.pv_count_modules
-        }
-      }
-      this.data.pv_count_modules = possible_modules
-      this.countModules()
-      this.calculateCloud()
-    },
-    set_zero_coverage () {
-      this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
-      let needed_pv_count_modules = Math.ceil(Number(this.calculated.min_zero_kwp) / this.data.module_kwp.kWp)
-      let possible_modules = 0
-      for (let roof of this.data.roofs) {
-        let flat_multiplicator = 1
-        if (roof.is_flat) {
-          flat_multiplicator = 0.925
-        }
-        roof.pv_count_modules = Math.floor((Number(roof.sqm) * 0.94) / (Number(this.data.module_kwp.qm) * flat_multiplicator))
-        if (possible_modules + roof.pv_count_modules > needed_pv_count_modules) {
-          roof.pv_count_modules = needed_pv_count_modules - possible_modules
-          possible_modules = needed_pv_count_modules
-        } else {
-          possible_modules += roof.pv_count_modules
-        }
-      }
-      this.data.pv_count_modules = possible_modules
-      this.countModules()
-      this.calculateCloud()
-    },
+
     changeRoofDirection(){
       switch(this.data.roof_direction) {
         case 'north':
@@ -3852,13 +4011,21 @@ export default {
           return false
       }
     },
+    validateRoof (roof) {
+      roof.is_valid = false
+    },
+    preventBubble (e) {
+      e.stopPropagation()
+    },
     formChanged(){
       if(this.original_data != undefined){
         this.form_dirty = this.detectChange(this.data, this.original_data)
       }
     },
     calculateCloud(){
-      console.log(this.data.heating_quote_people)
+      this.countModules()
+      this.changeRoofDirection()
+      this.changePVModules()
       this.data["deal_id"] = this.deal_id
       if (this.data.financing_bank == 'energie360') {
         this.data.financing_rate = 4.89
@@ -3869,8 +4036,6 @@ export default {
       if (this.data.heating_quote_people && this.data.heating_quote_people >= 5 && this.data.heating_quote_extra_options.indexOf('extra_warm_water') < 0) {
         this.data.heating_quote_extra_options.push("extra_warm_water");
       }
-      this.changeRoofDirection()
-      this.changePVModules()
       this.$axios.post(`/quote_calculator/${this.id}/calculate`, this.data).then(response => {
         this.calculated = response.data.data.calculated
         this.products = response.data.data.products
@@ -3969,6 +4134,73 @@ export default {
         } else {
           this.pdf_commission_link = undefined
         }
+
+        this.loading_percent = 100 / 11 * 7
+        this.loading_message = "Angebotssammlung PDF erzeugen"
+        const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
+        this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
+
+        if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
+          this.loading_percent = 100 / 11 * 8
+          this.loading_message = "Datenblätter PDF erzeugen"
+          const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
+          this.pdf_datasheets_link = response7.data.data.pdf_datasheets_link
+
+          this.loading_percent = 100 / 11 * 9
+          this.loading_message = "Energiekonzept zusammenfassen"
+          const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
+          this.pdf_summary_link = response8.data.data.pdf_summary_link
+          if (response8.data.data.pdf_order_confirmation_link) {
+            this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
+          }
+
+          this.loading_percent = 100 / 11 * 10
+          this.loading_message = "Vertragsunterlagen PDF erzeugen"
+          const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
+          this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
+          this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
+          this.pdf_contract_summary_part4_file_link = response9.data.data.pdf_contract_summary_part4_file_link
+          this.pdf_contract_summary_part4_1_file_link = response9.data.data.pdf_contract_summary_part4_1_file_link
+        } else {
+          this.pdf_datasheets_link = undefined
+          this.pdf_summary_link = undefined
+          this.pdf_order_confirmation_link = undefined
+          this.pdf_contract_summary_link = undefined
+          this.pdf_contract_summary_part1_file_id = undefined
+          this.pdf_contract_summary_part4_file_link = undefined
+          this.pdf_contract_summary_part4_1_file_link = undefined
+        }
+        this.form_dirty = false
+      } catch (error) {
+
+      }
+      this.loading = false
+    },
+
+    async generateContractFiles(reason){
+      this.data["deal_id"] = this.deal_id
+      if (this.data["has_pv_quote"]) {
+        if(this.data.power_usage === undefined || this.data.power_usage === ''){
+          this.$refs["power_usage"].validate(true)
+          this.$refs["power_usage"].focus()
+          return
+        }
+      }
+      if (this.data["has_pv_quote"]) {
+        for (let i = 0; i < this.data.roofs.length; i++) {
+          if (!this.data.roofs[i].is_valid) {
+            this.calculated["invalid_form"] = true
+            if (!this.calculated["errors"]) {
+              this.calculated["errors"] = []
+            }
+            this.calculated["errors"].push("Nicht alle Dachflächen korrigiert")
+            return
+          }
+        }
+      }
+      this.loading = true
+      try {
+        this.loading_percent = 0
 
         this.loading_percent = 100 / 11 * 7
         this.loading_message = "Angebotssammlung PDF erzeugen"
@@ -4151,6 +4383,14 @@ export default {
     showEditRoof (index) {
       this.roofEditIndex = index
       this.editRoofDialog = true
+    },
+    deleteRoof (index) {
+      this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich löschen?</div>').then(res => {
+        if(res){
+          this.data.roofs.splice(index, 1);
+          this.calculateCloud();
+        }
+      })
     }
   }
 }

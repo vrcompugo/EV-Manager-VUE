@@ -1,5 +1,6 @@
 <style lang="scss" scoped>
   .image-placeholder {
+    position: relative;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center center;
@@ -10,17 +11,33 @@
   .is-sample-true:hover {
     opacity: 1;
   }
+  .uploading-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
 
 <template>
   <div>
-    <div @drop.prevent="uploadDragFile($event)" @dragover.prevent style="margin-right: 1em">
-      <div :class="`image-placeholder is-sample-${isSample}`" :style="`background-image: url(${this.viewUrl})`" @click="openFiles"></div>
+    <div @drop.prevent="uploadDragFile($event)" @dragover.prevent style="margin-right: 1em;">
+      <div :class="`image-placeholder is-sample-${isSample}`" :style="`background-image: url(${this.viewUrl})`" @click="openFiles">
+        <div v-if="uploading" class="uploading-overlay"><v-progress-circular
+          :value="uploadPercent"
+        ></v-progress-circular></div>
+      </div>
       <v-file-input
         ref="fileInput"
         v-model="file"
         @change="uploadFile($event)"
-        :label="label"></v-file-input>
+        :label="label"
+        :disabled="uploading"></v-file-input>
       <v-text-field label="Kommentar" v-model="comment" @input="emitInput" />
     </div>
   </div>
@@ -35,7 +52,9 @@ export default {
     'path',
     'value',
     'label',
-    'filetype'
+    'filetype',
+    'required',
+    'samplefile'
   ],
 
   data(){
@@ -44,7 +63,9 @@ export default {
       file_id: undefined,
       viewUrl: '',
       isSample: false,
-      comment: ''
+      comment: '',
+      uploading: false,
+      uploadPercent: 0
     }
   },
   mounted () {
@@ -60,6 +81,21 @@ export default {
         } else {
           this.comment = this.value[`tab_comment_${this.filekey}`]
           this.file_id = this.value[`tab_img_${this.filekey}`]
+          console.log(this.value, this.filekey, this.file_id)
+          this.refresh()
+        }
+      }
+    },
+    filekey: {
+      immediate: true,
+      handler() {
+        if (!this.filekey || !this.value) {
+          this.comment = ''
+        } else {
+          this.comment = this.value[`tab_comment_${this.filekey}`]
+          this.file_id = this.value[`tab_img_${this.filekey}`]
+          console.log(this.value, this.filekey, this.file_id)
+          this.refresh()
         }
       }
     }
@@ -67,9 +103,14 @@ export default {
 
   methods: {
     refresh () {
+      let samplepath = `${this.path}/${this.filekey}.${this.filetype}`
+      if (this.samplefile) {
+        samplepath = `${this.path}/${this.samplefile}`
+      }
       this.$axios.post(`/quote_calculator/${this.id}/view_upload_file`,{
         file_id: this.file_id,
-        path: `${this.path}/${this.filekey}.${this.filetype}`
+        path: `${this.path}/${this.filekey}.${this.filetype}`,
+        samplepath: samplepath
       }).then(response => {
         this.viewUrl = response.data.data.public_url
         this.isSample = response.data.data.is_sample
@@ -85,6 +126,7 @@ export default {
       if (this.file === undefined) {
         return
       }
+      this.uploading = true
       const formData = new FormData();
       formData.append("file", this.file);
       formData.append("path", `${this.path}/${this.filekey}.${this.filetype}`);
@@ -95,7 +137,7 @@ export default {
           headers: {'Content-Type': 'multipart/form-data'},
           onUploadProgress: (progressEvent) => {
             let percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            this.confirm_progress = percentCompleted
+            this.uploadPercent = percentCompleted
             return percentCompleted;
           }
         }
@@ -104,6 +146,9 @@ export default {
         this.emitInput()
         this.refresh()
       })
+      .finally(() => {
+        this.uploading = false
+      });
     },
     emitInput () {
       this.value[`tab_img_${this.filekey}`] = this.file_id
