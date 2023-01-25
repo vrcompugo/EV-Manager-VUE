@@ -2543,6 +2543,7 @@
                     <b>Kundendaten</b>
                     <v-menu
                       ref="datepickerMenu2"
+                      @input="calculateCloud"
                       v-model="datepickerMenu2"
                       :close-on-content-click="false"
                       transition="scale-transition"
@@ -2572,20 +2573,24 @@
                     <div class="layout horizontal">
                       <v-text-field
                         v-model="data.iban"
+                        @blur="calculateCloud"
                         label="IBAN"
                         style="margin: 0"></v-text-field>
                       <v-text-field
                         v-model="data.bic"
+                        @blur="calculateCloud"
                         label="BIC"
                         style="margin: 0 1em"></v-text-field>
                       <v-text-field
                         v-model="data.bankname"
+                        @blur="calculateCloud"
                         label="Name der Bank"
                         style="margin: 0"></v-text-field>
                     </div>
                     <b>Kommentar</b>
                     <v-text-field
                       v-model="data.extra_notes"
+                      @blur="calculateCloud"
                       label="ergänzende Angaben für den Innendienst"
                       hint="Diese Eingabe wird nicht im Vertrag zu sehen sein, hier kann eine Information für den Innendienst eingestellt werden"></v-text-field>
                   </div>
