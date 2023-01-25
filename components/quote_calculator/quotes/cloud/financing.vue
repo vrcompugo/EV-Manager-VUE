@@ -9,7 +9,7 @@
               {'value':'financing','label':'Finanzierung'},
               {'value':'cash','label':'Barkauf'}
             ]"
-            @input="formChanged"
+            @input="calculateCloud"
             style="flex: 0 1 10em; margin-left: 1em;"
             item-text="label"
             item-value="value"></v-select>
@@ -26,7 +26,7 @@
           <v-text-field
             v-if="data.investment_type == 'financing'"
             v-model="data.loan_upfront"
-            @input="formChanged"
+            @input="calculateCloud"
             label="Anzahlung"
             suffix="€"
             style="flex: 0 0 12em; margin-left: 1em; margin-right: 1em"></v-text-field>
@@ -35,7 +35,7 @@
           <v-slider
             :disabled="data.financing_bank == 'energie360'"
             v-model="data.financing_rate"
-            @input="formChanged"
+            @input="calculateCloud"
             min="0"
             max="8"
             step="0.01"

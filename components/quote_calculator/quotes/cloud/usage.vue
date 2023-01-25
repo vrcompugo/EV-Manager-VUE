@@ -245,6 +245,9 @@ export default {
     },
     formChanged () {
       // legacy
+    },
+    datePickerSave (date) {
+      this.$refs.datepickerMenu.save(date)
     }
   }
 

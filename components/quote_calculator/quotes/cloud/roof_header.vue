@@ -148,6 +148,14 @@ export default {
     },
     emitInput(){
       this.$emit('input', {})
+    },
+    deleteRoof (index) {
+      this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich löschen?</div>').then(res => {
+        if(res){
+          this.roofs.splice(index, 1);
+          this.calculateCloud();
+        }
+      })
     }
   }
 
