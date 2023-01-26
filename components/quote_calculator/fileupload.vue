@@ -38,7 +38,7 @@
         @change="uploadFile($event)"
         :label="label"
         :disabled="uploading"></v-file-input>
-      <v-text-field label="Kommentar" v-model="comment" @input="emitInput" />
+      <v-text-field label="Kommentar" v-model="comment" @blur="emitInput" />
     </div>
   </div>
 </template>
