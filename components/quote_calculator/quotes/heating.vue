@@ -5,17 +5,21 @@
       <div v-if="data.heating_quote_house_build_year >= 2001" style="margin: 0.2em 1em; padding: 0.2em 0.5em; background-color: #D32F2F; color: #fff">Eine volle 40% Bafa-Förderung kann nicht erreicht werden, bei einem Baujahr neuer als 2001</div>
       <div class="layout horizontal wrap" style="align-items: center;">
         <v-select
+          rel="heating_quote_house_type"
           label="Hausart"
           v-model="data.heating_quote_house_type" :items="[
             {'value':'Einfamilienhaus','label':'Einfamilienhaus'},
             {'value':'Mehrfamilienhaus','label':'Mehrfamilienhaus'}
           ]"
           @input="calculateCloud"
+          :rules="[rules.required]"
           style="margin-left: 1em; max-width: 14em"
           item-text="label"
           item-value="value"></v-select>
         <v-select
           label="Baujahr"
+          rel="heating_quote_house_build_year"
+          :rules="[rules.required]"
           v-model="data.heating_quote_house_build_year" :items="buildyears"
           @input="calculateUsageHeating();"
           style="margin-left: 1em; max-width: 14em"
@@ -23,6 +27,8 @@
           item-value="value"></v-select>
         <v-select
           label="Dämmwert"
+          rel="heating_quote_house_build"
+          :rules="[rules.required]"
           v-model="data.heating_quote_house_build" :items="[
             {'value':'1940-1969','label':'1940-1969'},
             {'value':'1970-1979','label':'1970-1979'},
@@ -38,6 +44,8 @@
         <v-select
           v-if="data.heating_quote_house_build !== 'new_building'"
           label="Alter Heizungstyp"
+          rel="old_heating_type"
+          :rules="[rules.required]"
           v-model="data.old_heating_type" :items="[
             {'value':'gas','label':'Gas'},
             {'value':'oil','label':'Öl'},
@@ -54,6 +62,8 @@
         <v-select
           v-if="data.heating_quote_house_build !== 'new_building'"
           label="Baujahr alte Heizung"
+          rel="heating_quote_old_heating_build"
+          :rules="[rules.required]"
           v-model="data.heating_quote_old_heating_build" :items="[
             {'value':'2-6_years','label':'2-6 Jahre'},
             {'value':'7-12_years','label':'7-12 Jahre'},
@@ -65,6 +75,8 @@
           item-value="value"></v-select>
         <v-select
           label="Gewünschter Heizungstyp"
+          rel="new_heating_type"
+          :rules="[rules.required]"
           v-model="data.new_heating_type" :items="[
             {'value': 'gas', 'label': 'Gas'},
             {'value': 'heatpump', 'label':' Wärmepumpe'},
@@ -76,6 +88,8 @@
           item-value="value"></v-select>
         <v-text-field
           v-if="data.old_heating_type === 'oil'"
+          rel="heating_quote_usage_oil"
+          :rules="[rules.required]"
           v-model="data.heating_quote_usage_oil"
           @input="data.heating_quote_usage_old = data.heating_quote_usage_oil * 10; calculateUsageHeating()"
           @blur="calculateCloud"
@@ -87,6 +101,8 @@
           style="margin-left: 1em; width: 8em;"></v-text-field>
         <v-text-field
           v-if="data.old_heating_type !== 'oil' && data.heating_quote_house_build !== 'new_building'"
+          rel="heating_quote_usage_old"
+          :rules="[rules.required]"
           v-model="data.heating_quote_usage_old"
           @input="calculateUsageHeating"
           label="Verbrauch in der letzten Heizperiode"
@@ -97,6 +113,8 @@
           style="margin-left: 1em; width: 8em;"></v-text-field>
         <v-text-field
           v-if="data.new_heating_type !== 'hybrid_gas'"
+          rel="heating_quote_usage"
+          :rules="[rules.required]"
           v-model="data.heating_quote_usage"
           @blur="addHeatingToCloud();calculateCloud();"
           label="Neuer Verbrauch"
@@ -107,6 +125,8 @@
           style="margin-left: 1em; width: 10em;"></v-text-field>
         <v-text-field
           v-if="data.new_heating_type === 'hybrid_gas'"
+          rel="heating_quote_usage_gas"
+          :rules="[rules.required]"
           v-model="data.heating_quote_usage_gas"
           @blur="addHeatingToCloud();calculateCloud();"
           label="Neuer Verbrauch (Gas)"
@@ -117,6 +137,8 @@
           style="margin-left: 1em; width: 8em;"></v-text-field>
         <v-text-field
           v-if="data.new_heating_type === 'hybrid_gas'"
+          rel="heating_quote_usage_wp"
+          :rules="[rules.required]"
           v-model="data.heating_quote_usage_wp"
           @blur="addHeatingToCloud();calculateCloud();"
           label="Neuer Verbrauch (WP)"
@@ -134,6 +156,8 @@
       </div>
       <div class="layout horizontal wrap">
         <v-text-field
+          rel="heating_quote_sqm"
+          :rules="[rules.required]"
           v-model="data.heating_quote_sqm"
           @blur="calculateCloud"
           label="Zu beheizende Fläche"
@@ -144,6 +168,8 @@
           style="margin-left: 1em"></v-text-field>
         <v-select
           label="Heizkörpertyp"
+          rel="heating_quote_radiator_type"
+          :rules="[rules.required]"
           v-model="data.heating_quote_radiator_type" :items="[
             {'value':'floor_heating','label':'Fussbodenheizug ausschliesslich'},
             {'value':'mixed','label':'Fussbodenheizung und Heizkörper'},
@@ -155,6 +181,8 @@
           item-value="value"></v-select>
         <v-select
           label="Warmwasser Aufbereitung"
+          rel="heating_quote_warm_water_type"
+          :rules="[rules.required]"
           v-model="data.heating_quote_warm_water_type" :items="[
             {'value':'heater','label':'Heizung macht Warmwasser'},
             {'value':'separate','label':'Warmwasser wird derzeit anders hergestellt'}
@@ -165,6 +193,8 @@
           item-value="value"></v-select>
         <v-select
           label="Zirkulationspumpe"
+          rel="heating_quote_circulation_pump"
+          :rules="[rules.required]"
           v-model="data.heating_quote_circulation_pump" :items="[
             {'value': false,'label': 'Nein'},
             {'value': true,'label': 'Ja'}
@@ -175,6 +205,8 @@
           item-value="value"></v-select>
         <v-text-field
           label="Anzahl Heizkörper"
+          rel="heating_quote_radiator_count"
+          :rules="[rules.required]"
           v-model="data.heating_quote_radiator_count"
           @input="calculateCloud"
           type="number"
@@ -182,6 +214,8 @@
           step="1"></v-text-field>
         <v-text-field
           label="Anzahl Duschen"
+          rel="heating_quote_shower_count"
+          :rules="[rules.required]"
           v-model="data.heating_quote_shower_count"
           @input="calculateCloud"
           type="number"
@@ -189,6 +223,8 @@
           step="1"></v-text-field>
         <v-text-field
           label="Anzahl Badewannen"
+          rel="heating_quote_bathtub_count"
+          :rules="[rules.required]"
           v-model="data.heating_quote_bathtub_count"
           @input="calculateCloud"
           type="number"
@@ -196,6 +232,8 @@
           step="1"></v-text-field>
         <v-text-field
           label="Personen im Haushalt"
+          rel="heating_quote_people"
+          :rules="[rules.required]"
           v-model="data.heating_quote_people"
           @input="calculateUsageHeating();"
           style="margin-left: 1em; max-width: 14em;"
@@ -434,13 +472,36 @@ export default {
             found = true
           }
         }
-        this.roofs[this.index].is_valid = !found
+        this.data.is_valid_heating = !found
       })
     },
-    emitInput(){
-      this.$emit('input', {})
+    estimateNewUsage () {
+      this.calculateUsageHeating()
+    },
+    calculateUsageHeating () {
+      if (this.data.no_heatcloud === true) {
+        this.data.heater_usage = 0
+        this.data.ecloud_usage = 0
+      } else {
+        this.$axios.post(`/quote_calculator/${this.id}/calculate_heating_usage`, this.data).then(response => {
+          this.data.old_heating_type = response.data.data.old_heating_type
+          this.data.heating_quote_usage_gas = response.data.data.heating_quote_usage_gas
+          this.data.heating_quote_usage_wp = response.data.data.heating_quote_usage_wp
+          this.data.heating_quote_usage = response.data.data.heating_quote_usage
+          this.addHeatingToCloud()
+          this.calculateCloud()
+        }).catch(err => {
+          this.calculated["invalid_form"] = true
+          if (!this.calculated["errors"]) {
+            this.calculated["errors"] = []
+          }
+          const result = err.response.data
+          this.calculated["errors"].push(result.message)
+        })
+      }
     },
     calculateCloud () {
+      this.validate()
       this.$emit('calculateCloud')
     },
     formatNumber() {

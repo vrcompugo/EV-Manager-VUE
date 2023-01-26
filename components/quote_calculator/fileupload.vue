@@ -38,7 +38,7 @@
         @change="uploadFile($event)"
         :label="label"
         :disabled="uploading"></v-file-input>
-      <v-text-field label="Kommentar" v-model="comment" @input="emitInput" />
+      <v-text-field label="Kommentar" v-model="comment" @blur="emitInput" />
     </div>
   </div>
 </template>
@@ -100,6 +100,15 @@ export default {
   },
 
   methods: {
+    validate () {
+      if (this.required === undefined){
+        return true
+      }
+      if (this.file_id > 0) {
+        return true
+      }
+      return false
+    },
     refresh () {
       let samplepath = `${this.path}/${this.filekey}.${this.filetype}`
       if (this.samplefile) {

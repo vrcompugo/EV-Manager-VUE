@@ -1306,31 +1306,6 @@ export default {
       await this.$nuxt.refresh()
       this.calculateCloud()
     },
-    estimateNewUsage () {
-      this.calculateUsageHeating()
-    },
-    calculateUsageHeating () {
-      if (this.data.no_heatcloud === true) {
-        this.data.heater_usage = 0
-        this.data.ecloud_usage = 0
-      } else {
-        this.$axios.post(`/quote_calculator/${this.id}/calculate_heating_usage`, this.data).then(response => {
-          this.data.old_heating_type = response.data.data.old_heating_type
-          this.data.heating_quote_usage_gas = response.data.data.heating_quote_usage_gas
-          this.data.heating_quote_usage_wp = response.data.data.heating_quote_usage_wp
-          this.data.heating_quote_usage = response.data.data.heating_quote_usage
-          this.addHeatingToCloud()
-          this.calculateCloud()
-        }).catch(err => {
-          this.calculated["invalid_form"] = true
-          if (!this.calculated["errors"]) {
-            this.calculated["errors"] = []
-          }
-          const result = err.response.data
-          this.calculated["errors"].push(result.message)
-        })
-      }
-    },
     addHeatingToCloud () {
       if (this.data.new_heating_type === 'hybrid_gas' || this.data.new_heating_type === 'gas') {
         this.data.heater_usage = this.data.heating_quote_usage_wp
