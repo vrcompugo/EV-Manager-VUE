@@ -113,10 +113,10 @@
       </div>
     </div>
     <div class="layout horizontal wrap">
-      <FileUpload ref="dachflache1" label="Dach von Vorne" :filekey="`dachflache${index+1}_1`" samplefile="dachflache1.jpg" filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
-      <FileUpload ref="dachflache2" label="Dach von der Seite" :filekey="`dachflache${index+1}_2`" samplefile="dachflache2.jpg"  filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
-      <FileUpload ref="dachflache3" label="Dach von Hinten" :filekey="`dachflache${index+1}_3`" samplefile="dachflache3.jpg"  filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
-      <FileUpload ref="dachflache4" label="Sparrenansicht und Dicke der Sparren" :filekey="`dachflache${index+1}_4`" samplefile="dachinnen3.jpg" filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
+      <FileUpload label="Dach von Vorne" :filekey="`dachflache${index+1}_1`" samplefile="dachflache1.jpg" filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" @input="emitInput" />
+      <FileUpload label="Dach von der Seite" :filekey="`dachflache${index+1}_2`" samplefile="dachflache2.jpg"  filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" @input="emitInput" />
+      <FileUpload label="Dach von Hinten" :filekey="`dachflache${index+1}_3`" samplefile="dachflache3.jpg"  filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" @input="emitInput" />
+      <FileUpload label="Sparrenansicht und Dicke der Sparren" :filekey="`dachflache${index+1}_4`" samplefile="dachinnen3.jpg" filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" @input="emitInput" />
       <FileUpload v-if="index == 0" label="SolarEdge 3D Ansicht" filekey="solaredge" filetype="pdf" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" @input="emitInput" />
     </div>
   </div>
