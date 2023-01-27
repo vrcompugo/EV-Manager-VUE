@@ -37,7 +37,11 @@
         v-model="file"
         @change="uploadFile($event)"
         :label="label"
-        :disabled="uploading"></v-file-input>
+        :disabled="uploading">
+        <template v-slot:label>
+          {{ label }} <span v-if="required !== undefined" style="color: red">*</span>
+        </template>
+      </v-file-input>
       <v-text-field label="Kommentar" v-model="comment" @blur="emitInput" />
     </div>
   </div>
@@ -82,7 +86,6 @@ export default {
         } else {
           this.comment = this.value[`tab_comment_${this.filekey}`]
           this.file_id = this.value[`tab_img_${this.filekey}`]
-          console.log(this.value, this.filekey, this.file_id)
           this.refresh()
         }
       }
@@ -95,7 +98,6 @@ export default {
         } else {
           this.comment = this.value[`tab_comment_${this.filekey}`]
           this.file_id = this.value[`tab_img_${this.filekey}`]
-          console.log(this.value, this.filekey, this.file_id)
           this.refresh()
         }
       }
@@ -103,12 +105,21 @@ export default {
   },
 
   methods: {
-    refresh () {
-      let samplepath = `${this.path}/${this.filekey}.${this.filetype}`
-      if (this.samplefile) {
-        samplepath = `${this.path}/${this.samplefile}`
+    validate () {
+      if (this.required === undefined){
+        return true
       }
+      if (this.file_id > 0) {
+        return true
+      }
+      return false
+    },
+    refresh () {
       if (!(this.last_file_id > 0) && this.last_file_id !== this.file_id) {
+        let samplepath = `${this.path}/${this.filekey}.${this.filetype}`
+        if (this.samplefile) {
+          samplepath = `${this.path}/${this.samplefile}`
+        }
         this.$axios.post(`/quote_calculator/${this.id}/view_upload_file`,{
           file_id: this.file_id,
           path: `${this.path}/${this.filekey}.${this.filetype}`,

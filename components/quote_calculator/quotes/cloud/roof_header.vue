@@ -69,6 +69,7 @@
         :rules="[rules.required]"
         style="flex: 0 1 8em;margin-left: 1em"></v-text-field>
       <v-select
+        v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])"
         v-model="roofs[index].roof_type"
         :items="[
           'Sattel',
@@ -88,6 +89,7 @@
         style="width: 8em;margin-left: 1em;">
       </v-select>
       <v-text-field
+        v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])"
         ref="traufhohe"
         label="Traufhöhe"
         v-model="roofs[index].traufhohe"
@@ -112,6 +114,7 @@
 export default {
 
   props: [
+    'data',
     'roofs',
     'index'
   ],
@@ -136,24 +139,26 @@ export default {
           if(Array.isArray(element)){
             element = element[0]
           }
-          if(element !== undefined && element._isVue && !element.validate(true)){
+          if(element !== undefined && element._isVue && !element.validate()){
             found = true
           }
         }
-        this.roofs[this.index].is_valid = !found
+        this.roofs[this.index].is_valid_header = !found
+        this.roofs[this.index].is_valid = this.roofs[this.index].is_valid_body && this.roofs[this.index].is_valid_header
       })
+    },
+    emitInput(){
+      this.validate()
+      this.$emit('input', {})
     },
     preventBubble (e) {
       e.stopPropagation()
     },
-    emitInput(){
-      this.$emit('input', {})
-    },
-    deleteRoof () {
+    deleteRoof (index) {
       this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich löschen?</div>').then(res => {
         if(res){
-          this.roofs.splice(this.index, 1);
-          this.emitInput();
+          this.roofs.splice(index, 1);
+          this.calculateCloud();
         }
       })
     }
