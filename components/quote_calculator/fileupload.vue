@@ -37,7 +37,11 @@
         v-model="file"
         @change="uploadFile($event)"
         :label="label"
-        :disabled="uploading"></v-file-input>
+        :disabled="uploading">
+        <template v-slot:label>
+          {{ label }} <span v-if="required !== undefined" style="color: red">*</span>
+        </template>
+      </v-file-input>
       <v-text-field label="Kommentar" v-model="comment" @blur="emitInput" />
     </div>
   </div>
@@ -61,6 +65,7 @@ export default {
     return {
       file: undefined,
       file_id: undefined,
+      last_file_id: 0,
       viewUrl: '',
       isSample: false,
       comment: '',
@@ -110,18 +115,21 @@ export default {
       return false
     },
     refresh () {
-      let samplepath = `${this.path}/${this.filekey}.${this.filetype}`
-      if (this.samplefile) {
-        samplepath = `${this.path}/${this.samplefile}`
+      if (!(this.last_file_id > 0) && this.last_file_id !== this.file_id) {
+        let samplepath = `${this.path}/${this.filekey}.${this.filetype}`
+        if (this.samplefile) {
+          samplepath = `${this.path}/${this.samplefile}`
+        }
+        this.$axios.post(`/quote_calculator/${this.id}/view_upload_file`,{
+          file_id: this.file_id,
+          path: `${this.path}/${this.filekey}.${this.filetype}`,
+          samplepath: samplepath
+        }).then(response => {
+          this.last_file_id = this.file_id
+          this.viewUrl = response.data.data.public_url
+          this.isSample = response.data.data.is_sample
+        })
       }
-      this.$axios.post(`/quote_calculator/${this.id}/view_upload_file`,{
-        file_id: this.file_id,
-        path: `${this.path}/${this.filekey}.${this.filetype}`,
-        samplepath: samplepath
-      }).then(response => {
-        this.viewUrl = response.data.data.public_url
-        this.isSample = response.data.data.is_sample
-      })
     },
     openFiles () {
       this.$refs.fileInput.$refs.input.click()

@@ -69,6 +69,7 @@
         :rules="[rules.required]"
         style="flex: 0 1 8em;margin-left: 1em"></v-text-field>
       <v-select
+        v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])"
         v-model="roofs[index].roof_type"
         :items="[
           'Sattel',
@@ -88,6 +89,7 @@
         style="width: 8em;margin-left: 1em;">
       </v-select>
       <v-text-field
+        v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])"
         ref="traufhohe"
         label="Traufhöhe"
         v-model="roofs[index].traufhohe"
@@ -112,6 +114,7 @@
 export default {
 
   props: [
+    'data',
     'roofs',
     'index'
   ],

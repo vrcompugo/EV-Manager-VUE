@@ -41,7 +41,7 @@
 <template>
   <div class="roof_detail">
     <div class="layout horizontal">
-      <div class="radio-image3"><img v-if="roofs[index].roof_topping" :src="`/static/tab/${roofs[index].roof_type.toLowerCase()}.jpeg`" style="margin-right: 1em" /></div>
+      <div class="radio-image3"><img v-if="roofs[index].roof_type" :src="`/static/tab/${roofs[index].roof_type.toLowerCase()}.jpeg`" style="margin-right: 1em" /></div>
       <div class="radio-image3"><img v-if="roofs[index].roof_topping" :src="`/static/tab/${roofs[index].roof_topping.toLowerCase()}.jpeg`" style="max-width: 210px;" /></div>
       <div>
         <v-select
@@ -117,7 +117,7 @@
       <FileUpload ref="dachflache2" label="Dach von der Seite" :filekey="`dachflache${index+1}_2`" samplefile="dachflache2.jpg"  filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
       <FileUpload ref="dachflache3" label="Dach von Hinten" :filekey="`dachflache${index+1}_3`" samplefile="dachflache3.jpg"  filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
       <FileUpload ref="dachflache4" label="Sparrenansicht und Dicke der Sparren" :filekey="`dachflache${index+1}_4`" samplefile="dachinnen3.jpg" filetype="jpg" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
-      <FileUpload ref="solaredge" v-if="index == 0" label="SolarEdge 3D Ansicht" filekey="solaredge" filetype="pdf" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" required @input="emitInput" />
+      <FileUpload v-if="index == 0" label="SolarEdge 3D Ansicht" filekey="solaredge" filetype="pdf" path="Dachbilder" v-model="data" :id="id" style="margin-right: 1em" @input="emitInput" />
     </div>
   </div>
 </template>

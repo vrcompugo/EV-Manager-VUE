@@ -50,6 +50,10 @@
             value=""
             label="Standard" />
           <v-radio
+            v-if="checkCloudRights || checkBookkeepingRights"
+            value="no-pv"
+            label="Standard ohne PV" />
+          <v-radio
             value="no-cloud"
             label="Keine Cloud" />
           <v-radio

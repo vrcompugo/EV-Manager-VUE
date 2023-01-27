@@ -3,9 +3,10 @@
     <div v-if="data.has_roof_reconstruction_quote">
       <div class="main-content flex-1">
         <h2>Dachsanierung</h2>
-        <div class="notice">Achtung! Montage/Aufbau-Termin ab 2023</div>
         <div class="layout horizontal wrap">
           <v-text-field
+            :rules="rules.required"
+            ref="reconstruction_sqm"
             v-model="data.reconstruction_sqm"
             @blur="calculateCloud"
             label="zu sanierende Dachfläche"
@@ -16,6 +17,8 @@
             style="margin-left: 1em"></v-text-field>
           <v-select
             label="Dachtyp"
+            :rules="rules.required"
+            ref="reconstruction_roof_type"
             v-model="data.reconstruction_roof_type" :items="[
               {'value':'flat','label':'Flachdach'},
               {'value':'saddle','label':'Satteldach'}
@@ -212,7 +215,6 @@
 
 
 <script>
-import {formatNumber, formatPrice} from '~/plugins/formatNumber'
 
 export default {
 
@@ -256,25 +258,12 @@ export default {
             found = true
           }
         }
-        this.roofs[this.index].is_valid = !found
+        this.data.is_valid_roof = !found
       })
     },
-    emitInput(){
-      this.$emit('input', {})
-    },
     calculateCloud () {
+      this.validate()
       this.$emit('calculateCloud')
-    },
-    formatNumber() {
-      // legacy
-      return formatNumber()
-    },
-    formatPrice() {
-      // legacy
-      return formatPrice()
-    },
-    formChanged () {
-      // legacy
     }
   }
 

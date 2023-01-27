@@ -4,6 +4,8 @@
       <h2>Brennstoffzellen</h2>
       <v-select
         label="Wirkungsart"
+        ref="bluegen_type"
+        :rules="rules.required"
         v-model="data.bluegen_type" :items="[
           {'value':'bluegen','label':'BlueGen: ca: 14000 kWh Strom / 5500 kWh Wärme'},
           {'value':'bluegen_home','label':'Blue Gen Home ca: 9000 kWh Strom, 3000 kWh Wärme'},
@@ -14,8 +16,10 @@
         item-text="label"
         item-value="value"></v-select>
       <v-text-field
+        ref="bluegen_cell_count"
+        :rules="rules.required"
         v-model="data.bluegen_cell_count"
-        @keyup="calculateCloud"
+        @blur="calculateCloud"
         label="Anzahl Brennstoffzellen"
         style="margin-right: 1em"></v-text-field>
       <v-checkbox
@@ -29,7 +33,6 @@
 </template>
 
 <script>
-import {formatNumber, formatPrice} from '~/plugins/formatNumber'
 
 export default {
 
@@ -69,30 +72,17 @@ export default {
           if(Array.isArray(element)){
             element = element[0]
           }
-          if(element !== undefined && element._isVue && !element.validate(true)){
+          if(element !== undefined && element._isVue && !element.validate()){
             found = true
           }
         }
-        this.roofs[this.index].is_valid = !found
+        this.data.is_valid_fuelcell = !found
       })
     },
-    emitInput(){
-      this.$emit('input', {})
-    },
     calculateCloud () {
+      this.validate()
       this.$emit('calculateCloud')
     },
-    formatNumber() {
-      // legacy
-      return formatNumber()
-    },
-    formatPrice() {
-      // legacy
-      return formatPrice()
-    },
-    formChanged () {
-      // legacy
-    }
   }
 
 }

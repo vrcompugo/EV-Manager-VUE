@@ -14,7 +14,7 @@
 
           <v-divider></v-divider>
 
-          <v-stepper-step :complete="stepper > 2" step="2" editable v-if="!['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])">
+          <v-stepper-step :complete="stepper > 2" step="2" editable v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
             <div>
               Finanzierung
               <v-icon style="color:#2E7D32;">mdi-check</v-icon>
@@ -42,7 +42,7 @@
 
           <v-divider></v-divider>
 
-          <v-stepper-step :complete="stepper > 5" step="5" editable>
+          <v-stepper-step :complete="stepper > 5" step="5" editable v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
             <div>
               Bilder
               <v-icon v-if="!this.data.is_valid_pictures" style="color:#D32F2F;">mdi-close</v-icon>
@@ -52,7 +52,7 @@
 
           <v-divider></v-divider>
 
-          <v-stepper-step step="6" editable v-if="!['followup_quote', 'interim_quote'].includes(data['cloud_quote_type'])">
+          <v-stepper-step step="6" editable v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
             <div>
               WI-Anpassung
               <v-icon style="color:#2E7D32;">mdi-check</v-icon>
@@ -71,7 +71,7 @@
               @calculateCloud="calculateCloud" />
           </v-stepper-content>
 
-          <v-stepper-content step="2">
+          <v-stepper-content step="2" v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
             <Financing
               :id="id"
               :data="data"
@@ -100,14 +100,14 @@
               @calculateCloud="calculateCloud" />
           </v-stepper-content>
 
-          <v-stepper-content step="5">
+          <v-stepper-content step="5" v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
             <Pictures
               :id="id"
               :data="data"
               @calculateCloud="calculateCloud" />
           </v-stepper-content>
 
-          <v-stepper-content step="6">
+          <v-stepper-content step="6" v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
             <WIData
               :id="id"
               :data="data"

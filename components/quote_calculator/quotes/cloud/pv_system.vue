@@ -120,15 +120,17 @@
         item-text="label"
         item-value="value"></v-select>
     </div>
-    <v-text-field @change="calculateCloud" label="Solaredge Designer Link" ref="solaredge_designer_link" v-model="data.solaredge_designer_link" :rules="[rules.required]"/><br />
+    <div v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
+      <v-text-field @change="calculateCloud" label="Solaredge Designer Link" v-model="data.solaredge_designer_link" /><br />
+    </div>
     <b>Dachflächen</b>
     <v-expansion-panels>
       <v-expansion-panel v-for="(roof, index) in data.roofs" :key="index">
         <v-expansion-panel-header>
-          <RoofHeaderForm :roofs="data.roofs" :index="index" @input="calculateCloud"></RoofHeaderForm>
+          <RoofHeaderForm :data="data" :roofs="data.roofs" :index="index" @input="calculateCloud"></RoofHeaderForm>
         </v-expansion-panel-header>
         <v-expansion-panel-content>
-          <RoofForm :roofs="data.roofs" :index="index" :data="data" :id="id" @input="calculateCloud"></RoofForm>
+          <RoofForm v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])" :roofs="data.roofs" :index="index" :data="data" :id="id" @input="calculateCloud"></RoofForm>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -191,6 +193,11 @@ export default {
             element = element[0]
           }
           if(element !== undefined && element._isVue && !element.validate()){
+            found = true
+          }
+        }
+        for (let roof in this.data.roofs) {
+          if (this.data.roofs[roof].is_valid !== true) {
             found = true
           }
         }

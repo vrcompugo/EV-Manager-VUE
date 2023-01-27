@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="section">
+    <div class="section" v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
       <h3>Extra Pakete</h3>
       <div class="layout horizontal wrap">
         <div class="flex">
@@ -150,7 +150,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
       <h3>Extra Optionen</h3>
       <div class="layout horizontal wrap">
         <div class="flex">

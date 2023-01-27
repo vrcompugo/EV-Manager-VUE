@@ -1569,7 +1569,7 @@ export default {
         }
         this.loading_percent = 100 / 11 * 1
         this.loading_message = "Stromverbräuche und Preissteigerungen kalkulieren"
-        if (this.data["has_pv_quote"] && !['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
+        if (this.data["has_pv_quote"] && !['followup_quote', 'interim_quote', 'no-pv'].includes(this.data["cloud_quote_type"])) {
           const response3 = await this.$axios.put(`/quote_calculator/${this.id}/pv_pdf`, this.data)
         }
         this.loading_percent = 100 / 11 * 2
@@ -1578,7 +1578,7 @@ export default {
           const response2 = await this.$axios.put(`/quote_calculator/${this.id}/cloud_pdfs`, this.data)
         }
 
-        if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
+        if (!['followup_quote', 'interim_quote', 'no-pv'].includes(this.data["cloud_quote_type"])) {
           this.loading_percent = 100 / 11 * 3
           this.loading_message = "Heizungs PDF erzeugen"
           if (this.data["has_heating_quote"]) {
@@ -1610,7 +1610,7 @@ export default {
         const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
         this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
 
-        if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
+        if (!['followup_quote', 'interim_quote', 'no-pv'].includes(this.data["cloud_quote_type"])) {
           this.loading_percent = 100 / 11 * 8
           this.loading_message = "Datenblätter PDF erzeugen"
           const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
