@@ -1351,17 +1351,11 @@ export default {
       }
     },
     changePVModules(){
-      let pv_kwp = 0
       this.data.module_kwp = this.pv_modules_selections.find(element => element.value === this.data.module_type);
-      if(this.data.module_kwp){
-        for (let roof of this.data.roofs) {
-          pv_kwp = pv_kwp + roof.pv_kwp_used
-        }
-        this.data.pv_kwp = Math.round(pv_kwp * 100) / 100
-      }
     },
     countModules() {
       let possible_modules = 0
+      let pv_kwp = 0
       if (!this.data.roofs) {
         this.data.roofs = []
       }
@@ -1369,8 +1363,10 @@ export default {
         if(this.data.module_kwp){
           possible_modules += Number(roof.pv_count_modules)
           roof.pv_kwp_used = Number(roof.pv_count_modules) * this.data.module_kwp.kWp
+          pv_kwp = pv_kwp + roof.pv_kwp_used
         }
       }
+      this.data.pv_kwp = Math.round(pv_kwp * 100) / 100
       this.data.pv_count_modules = possible_modules
     },
 
@@ -1493,9 +1489,9 @@ export default {
       }
     },
     calculateCloud(){
-      this.countModules()
       this.changeRoofDirection()
       this.changePVModules()
+      this.countModules()
       this.data["deal_id"] = this.deal_id
       if (this.data.financing_bank == 'energie360') {
         this.data.financing_rate = 4.89
