@@ -1028,12 +1028,6 @@ export default {
     FileUpload
   },
 
-  computed: {
-    checkCloudRights: function () { return this.$store.getters['quote_calculator/checkCloudRights'] },
-    checkBookkeepingRights: function () { return this.$store.getters['quote_calculator/checkBookkeepingRights'] },
-    checkMitteRights: function () { return this.$store.getters['quote_calculator/checkMitteRights'] }
-  },
-
   mounted(){
     this.$store.dispatch('quote_calculator/setUser', this.$auth.user)
     this.countModules()
@@ -1234,6 +1228,9 @@ export default {
   },
 
   computed: {
+    checkCloudRights: function () { return this.$store.getters['quote_calculator/checkCloudRights'] },
+    checkBookkeepingRights: function () { return this.$store.getters['quote_calculator/checkBookkeepingRights'] },
+    checkMitteRights: function () { return this.$store.getters['quote_calculator/checkMitteRights'] },
     buildyears () {
       const years = []
       for (let i=1900;i<(new Date().getFullYear());i++) {
