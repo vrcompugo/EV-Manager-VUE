@@ -224,6 +224,51 @@ export default {
     calculateCloud () {
       this.$emit('calculateCloud')
     },
+    calculatePowerCost(trigger){
+      switch(trigger){
+        case 'usage':
+        case 'cost_year':
+          if(Number(this.data.conventional_power_cost_per_year) > 0 && Number(this.data.conventional_power_usage_per_year) > 0){
+            this.data.conventional_power_cost_per_kwh = Math.round((this.data.conventional_power_cost_per_year / this.data.conventional_power_usage_per_year * 100) * 100) / 100
+          }
+          break
+        case 'cost_kwh':
+          if(Number(this.data.conventional_power_cost_per_year) > 0){
+            this.data.conventional_power_usage_per_year = Math.round(this.data.conventional_power_cost_per_year / (this.data.conventional_power_cost_per_kwh / 100))
+          }
+          break
+      }
+    },
+    calculateHeatCost(trigger){
+      switch(trigger){
+        case 'usage':
+        case 'cost_year':
+          if(Number(this.data.conventional_heat_cost_per_year) > 0 && Number(this.data.conventional_heat_usage_per_year) > 0){
+            this.data.conventional_heat_cost_per_kwh = Math.round((this.data.conventional_heat_cost_per_year / this.data.conventional_heat_usage_per_year * 100) * 100) / 100
+          }
+          break
+        case 'cost_kwh':
+          if(Number(this.data.conventional_heat_cost_per_year) > 0){
+            this.data.conventional_heat_usage_per_year = Math.round(this.data.conventional_heat_cost_per_year / (this.data.conventional_heat_cost_per_kwh / 100))
+          }
+          break
+      }
+    },
+    calculateGasCost(trigger){
+      switch(trigger){
+        case 'usage':
+        case 'cost_year':
+          if(Number(this.data.conventional_gas_cost_per_year) > 0 && Number(this.data.conventional_gas_usage_per_year) > 0){
+            this.data.conventional_gas_cost_per_kwh = Math.round((this.data.conventional_gas_cost_per_year / this.data.conventional_gas_usage_per_year * 100) * 100) / 100
+          }
+          break
+        case 'cost_kwh':
+          if(Number(this.data.conventional_gas_cost_per_year) > 0){
+            this.data.conventional_gas_usage_per_year = Math.round(this.data.conventional_gas_cost_per_year / (this.data.conventional_gas_cost_per_kwh / 100))
+          }
+          break
+      }
+    },
     formatNumber() {
       // legacy
       return formatNumber()
