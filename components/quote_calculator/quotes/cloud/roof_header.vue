@@ -133,6 +133,9 @@ export default {
   methods: {
     validate () {
       this.$nextTick(() => {
+        if (this.roofs[this.index] === undefined) {
+          return
+        }
         let found = false
         for (let field in this.$refs) {
           let element = this.$refs[field]
@@ -144,7 +147,11 @@ export default {
           }
         }
         this.roofs[this.index].is_valid_header = !found
-        this.roofs[this.index].is_valid = this.roofs[this.index].is_valid_body && this.roofs[this.index].is_valid_header
+        if (!['followup_quote', 'interim_quote', 'no-pv'].includes(this.data['cloud_quote_type'])) {
+          this.roofs[this.index].is_valid = this.roofs[this.index].is_valid_body && this.roofs[this.index].is_valid_header
+        }else{
+          this.roofs[this.index].is_valid = this.roofs[this.index].is_valid_header
+        }
       })
     },
     emitInput(){
@@ -158,7 +165,7 @@ export default {
       this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich löschen?</div>').then(res => {
         if(res){
           this.roofs.splice(index, 1);
-          this.calculateCloud();
+          this.emitInput();
         }
       })
     }

@@ -149,6 +149,7 @@ export default {
     }
   },
   mounted () {
+    this.validate()
   },
 
   methods: {
