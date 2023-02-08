@@ -1245,6 +1245,21 @@ export default {
       return false
     },
     canShowInternals () {
+      if (this.$auth.user.bitrix_department_ids.indexOf(523) >= 0) {
+        return false
+      }
+      if (this.$auth.user.bitrix_department_ids.indexOf(525) >= 0) {
+        return false
+      }
+      if (this.$auth.user.bitrix_department_ids.indexOf(527) >= 0) {
+        return false
+      }
+      if (this.$auth.user.bitrix_department_ids.indexOf(529) >= 0) {
+        return false
+      }
+      if (this.$auth.user.bitrix_department_ids.indexOf(270) >= 0) {
+        return false
+      }
       if (this.$auth.user.bitrix_department.indexOf('AEV Vertrieb GmbH') >= 0) {
         return false
       }
