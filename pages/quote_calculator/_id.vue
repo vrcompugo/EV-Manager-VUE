@@ -428,11 +428,11 @@
         <div class="flex-1"></div>
         <v-btn v-if="$auth.user.bitrix_department.indexOf('AEV Vertrieb GmbH') < 0" @click="adjustment_dialog = true" style="margin-left: 1em">Anpassungen</v-btn>
         <v-btn :href="mapsLink" style="margin-left: 1em" target="_blank">Maps</v-btn>
-        <v-btn v-if="(!is_sent || checkCloudRights) && !pdf_link" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
+        <v-btn v-if="(!is_sent || checkCloudRights)" @click="storeOffer" :loading="loading" style="margin-left: 1em">Neues Angebot erzeugen</v-btn>
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
         <v-btn v-if="pdf_quote_summary_link" @click="pdf_dialog = true" style="margin-left: 1em">PDFs</v-btn>
         <v-btn @click="links_dialog = true" style="margin-left: 1em">Links</v-btn>
-        <v-btn v-if="!is_sent && pdf_link" :disabled="form_dirty" @click.stop="openOrderConfirmDialog" style="margin-left: 1em">Verbindlich Bestellen</v-btn>
+        <!--<v-btn v-if="!is_sent && pdf_link" :disabled="form_dirty" @click.stop="openOrderConfirmDialog" style="margin-left: 1em">Verbindlich Bestellen</v-btn>-->
         <v-btn v-if="is_sent" disabled style="margin-left: 1em">Bereits bestellt</v-btn>
       </div>
     </div>
@@ -551,7 +551,14 @@
             </div>
           </div>
           <div v-else>
-            Unterschrift nur nach vollständiger Eingabe der Daten möglich.
+
+            <div v-if="formsClean">
+              <v-btn @click="generateContractFiles" :loading="loading" style="margin-left: 1em">Vertragsunterlagen erzeugen</v-btn>
+            </div>
+            <div v-else>
+              <div>Unterschrift nur nach vollständiger Eingabe der Daten möglich.</div>
+              {{ this.form_invalid_reason }}
+            </div>
           </div>
         </v-card-text>
 
@@ -1228,6 +1235,34 @@ export default {
   },
 
   computed: {
+    formsClean () {
+      if (this.data.has_pv_quote && !this.data.is_valid_cloud_pv) {
+        this.form_invalid_reason = "Cloud/PV nicht vollständig"
+        return false
+      }
+      if (this.data.has_roof_reconstruction_quote && !this.data.is_valid_roof) {
+        this.form_invalid_reason = "Dachsanierung nicht vollständig"
+        return false
+      }
+      if (this.data.has_heating_quote && !this.data.is_valid_heating) {
+        this.form_invalid_reason = "Heizung nicht vollständig"
+        return false
+      }
+      if (this.data.has_bluegen_quote && !this.data.is_valid_fuelcell) {
+        this.form_invalid_reason = "Brennstoffzelle nicht vollständig"
+        return false
+      }
+      if ((this.data.has_pv_quote || this.data.has_heating_quote || this.data.has_bluegen_quote) && !this.data.is_valid_electric) {
+        this.form_invalid_reason = "Elektrik nicht vollständig"
+        return false
+      }
+      if (!this.data.is_valid_customer_data) {
+        this.form_invalid_reason = "Kundendaten nicht vollständig"
+        return false
+      }
+      return true
+    },
+    checkAdminRights: function () { return this.$store.getters['quote_calculator/checkAdminRights'] },
     checkCloudRights: function () { return this.$store.getters['quote_calculator/checkCloudRights'] },
     checkBookkeepingRights: function () { return this.$store.getters['quote_calculator/checkBookkeepingRights'] },
     checkMitteRights: function () { return this.$store.getters['quote_calculator/checkMitteRights'] },
@@ -1472,6 +1507,18 @@ export default {
         this.data.heating_quote_extra_options.push("extra_warm_water");
       }
       this.$axios.post(`/quote_calculator/${this.id}/calculate`, this.data).then(response => {
+        this.pdf_link = response.data.data.pdf_link
+        this.pdf_wi_link = response.data.data.pdf_wi_link
+        this.cloud_number = response.data.data.cloud_number
+        this.pdf_summary_link = response.data.data.pdf_summary_link
+        this.pdf_commission_link = response.data.data.pdf_commission_link
+        this.pdf_datasheets_link = response.data.data.pdf_datasheets_link
+        this.pdf_quote_summary_link = response.data.data.pdf_quote_summary_link
+        console.log(response.data.data.pdf_quote_summary_link)
+        this.pdf_contract_summary_link = response.data.data.pdf_contract_summary_link
+        this.pdf_contract_summary_part1_file_id = response.data.data.pdf_contract_summary_part1_file_id
+        this.pdf_contract_summary_part4_file_link = response.data.data.pdf_contract_summary_part4_file_link
+        this.pdf_contract_summary_part4_1_file_link = response.data.data.pdf_contract_summary_part4_1_file_link
         this.calculated = response.data.data.calculated
         this.products = response.data.data.products
         this.roof_reconstruction_quote = response.data.data.roof_reconstruction_quote
@@ -1569,17 +1616,20 @@ export default {
         } else {
           this.pdf_commission_link = undefined
         }
-
-        this.loading_percent = 100 / 11 * 7
-        this.loading_message = "Angebotssammlung PDF erzeugen"
-        const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
-        this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
-
-        if (!['followup_quote', 'interim_quote', 'no-pv'].includes(this.data["cloud_quote_type"])) {
+        this.pdf_datasheets_link = undefined
+        this.pdf_contract_summary_link = undefined
+        this.pdf_order_confirmation_link = undefined
+        this.pdf_summary_link = undefined
+        if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
           this.loading_percent = 100 / 11 * 8
           this.loading_message = "Datenblätter PDF erzeugen"
           const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
           this.pdf_datasheets_link = response7.data.data.pdf_datasheets_link
+
+          this.loading_percent = 100 / 11 * 7
+          this.loading_message = "Angebotssammlung PDF erzeugen"
+          const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
+          this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
 
           this.loading_percent = 100 / 11 * 9
           this.loading_message = "Energiekonzept zusammenfassen"
@@ -1588,23 +1638,11 @@ export default {
           if (response8.data.data.pdf_order_confirmation_link) {
             this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
           }
-
-          this.loading_percent = 100 / 11 * 10
-          this.loading_message = "Vertragsunterlagen PDF erzeugen"
-          const response9 = await this.$axios.put(`/quote_calculator/${this.id}/contract_summary_pdf`, this.data)
-          this.pdf_contract_summary_link = response9.data.data.pdf_contract_summary_link
-          this.pdf_contract_summary_part1_file_id = response9.data.data.pdf_contract_summary_part1_file_id
-          this.pdf_contract_summary_part4_file_link = response9.data.data.pdf_contract_summary_part4_file_link
-          this.pdf_contract_summary_part4_1_file_link = response9.data.data.pdf_contract_summary_part4_1_file_link
-        } else {
-          this.pdf_datasheets_link = undefined
-          this.pdf_summary_link = undefined
-          this.pdf_order_confirmation_link = undefined
-          this.pdf_contract_summary_link = undefined
-          this.pdf_contract_summary_part1_file_id = undefined
-          this.pdf_contract_summary_part4_file_link = undefined
-          this.pdf_contract_summary_part4_1_file_link = undefined
         }
+
+        this.pdf_contract_summary_part1_file_id = undefined
+        this.pdf_contract_summary_part4_file_link = undefined
+        this.pdf_contract_summary_part4_1_file_link = undefined
         this.form_dirty = false
       } catch (error) {
 
@@ -1637,24 +1675,7 @@ export default {
       try {
         this.loading_percent = 0
 
-        this.loading_percent = 100 / 11 * 7
-        this.loading_message = "Angebotssammlung PDF erzeugen"
-        const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
-        this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
-
         if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
-          this.loading_percent = 100 / 11 * 8
-          this.loading_message = "Datenblätter PDF erzeugen"
-          const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
-          this.pdf_datasheets_link = response7.data.data.pdf_datasheets_link
-
-          this.loading_percent = 100 / 11 * 9
-          this.loading_message = "Energiekonzept zusammenfassen"
-          const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
-          this.pdf_summary_link = response8.data.data.pdf_summary_link
-          if (response8.data.data.pdf_order_confirmation_link) {
-            this.pdf_order_confirmation_link = response8.data.data.pdf_order_confirmation_link
-          }
 
           this.loading_percent = 100 / 11 * 10
           this.loading_message = "Vertragsunterlagen PDF erzeugen"

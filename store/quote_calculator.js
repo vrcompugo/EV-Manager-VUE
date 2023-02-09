@@ -5,6 +5,16 @@ export const state = () => ({
 export const getters = {
   user: state => state.user,
 
+  checkAdminRights: (state) => {
+    if (state.user === undefined) {
+      return false
+    }
+    let result = false
+    if ('' + state.user.bitrix_user_id === '15'){
+      return true
+    }
+    return false
+  },
   checkBookkeepingRights: (state) => {
     if (state.user === undefined) {
       return false
