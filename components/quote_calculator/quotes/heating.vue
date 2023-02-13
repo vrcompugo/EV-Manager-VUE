@@ -194,7 +194,7 @@
         <v-select
           label="Zirkulationspumpe"
           ref="heating_quote_circulation_pump"
-          :rules="[rules.required]"
+          :rules="[rules.requiredBoolean]"
           v-model="data.heating_quote_circulation_pump" :items="[
             {'value': false,'label': 'Nein'},
             {'value': true,'label': 'Ja'}
