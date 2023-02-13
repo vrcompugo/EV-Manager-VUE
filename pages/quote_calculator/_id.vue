@@ -432,6 +432,7 @@
         <v-btn v-if="pdf_summary_link" @click="uploads_dialog = true" style="margin-left: 1em">Dateiuploads</v-btn>
         <v-btn v-if="pdf_quote_summary_link" @click="pdf_dialog = true" style="margin-left: 1em">PDFs</v-btn>
         <v-btn @click="links_dialog = true" style="margin-left: 1em">Links</v-btn>
+        <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em;">Provision öffnen</v-btn>
         <!--<v-btn v-if="!is_sent && pdf_link" :disabled="form_dirty" @click.stop="openOrderConfirmDialog" style="margin-left: 1em">Verbindlich Bestellen</v-btn>-->
         <v-btn v-if="is_sent" disabled style="margin-left: 1em">Bereits bestellt</v-btn>
       </div>
@@ -450,7 +451,7 @@
     >
       <v-card>
         <v-card-title class="headline grey lighten-2" primary-title >
-          PDFs
+          Links
         </v-card-title>
 
         <v-card-text>
@@ -524,9 +525,6 @@
           </div>
           <div>
             <v-btn v-if="pdf_datasheets_link" :href="pdf_datasheets_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Datenblätter öffnen</v-btn>
-          </div>
-          <div>
-            <v-btn v-if="pdf_commission_link && showInternals && $auth.user.bitrix_department.indexOf('energiezentrum-mitte EXTERN') < 0" :href="pdf_commission_link" target="_blank" style="margin-left: 1em; margin-bottom: 0.5em">Provision öffnen</v-btn>
           </div>
           <div v-if="pdf_contract_summary_part1_file_id">
             <div v-if="(new Date(quote_datetime.replace(' ', 'T'))) > (new Date()) - 60 * 60 * 1000 * 24 * 14 || id === '57224' || id === '68969' || id === '60456' || id === '39396' || id === '39772' || id === '39088' || id === '37828' || id === '43570' || id === '48766'">
@@ -1514,7 +1512,6 @@ export default {
         this.pdf_commission_link = response.data.data.pdf_commission_link
         this.pdf_datasheets_link = response.data.data.pdf_datasheets_link
         this.pdf_quote_summary_link = response.data.data.pdf_quote_summary_link
-        console.log(response.data.data.pdf_quote_summary_link)
         this.pdf_contract_summary_link = response.data.data.pdf_contract_summary_link
         this.pdf_contract_summary_part1_file_id = response.data.data.pdf_contract_summary_part1_file_id
         this.pdf_contract_summary_part4_file_link = response.data.data.pdf_contract_summary_part4_file_link
