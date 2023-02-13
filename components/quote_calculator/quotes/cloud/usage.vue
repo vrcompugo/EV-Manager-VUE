@@ -115,7 +115,7 @@
             label="Preisdefintion vor dem 15.10.2022" />
           <v-radio
             value="oTv8BT9RzG3ms7QJcq7Y"
-            label="Preisdefintion vor dem 25.02.2022" />
+            label="Preisdefintion vor dem 25.02.2023" />
         </v-radio-group>
         <v-checkbox
           v-model="data.cloud_quote_heat_seperate"
