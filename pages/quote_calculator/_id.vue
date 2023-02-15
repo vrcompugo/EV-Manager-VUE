@@ -1598,19 +1598,19 @@ export default {
             const response4 = await this.$axios.put(`/quote_calculator/${this.id}/heating_pdf`, this.data)
           }
 
-          this.loading_percent = 100 / 11 * 4
+          this.loading_percent = 100 / 10 * 4
           this.loading_message = "Dachsanierungs PDF erzeugen"
           if (this.data["has_roof_reconstruction_quote"]) {
             const response5 = await this.$axios.put(`/quote_calculator/${this.id}/roof_reconstruction_pdf`, this.data)
           }
 
-          this.loading_percent = 100 / 11 * 5
+          this.loading_percent = 100 / 10 * 5
           this.loading_message = "BlueGen PDF erzeugen"
           if (this.data["has_bluegen_quote"]) {
             const response_bluegen = await this.$axios.put(`/quote_calculator/${this.id}/bluegen_pdf`, this.data)
           }
 
-          this.loading_percent = 100 / 11 * 6
+          this.loading_percent = 100 / 10 * 6
           this.loading_message = "Kalkulations PDF erzeugen"
           const response_commission = await this.$axios.put(`/quote_calculator/${this.id}/commission_pdf`, this.data)
           this.pdf_commission_link = response_commission.data.data.pdf_commission_link
@@ -1622,17 +1622,17 @@ export default {
         this.pdf_order_confirmation_link = undefined
         this.pdf_summary_link = undefined
         if (!['followup_quote', 'interim_quote'].includes(this.data["cloud_quote_type"])) {
-          this.loading_percent = 100 / 11 * 8
+          this.loading_percent = 100 / 10 * 7
           this.loading_message = "Datenblätter PDF erzeugen"
           const response7 = await this.$axios.put(`/quote_calculator/${this.id}/datasheets_pdf`, this.data)
           this.pdf_datasheets_link = response7.data.data.pdf_datasheets_link
 
-          this.loading_percent = 100 / 11 * 7
+          this.loading_percent = 100 / 10 * 8
           this.loading_message = "Angebotssammlung PDF erzeugen"
           const response6 = await this.$axios.put(`/quote_calculator/${this.id}/quote_summary_pdf`, this.data)
           this.pdf_quote_summary_link = response6.data.data.pdf_quote_summary_link
 
-          this.loading_percent = 100 / 11 * 9
+          this.loading_percent = 100 / 10 * 9
           this.loading_message = "Energiekonzept zusammenfassen"
           const response8 = await this.$axios.put(`/quote_calculator/${this.id}/summary_pdf`, this.data)
           this.pdf_summary_link = response8.data.data.pdf_summary_link
