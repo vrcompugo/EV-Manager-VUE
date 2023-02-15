@@ -121,7 +121,7 @@
         item-value="value"></v-select>
     </div>
     <div v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
-      <v-text-field ref="solaredge_designer_link" @change="calculateCloud" label="Solaredge Designer Link" v-model="data.solaredge_designer_link" :rules="[rules.required]" /><br />
+      <v-text-field ref="solaredge_designer_link" @change="calculateCloud" label="Solaredge Designer Link" v-model="data.solaredge_designer_link" :rules="[rules.solaredge]" /><br />
     </div>
     <b>Dachflächen</b>
     <v-expansion-panels>
@@ -176,6 +176,9 @@ export default {
       rules: {
         requiredBoolean: value => value !== undefined || 'Pflichteingabe',
         required:  value => !!value || 'Pflichteingabe',
+        solaredge: (value) => {
+          return value.search(/^(https:\/\/designer\.solaredge\.com\/public\/de_DE\/sites\/)[0-9]*\/proposal\/([a-zA-Z0-9]*)\/designs(.*)/i) >= 0 || 'Pflichteingabe'
+        }
       }
     }
   },
