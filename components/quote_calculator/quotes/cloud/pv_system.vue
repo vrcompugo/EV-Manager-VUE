@@ -121,7 +121,7 @@
         item-value="value"></v-select>
     </div>
     <div v-if="!['followup_quote', 'interim_quote', 'no-pv'].includes(data['cloud_quote_type'])">
-      <v-text-field @change="calculateCloud" label="Solaredge Designer Link" v-model="data.solaredge_designer_link" /><br />
+      <v-text-field ref="solaredge_designer_link" @change="calculateCloud" label="Solaredge Designer Link" v-model="data.solaredge_designer_link" :rules="[rules.required]" /><br />
     </div>
     <b>Dachflächen</b>
     <v-expansion-panels>
