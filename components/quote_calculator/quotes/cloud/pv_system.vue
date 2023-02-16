@@ -177,7 +177,7 @@ export default {
         requiredBoolean: value => value !== undefined || 'Pflichteingabe',
         required:  value => !!value || 'Pflichteingabe',
         solaredge: (value) => {
-          return value.search(/^(https:\/\/designer\.solaredge\.com\/public\/de_DE\/sites\/)[0-9]*\/proposal\/([a-zA-Z0-9]*)\/designs(.*)/i) >= 0 || 'Pflichteingabe'
+          return value.search(/^(https:\/\/designer\.solaredge\.com\/public\/de_DE\/sites\/)[0-9]*\/proposal\/([a-zA-Z0-9]*)(.*)/i) >= 0 || 'Pflichteingabe'
         }
       }
     }
