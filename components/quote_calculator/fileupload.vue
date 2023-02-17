@@ -42,6 +42,7 @@
           <span v-if="required !== undefined" style="color: red">*</span> {{ label }}
         </template>
       </v-file-input>
+      {{ errorMessage }}
       <v-text-field label="Kommentar" v-model="comment" @blur="emitInput" />
     </div>
   </div>
@@ -70,7 +71,8 @@ export default {
       isSample: false,
       comment: '',
       uploading: false,
-      uploadPercent: 0
+      uploadPercent: 0,
+      errorMessage: ''
     }
   },
   mounted () {
@@ -139,6 +141,10 @@ export default {
     },
     uploadFile (e) {
       if (this.file === undefined) {
+        return
+      }
+      if (this.file.type !== 'image/jpeg' && this.file.type !== 'image/heic' && this.file.type !== 'image/png'){
+        this.errorMessage = 'Falscher Dateityp. Nur JPG, PNG, HEIC erlaubt.'
         return
       }
       this.uploading = true
