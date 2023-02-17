@@ -39,7 +39,7 @@
         :label="label"
         :disabled="uploading">
         <template v-slot:label>
-          {{ label }} <span v-if="required !== undefined" style="color: red">*</span>
+          <span v-if="required !== undefined" style="color: red">*</span> {{ label }}
         </template>
       </v-file-input>
       <v-text-field label="Kommentar" v-model="comment" @blur="emitInput" />
