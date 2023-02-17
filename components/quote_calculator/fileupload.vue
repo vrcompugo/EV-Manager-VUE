@@ -143,14 +143,25 @@ export default {
       if (this.file === undefined) {
         return
       }
-      if (this.file.type !== 'image/jpeg' && this.file.type !== 'image/heic' && this.file.type !== 'image/png'){
+      let filetype = ''
+      this.errorMessage = ''
+      if (this.file.type !== 'image/jpeg') {
+        filetype = 'jpg'
+      }
+      if (this.file.type !== 'image/heic') {
+        filetype = 'heic'
+      }
+      if (this.file.type !== 'image/png') {
+        filetype = 'png'
+      }
+      if (filetype === ''){
         this.errorMessage = 'Falscher Dateityp. Nur JPG, PNG, HEIC erlaubt.'
         return
       }
       this.uploading = true
       const formData = new FormData();
       formData.append("file", this.file);
-      formData.append("path", `${this.path}/${this.filekey}.${this.filetype}`);
+      formData.append("path", `${this.path}/${this.filekey}.${filetype}`);
       this.$axios.post(
         `/quote_calculator/${this.id}/upload_file`,
         formData,
