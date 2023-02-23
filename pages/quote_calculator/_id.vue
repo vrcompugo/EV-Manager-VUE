@@ -1234,7 +1234,7 @@ export default {
 
   computed: {
     formsClean () {
-      if (!this.data.solaredge_designer_link) {
+      if (this.data.has_pv_quote && !this.data.solaredge_designer_link) {
         this.form_invalid_reason = "Solaredge Designer Link fehlt"
         return false
       }
