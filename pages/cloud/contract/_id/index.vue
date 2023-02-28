@@ -430,6 +430,8 @@
                 <th>Herkunft</th>
                 <th style="text-align: right;">Datum</th>
                 <th style="text-align: right;">Wert</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
               </tr>
               <tr v-for="counter in annualStatement.data.available_values" :key="counter.number + counter.date">
                 <td>{{ counter.number }}</td>
@@ -437,6 +439,7 @@
                 <td style="text-align: right;">{{ counter.date | dateFormat }}</td>
                 <td style="text-align: right;">{{ counter.value | formatNumber(0) }} kWh</td>
                 <td>&nbsp;</td>
+                <td>{{ accountLabels[counter.account] }} {{ counter.device_label }}</td>
               </tr>
               <tr v-for="counter in annualStatement.data.manuell_counter_values" :key="counter.number + counter.date">
                 <td>{{ counter.number }}</td>
@@ -447,6 +450,7 @@
                   <v-btn small icon @click="editedCounter = cloneDeep(counter)"><v-icon>mdi-pencil</v-icon></v-btn>
                   <v-btn small icon @click="deleteCounter(counter, annualStatement.year)"><v-icon>mdi-delete</v-icon></v-btn>
                 </td>
+                <td>&nbsp;</td>
               </tr>
             </table>
             <div class="layout horizontal" style="flex: 0; justify-content: flex-start; align-items: center">
@@ -612,6 +616,12 @@ export default {
 
   data(){
     return {
+      accountLabels: {
+        '': 'korbacher energiezentrum',
+        '2': 'Smartme@korbacher-energiezentrum.de',
+        '3': 'energie@360.de',
+        '4': 'bsh@emu.de'
+      },
       loading: false,
       errorSnack: false,
       errorMessage: '',
