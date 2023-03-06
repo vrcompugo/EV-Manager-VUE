@@ -241,7 +241,7 @@
         value="Wasserpumpe/Brunnen ist vorhanden" />
     </div>
     <v-select
-      v-if="data.tab_power_usage_options.length > 0"
+      v-if="data.tab_power_usage_options && data.tab_power_usage_options.length > 0"
       label="kWh Gesamtleistung (Großverbraucher)"
       ref="tab_power_usage_total_power"
       :rules="[rules.required]"
