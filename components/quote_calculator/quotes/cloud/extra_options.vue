@@ -434,13 +434,13 @@ export default {
     calculateCloud () {
       this.$emit('calculateCloud')
     },
-    formatNumber() {
+    formatNumber(number, digits) {
       // legacy
-      return formatNumber()
+      return formatNumber(number, digits)
     },
-    formatPrice() {
+    formatPrice(number, digits) {
       // legacy
-      return formatPrice()
+      return formatPrice(number, digits)
     },
     formChanged () {
       // legacy
