@@ -1,7 +1,7 @@
 {
-  "name": "ev-manager-vue",
+  "name": "energie360",
   "version": "1.0.0",
-  "description": "My fine Nuxt.js project",
+  "description": "",
   "author": "Andreas Hedderich",
   "private": true,
   "scripts": {
@@ -16,7 +16,6 @@
     "@ckeditor/ckeditor5-vue": "1.0.1",
     "@nuxtjs/auth": "4.8.5",
     "@nuxtjs/axios": "^5.3.6",
-    "@nuxtjs/pwa": "^3.0.0-0",
     "@nuxtjs/vuetify": "1.9.1",
     "core-js": "^2.6.5",
     "node-sass": "4.13.0",
@@ -29,6 +28,7 @@
   "devDependencies": {
     "@nuxtjs/eslint-config": "^1.0.1",
     "@nuxtjs/eslint-module": "^1.0.0",
+    "@nuxtjs/pwa": "^3.3.5",
     "babel-eslint": "^10.0.1",
     "eslint": "^6.1.0",
     "eslint-plugin-nuxt": ">=0.4.2"

@@ -174,6 +174,7 @@ export default {
           }
         }
       ).then(response => {
+        this.last_file_id = 0
         this.file_id = response.data.data.file_id
         this.emitInput()
         this.refresh()
