@@ -151,6 +151,9 @@
                 <div v-for="(consumer, index) in config.consumers" :key="consumer.label">
                   <b>Consumer {{ index + 1 }}</b><br>
                   Zählernummer: {{ consumer.power_meter_number }}<br>
+                  <div v-if="consumer.additional_power_meter_numbers && consumer.additional_power_meter_numbers.length > 0">
+                    zus. Zählernummern: <span v-for="number in consumer.additional_power_meter_numbers" :key="number">{{ number }} </span>
+                  </div>
                   Produktpreis: (brutto) {{ consumer.cloud_price | formatPrice }}<br>
                   Verbrauch: {{ consumer.usage }} kWh<br>
                   Lieferbeginn: {{ consumer.delivery_begin | dateFormat }}<br>
@@ -529,6 +532,7 @@
           </div>
           <v-btn @click="generateAnnualStatement(annualStatement.year)" style="margin-right: 1em">Daten neuladen</v-btn>
           <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal && (annualStatement.deal.status === 'Neu' || annualStatement.deal.status === 'Abrechnungskorrektur erzeugen' || annualStatement.deal.status === 'Senec Werte-Abfrage BSH' || annualStatement.deal.status === 'Altvertrag manuelle bearbeitung' || annualStatement.deal.status === 'Spezialkunde' || annualStatement.deal.status === 'Orgamaxx Kunde' || annualStatement.deal.status === 'Consumer Daten erfragen' || annualStatement.deal.status === 'Senec Wert gemeldet'))" @click="generateAnnualStatementPDF(annualStatement.year)" style="margin-right: 1em">PDF erzeugen</v-btn>
+          <!--<v-btn  @click="generateAnnualStatementPDF(annualStatement.year)" style="margin-right: 1em">PDF erzeugen</v-btn>-->
           <v-btn :disabled="!(annualStatement.data && annualStatement.data.errors && annualStatement.data.errors.length === 0 && annualStatement.deal && (annualStatement.deal.status === 'Neu'))" @click="generateAnnualStatement(annualStatement.year)">verschicken</v-btn>
         </div>
       </div>
