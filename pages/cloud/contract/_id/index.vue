@@ -499,6 +499,7 @@
               </div>
               <div class="layout horizontal">
                 <v-checkbox label="korrigierte Zeitraumberechnung" v-model="manuellData[annualStatement.year].corrected_datediff" style="margin-right: 1em"></v-checkbox>
+                <v-checkbox label="Zeitraum abhängige 250kwh" v-model="manuellData[annualStatement.year].corrected_250kwh" style="margin-right: 1em"></v-checkbox>
               </div>
               <div class="layout horizontal">
                 <v-text-field label="Gutschrift Bezeichnung" v-model="manuellData[annualStatement.year].extra_credit_label"  style="flex: 1; margin-right: 1em" />
