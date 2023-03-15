@@ -1336,8 +1336,8 @@ export default {
     possible_storage_sizes () {
       const list = [{'value': 0 ,'label': `Automatische Auswahl`}]
       let possible_sizes = [5, 7.5, 10]
-      for(let i=12.6; i<=29.4; i=i+4.2) {
-        possible_sizes.push(i)
+      for(let i=8.4; i<=29.4; i=i+4.2) {
+        possible_sizes.push(Math.round(i*10)/10)
       }
       let min = 5
       if (this.calculated["min_storage_size"]){
@@ -1345,7 +1345,11 @@ export default {
       }
       possible_sizes = possible_sizes.filter(i => i >= min)
       for(let i=0; i<possible_sizes.length; i=i+1) {
-        list.push({'value': possible_sizes[i] ,'label': `${possible_sizes[i]} kWh`})
+        let label = `${possible_sizes[i]} kWh`
+        if (possible_sizes[i] == 5 || possible_sizes[i] == 7.5 || possible_sizes[i] == 10) {
+          label = `V2/V3 ${possible_sizes[i]} kWh`
+        }
+        list.push({'value': possible_sizes[i] ,'label': label})
       }
       return list
     }
