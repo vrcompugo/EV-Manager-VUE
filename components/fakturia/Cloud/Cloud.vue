@@ -5,12 +5,17 @@
     Cloud <ContractNumber :deal="deal" @loading="$emit('loading')" @error="$emit('error', $event)" @success="$emit('success')" /><br>
     Hauptauftrag: <a :href="deal.link" target="_blank">{{ deal.title }}</a><br>
     Lieferbegin: {{ deal.cloud_delivery_start | dateTimeFormat }}<br>
-    <v-btn :href="sherpa_link()" target="_blank">Sherpa Excel runterladen</v-btn> oder
-    <span v-if="deal.is_cloud_master_deal">
-      <v-btn :loading="loading" @click="enbw_transfer" target="_blank">Direkt an ENBW übertragen (Testsystem)</v-btn>
+    <span v-if="deal.cloud_contract_number !== undefined && deal.cloud_contract_number !== ''">
+      <v-btn :href="sherpa_link()" target="_blank">Sherpa Excel runterladen</v-btn> oder
+      <span v-if="deal.is_cloud_master_deal">
+        <v-btn :loading="loading" @click="enbwContractUploadForm = true" target="_blank">Direkt an ENBW übertragen (Testsystem)</v-btn>
+      </span>
+      <span v-else>
+        ENBW nur beim Hauptauftrag möglich
+      </span>
     </span>
     <span v-else>
-      ENBW nur beim Hauptauftrag möglich
+     Übertragung an Sherpa/ENBW nur mit Vertragsnummer möglich
     </span>
     <div v-if="deal.enbw_data">
       Hauptvertrag: {{ deal.enbw_data.main_contract_number }}<br />
@@ -85,6 +90,45 @@
         Schließen
       </v-btn>
     </v-snackbar>
+
+    <v-dialog
+      v-model="enbwContractUploadForm"
+      width="500"
+    >
+      <v-card>
+        <v-card-title class="headline grey lighten-2" primary-title >
+          An ENBW übertragen
+        </v-card-title>
+
+        <v-card-text>
+          <v-file-input
+            v-model="contractFile"
+            label="Optionaler Maklervertrag als PDF"></v-file-input>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="secondary"
+            text
+            @click="enbwContractUploadForm = false"
+          >
+            Abbrechen
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="enbw_transfer"
+            :disabled="enbwContractUploadloading"
+            :loading="enbwContractUploadloading"
+          >
+            Verbindlich übertragen
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -116,6 +160,9 @@ export default {
 
   data(){
     return {
+      contractFile: undefined,
+      enbwContractUploadForm: false,
+      enbwContractUploadloading: false,
       loading: false,
       errorSnack: false,
       errorMessage: '',
@@ -131,7 +178,7 @@ export default {
       await this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich an ENBW übertragen?<br><small>Der Vorgang kann nicht rückgängig gemacht werden</small></div>').then(res => {
         if(res){
           this.loading = true
-          this.$store.dispatch('enbw/uploadContract', this.deal)
+          this.$store.dispatch('enbw/uploadContract', { deal: this.deal, contractFile: this.contractFile})
           .then((response) => {
           })
           .finally(() => {
