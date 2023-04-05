@@ -33,7 +33,15 @@
         <v-text-field :disabled="data.has_heating_quote" v-model="data.heater_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
         <small>mehr kWh werden mit {{ (calculated.heatcloud_extra_price_per_kwh * 100) | formatNumber(2) }} Cent abgerechnet</small>
       </div>
-      <div class="section" :disabled="true" style="padding-bottom: 0">
+      <div class="section" v-if="data.cloud_quote_type == 'synergy'" style="padding-bottom: 0">
+        <h3>E-Auto Verbrauch</h3>
+        <div class="layout horizontal">
+          <v-text-field v-model="data.car_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="E-Auto Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
+          <v-text-field v-model="data.car_count" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Anzahl E-Autos" class="align-right" type="number" step="1" style="margin-left: 1em"></v-text-field>
+        </div>
+        <small>mehr kWh werden mit {{ (calculated.car_extra_price_per_kwh * 100) | formatNumber(2) }} Cent kWh abgerechnet</small>
+      </div>
+      <div class="section" v-if="data.ecloud_usage > 0" :disabled="true" style="padding-bottom: 0">
         <h3>E.Cloud</h3>
         <small><b>Voraussetzung:</b> Gasheizung</small>
         <v-text-field :disabled="true" v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
@@ -53,6 +61,9 @@
             v-if="checkCloudRights || checkBookkeepingRights"
             value="no-pv"
             label="Standard ohne PV" />
+          <v-radio
+            value="synergy"
+            label="Standard mit Synergy" />
           <v-radio
             value="no-cloud"
             label="Keine Cloud" />

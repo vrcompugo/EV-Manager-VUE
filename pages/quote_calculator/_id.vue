@@ -271,28 +271,40 @@
                 <br>
                 <hr />
                 <br>
-                <div class="h2">Cloud-Angebot</div>
-                <div v-if="data.cloud_number">
-                  <div class="h2">Cloud Angebotsnummer</div>
-                  <div class="value">{{ data.cloud_number }}</div>
+                <div v-if="data.cloud_quote_type == 'synergy'">
+                  <div class="h3">Synergie360 Betrag</div>
+                  <div>
+                    <div class="value" style="font-size: 1.2em">{{ formatPrice(calculated.synergy_monthly_today) }}</div>
+                  </div>
+                  <div v-if="calculated.conventional_cost_monthly_today > 0">
+                    <div class="h3">mtl. Kosten ohne Synergie360-System</div>
+                    <div class="value" style="color: #E53935">{{ formatPrice(calculated.conventional_cost_monthly_today) }}</div>
+                  </div>
                 </div>
-                <div class="h3">Cloud Betrag</div>
-                <div v-if="calculated.kwp_extra === 0">
-                  <div class="value" style="font-size: 1.2em">{{ formatPrice(calculated.cloud_price) }}</div>
-                </div>
-                <div v-if="calculated.kwp_extra !== 0">
-                  <div class="value">{{ formatPrice(calculated.cloud_price) }}</div>
-                  <div class="h3" v-if="calculated.kwp_extra > 0">inkl. Mehrverbau</div>
-                  <div class="h3" v-if="calculated.kwp_extra < 0">inkl. Mehrverbrauch</div>
-                  <div class="value" style="font-size: 1.2em">{{ formatPrice(calculated.cloud_price_incl_refund) }}</div>
-                </div>
-                <div v-if="data.price_guarantee == '2_years' && Number(data.cloud_price_wish) > 0 && calculated.cloud_price_incl_refund > Number(data.cloud_price_wish)">
-                  <div class="h3">Cloud Wunschbetrag</div>
-                  <div class="value" style="font-size: 1.2em">{{ formatPrice(data.cloud_price_wish) }}</div>
-                </div>
-                <div v-if="calculated.conventional_price > 0">
-                  <div class="h3">mtl. Kosten ohne Autark-System</div>
-                  <div class="value" style="color: #E53935">{{ formatPrice(calculated.conventional_price) }}</div>
+                <div v-else>
+                  <div class="h2">Cloud-Angebot</div>
+                  <div v-if="data.cloud_number">
+                    <div class="h2">Cloud Angebotsnummer</div>
+                    <div class="value">{{ data.cloud_number }}</div>
+                  </div>
+                  <div class="h3">Cloud Betrag</div>
+                  <div v-if="calculated.kwp_extra === 0">
+                    <div class="value" style="font-size: 1.2em">{{ formatPrice(calculated.cloud_price) }}</div>
+                  </div>
+                  <div v-if="calculated.kwp_extra !== 0">
+                    <div class="value">{{ formatPrice(calculated.cloud_price) }}</div>
+                    <div class="h3" v-if="calculated.kwp_extra > 0">inkl. Mehrverbau</div>
+                    <div class="h3" v-if="calculated.kwp_extra < 0">inkl. Mehrverbrauch</div>
+                    <div class="value" style="font-size: 1.2em">{{ formatPrice(calculated.cloud_price_incl_refund) }}</div>
+                  </div>
+                  <div v-if="data.price_guarantee == '2_years' && Number(data.cloud_price_wish) > 0 && calculated.cloud_price_incl_refund > Number(data.cloud_price_wish)">
+                    <div class="h3">Cloud Wunschbetrag</div>
+                    <div class="value" style="font-size: 1.2em">{{ formatPrice(data.cloud_price_wish) }}</div>
+                  </div>
+                  <div v-if="calculated.conventional_price > 0">
+                    <div class="h3">mtl. Kosten ohne Autark-System</div>
+                    <div class="value" style="color: #E53935">{{ formatPrice(calculated.conventional_price) }}</div>
+                  </div>
                 </div>
                 <br>
               </div>
@@ -1336,12 +1348,18 @@ export default {
     possible_storage_sizes () {
       const list = [{'value': 0 ,'label': `Automatische Auswahl`}]
       let possible_sizes = [5, 7.5, 10]
+      if (this.data.cloud_quote_type == 'synergy'){
+        possible_sizes = [4.2]
+      }
       for(let i=8.4; i<=29.4; i=i+4.2) {
         possible_sizes.push(Math.round(i*10)/10)
       }
       let min = 5
       if (this.calculated["min_storage_size"]){
         min = this.calculated["min_storage_size"]
+      }
+      if (this.data.cloud_quote_type == 'synergy'){
+        min = 0
       }
       possible_sizes = possible_sizes.filter(i => i >= min)
       for(let i=0; i<possible_sizes.length; i=i+1) {

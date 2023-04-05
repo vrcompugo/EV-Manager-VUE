@@ -4,7 +4,7 @@
     <div
       class="layout horizontal"
       style="padding-top: 2em">
-      <div class="flex">
+      <div class="flex" v-if="data.cloud_quote_type != 'synergy'">
         <v-slider
           v-model="data.price_increase_rate"
           @input="formChanged"
@@ -14,13 +14,43 @@
           thumb-label="always"></v-slider>
         <div style="margin-top: -1em; padding-left: 0.5em">Preissteigerung</div>
       </div>
+      <div class="flex" v-if="data.cloud_quote_type == 'synergy'">
+        <v-slider
+          v-model="data.power_increase_rate"
+          @input="formChanged"
+          min="2.7"
+          max="7.7"
+          step="0.1"
+          thumb-label="always"></v-slider>
+        <div style="margin-top: -1em; padding-left: 0.5em">Hausstrom Preissteigerung</div>
+      </div>
+      <div class="flex" v-if="data.cloud_quote_type == 'synergy'">
+        <v-slider
+          v-model="data.heating_increase_rate"
+          @input="formChanged"
+          min="2.7"
+          max="7.7"
+          step="0.1"
+          thumb-label="always"></v-slider>
+        <div style="margin-top: -1em; padding-left: 0.5em">Heizung Preissteigerung</div>
+      </div>
+      <div class="flex" v-if="data.cloud_quote_type == 'synergy'">
+        <v-slider
+          v-model="data.car_increase_rate"
+          @input="formChanged"
+          min="2.7"
+          max="7.7"
+          step="0.1"
+          thumb-label="always"></v-slider>
+        <div style="margin-top: -1em; padding-left: 0.5em">E-Auto Preissteigerung</div>
+      </div>
       <div class="flex">
         <v-slider
           v-model="data.inflation_rate"
           @input="formChanged"
           min="1.0"
           max="3.5"
-          step="0.01"
+          step="0.1"
           thumb-label="always"></v-slider>
         <div style="margin-top: -1em; padding-left: 0.5em">Inflation</div>
       </div>

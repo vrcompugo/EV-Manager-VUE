@@ -77,8 +77,7 @@
             style="margin-right: 1em"
             @change="calculateCloud"
             v-model="data.extra_options"
-            value="solaredge"
-            disabled />
+            value="solaredge" />
         </div>
         <div class="flex">
           <v-checkbox
@@ -211,8 +210,7 @@
             style="margin-right: 1em"
             @change="calculateCloud"
             v-model="data.extra_options_zero"
-            value="solaredge"
-            disabled />
+            value="solaredge" />
         </div>
         <div class="flex">
           <v-checkbox
