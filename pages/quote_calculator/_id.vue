@@ -1351,7 +1351,7 @@ export default {
       if (this.data.cloud_quote_type == 'synergy'){
         possible_sizes = [4.2]
       }
-      for(let i=8.4; i<=29.4; i=i+4.2) {
+      for(let i=8.4; i<=25.2; i=i+4.2) {
         possible_sizes.push(Math.round(i*10)/10)
       }
       let min = 5
