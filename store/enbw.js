@@ -5,11 +5,23 @@ export const getters = {
 }
 
 export const actions = {
-  async uploadContract ({ commit }, {deal, contractFile}) {
+  async getTarifs ({ commit }, { deal }) {
+    return new Promise((resolve, reject) => {
+      this.$axios.get(`/enbw/tarif/${deal.id}`)
+        .then(response => {
+          resolve(response.data.data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  },
+  async uploadContract ({ commit }, {deal, contractFile, tarif}) {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
       formData.append("contract_file", contractFile);
       formData.append("deal_id", deal["id"]);
+      formData.append("tarif", tarif);
       return this.$axios.post(
         '/enbw/contract',
         formData,

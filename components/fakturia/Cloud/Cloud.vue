@@ -8,7 +8,7 @@
     <span v-if="deal.cloud_contract_number !== undefined && deal.cloud_contract_number !== ''">
       <v-btn :href="sherpa_link()" target="_blank">Sherpa Excel runterladen</v-btn> oder
       <span v-if="deal.is_cloud_master_deal">
-        <v-btn :loading="loading" @click="enbwContractUploadForm = true" target="_blank">Direkt an ENBW übertragen</v-btn>
+        <v-btn :loading="loading" @click="openEnbwContractForm()" target="_blank">Direkt an ENBW übertragen</v-btn>
       </span>
       <span v-else>
         ENBW nur beim Hauptauftrag möglich
@@ -96,11 +96,19 @@
       width="500"
     >
       <v-card>
+
         <v-card-title class="headline grey lighten-2" primary-title >
           An ENBW übertragen
         </v-card-title>
 
         <v-card-text>
+          <v-select
+            v-model="selectedTarif"
+            :loading="loading"
+            :items="tarifs"
+            item-text="tariff_name"
+            item-value="tariff_name"
+          ></v-select>
           <v-file-input
             v-model="contractFile"
             label="Optionaler Maklervertrag als PDF"></v-file-input>
@@ -121,7 +129,7 @@
             color="primary"
             text
             @click="enbw_transfer"
-            :disabled="enbwContractUploadloading"
+            :disabled="enbwContractUploadloading || loading"
             :loading="enbwContractUploadloading"
           >
             Verbindlich übertragen
@@ -163,6 +171,8 @@ export default {
       contractFile: undefined,
       enbwContractUploadForm: false,
       enbwContractUploadloading: false,
+      tarifs: [],
+      selectedTarif: undefined,
       loading: false,
       errorSnack: false,
       errorMessage: '',
@@ -174,18 +184,36 @@ export default {
       const token = this.$auth.getToken("local")
       return `/fakturia/${this.dealId}/sherpa_export?token=${token}`
     },
+    openEnbwContractForm () {
+      this.loading = true
+      this.$store.dispatch('enbw/getTarifs', { deal: this.deal })
+        .then((tarifs) => {
+          this.tarifs = tarifs
+        })
+        .finally(() => {
+          this.loading = false
+        })
+        .catch (error => this.showError(error))
+
+      this.enbwContractUploadForm = true
+    },
     async enbw_transfer () {
+      if (this.selectedTarif === undefined) {
+        this.errorSnack = true
+        this.errorMessage = 'Bitte wählen Sie einen Tarif aus'
+        return
+      }
       await this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich an ENBW übertragen?<br><small>Der Vorgang kann nicht rückgängig gemacht werden</small></div>').then(res => {
         if(res){
           this.loading = true
-          this.$store.dispatch('enbw/uploadContract', { deal: this.deal, contractFile: this.contractFile})
-          .then((response) => {
-          })
-          .finally(() => {
-            this.loading = false
-            this.reload()
-          })
-          .catch (error => this.showError(error))
+          this.$store.dispatch('enbw/uploadContract', { deal: this.deal, contractFile: this.contractFile, tarif: this.selectedTarif})
+            .then((response) => {
+            })
+            .finally(() => {
+              this.loading = false
+              this.reload()
+            })
+            .catch (error => this.showError(error))
         }
       })
     },
