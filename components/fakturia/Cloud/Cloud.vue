@@ -106,8 +106,8 @@
             v-model="selectedTarif"
             :loading="loading"
             :items="tarifs"
-            item-text="tariff_name"
-            item-value="tariff_name"
+            item-text="label"
+            item-value="base_tariff_id"
           ></v-select>
           <v-file-input
             v-model="contractFile"
