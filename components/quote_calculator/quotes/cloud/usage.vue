@@ -47,6 +47,17 @@
         <v-text-field :disabled="true" v-model="data.ecloud_usage" @keyup.enter="calculateCloud" @blur="calculateCloud" label="Gas Verbrauch in kWh" class="align-right" suffix="kWh" type="number" step="1"></v-text-field>
         <small>mehr kWh werden mit {{ (calculated.ecloud_extra_price_per_kwh * 100) | formatNumber(2) }} Cent kWh Gas abgerechnet</small>
       </div>
+
+      <div v-if="data.cloud_quote_type != 'synergy'" style="padding-bottom: 0">
+        <b>Cloud Pakete</b><br>
+        <v-btn small style="margin-bottom: 0.2em;" @click="setPackage('S')">Paket S</v-btn><br>
+        <v-btn small style="margin-bottom: 0.2em;" @click="setPackage('M')">Paket M</v-btn><br>
+        <v-btn small style="margin-bottom: 0.2em;" @click="setPackage('L')">Paket L</v-btn><br>
+        <v-btn small style="margin-bottom: 0.2em;" @click="setPackage('XL')">Paket XL</v-btn><br>
+        <v-btn small style="margin-bottom: 0.2em;" @click="setPackage('XL-pro')">Paket XL-pro</v-btn><br>
+        <v-btn small style="margin-bottom: 0.2em;" @click="setPackage('XXL')">Paket XXL</v-btn><br>
+        <v-btn small style="margin-bottom: 0.2em;" @click="setPackage('XXXL')">Paket XXXL</v-btn>
+      </div>
     </div>
     <br />
 
@@ -253,6 +264,94 @@ export default {
     },
     datePickerSave (date) {
       this.$refs.datepickerMenu.save(date)
+    },
+    setPackage (option) {
+      let pv_modules = 0
+      switch(option) {
+        case 'S':
+          this.data.power_usage = 3000
+          this.data.heater_usage = 0
+          this.data.overwrite_storage_size = 5
+          pv_modules = 12
+          break
+        case 'M':
+          this.data.power_usage = 4000
+          this.data.heater_usage = 0
+          this.data.overwrite_storage_size = 5
+          pv_modules = 18
+          break
+        case 'L':
+          this.data.power_usage = 5000
+          this.data.heater_usage = 0
+          this.data.overwrite_storage_size = 5
+          pv_modules = 22
+          break
+        case 'XL':
+          this.data.power_usage = 6000
+          this.data.heater_usage = 0
+          this.data.overwrite_storage_size = 7.5
+          pv_modules = 30
+          break
+        case 'XL-pro':
+          this.data.power_usage = 7500
+          this.data.heater_usage = 0
+          this.data.overwrite_storage_size = 7.5
+          pv_modules = 38
+          break
+        case 'XXL':
+          this.data.power_usage = 9000
+          this.data.heater_usage = 0
+          this.data.overwrite_storage_size = 10
+          pv_modules = 46
+          break
+        case 'XXXL':
+          this.data.power_usage = 11000
+          this.data.heater_usage = 0
+          this.data.overwrite_storage_size = 10
+          pv_modules = 52
+          break
+      }
+      if (pv_modules > 0) {
+        if (this.data.roofs.length > 0){
+          this.data.roofs[0]["pv_count_modules"] = pv_modules
+          this.data.roofs[0]["direction"] = 'west_east'
+          if (!this.data.roofs[0]["roof_type"]) {
+            this.data.roofs[0]["roof_type"] = 'Sattel'
+          }
+          if (!this.data.roofs[0]["insulation_type"]) {
+            this.data.roofs[0]["insulation_type"] = 'Zwischensparrendämmung'
+          }
+          if (!this.data.roofs[0]["label"]) {
+            this.data.roofs[0]["label"] = 'Hauptdach'
+          }
+          if (!this.data.roofs[0]["roof_topping"]) {
+            this.data.roofs[0]["roof_topping"] = 'Wellblech'
+          }
+          if (!this.data.roofs[0]["roof_type"]) {
+            this.data.roofs[0]["roof_type"] = 'Sattel'
+          }
+          if (!this.data.roofs[0]["traufhohe"]) {
+            this.data.roofs[0]["traufhohe"] = 5
+          }
+          this.data.roofs[0]["is_valid"] = true
+          this.data.roofs[0]["is_valid_header"] = true
+          this.data.roofs[0]["is_valid_body"] = true
+        } else {
+          this.data.roofs.push({
+            direction: 'west_east',
+            pv_count_modules: pv_modules,
+            insulation_type: "Zwischensparrendämmung",
+            label: "Hauptdach",
+            roof_topping: "Wellblech",
+            roof_type: "Sattel",
+            traufhohe: 5,
+            is_valid: true,
+            is_valid_header: true,
+            is_valid_body: true
+          })
+        }
+      }
+      this.calculateCloud()
     }
   }
 

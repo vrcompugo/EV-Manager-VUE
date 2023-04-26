@@ -77,6 +77,7 @@
             style="margin-right: 1em"
             @change="calculateCloud"
             v-model="data.extra_options"
+            :disabled="data.cloud_quote_type == ''"
             value="solaredge" />
         </div>
         <div class="flex">
@@ -210,6 +211,7 @@
             style="margin-right: 1em"
             @change="calculateCloud"
             v-model="data.extra_options_zero"
+            disabled
             value="solaredge" />
         </div>
         <div class="flex">

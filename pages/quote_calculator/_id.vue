@@ -111,7 +111,15 @@
     <div class="flex-1" style="overflow: auto;">
       <div class="layout horizontal wrap">
         <div style="flex: 10 0 310px;">
-          <div class="layout vertical wrap flex-1">
+          <div class="layout vertical wrap flex-1" v-if="data.assistant">
+            <Assistant
+              :id="id"
+              :data="data"
+              :calculated="calculated"
+              :select_options="select_options"
+              @calculateCloud="calculateCloud" />
+          </div>
+          <div class="layout vertical wrap flex-1" v-else>
             <div class="layout horizontal quote_selection">
               <div style="text-align: left; max-width: 8em; min-width: 8em;">Angebote für:</div>
               <div><v-checkbox v-model="data.has_pv_quote" @change="calculateCloud" label="Cloud/PV" style="margin: 0;" /></div>
@@ -1030,6 +1038,7 @@ import Heating from '~/components/quote_calculator/quotes/heating'
 import Fuelcell from '~/components/quote_calculator/quotes/fuelcell'
 import Electric from '~/components/quote_calculator/electric'
 import CustomerData from '~/components/quote_calculator/customerdata'
+import Assistant from '~/components/quote_calculator/assistant'
 
 export default {
 
@@ -1042,7 +1051,8 @@ export default {
     CustomerData,
     AddressForm,
     HistorySelect,
-    FileUpload
+    FileUpload,
+    Assistant
   },
 
   mounted(){
@@ -1053,6 +1063,7 @@ export default {
 
   data(){
     return {
+      "assistant": true,
       "editRoofDialog": false,
       "roofEditIndex": -1,
       "activePicker": null,
@@ -1178,7 +1189,7 @@ export default {
         "reconstruction_extra_options": [],
         "heating_quote_extra_options": [],
         "extra_offers": [],
-        "address": {}
+        "address": {},
       },
       "calculated": {}
     }
@@ -1203,6 +1214,10 @@ export default {
           data["pdf_order_confirmation_link"] = undefined
         }
         data["data"] = offerData.data.data.data
+        data["assistant"] = true
+        if (data["data"]["has_pv_quote"] || data["data"]["has_roof_reconstruction_quote"] || data["data"]["has_heating_quote"] || data["data"]["has_bluegen_quote"]){
+          data["assistant"] = false
+        }
         data["data"]["module_type"] = offerData.data.data.data["module_type"]
         if (offerData.data.data.cloud_number) {
           data["data"]["cloud_number"] = offerData.data.data.cloud_number
@@ -1351,7 +1366,7 @@ export default {
       if (this.data.cloud_quote_type == 'synergy'){
         possible_sizes = [4.2]
       }
-      for(let i=8.4; i<=25.2; i=i+4.2) {
+      for(let i=8.4; i<=201.6; i=i+4.2) {
         possible_sizes.push(Math.round(i*10)/10)
       }
       let min = 5
@@ -1521,11 +1536,16 @@ export default {
       this.changePVModules()
       this.countModules()
       this.data["deal_id"] = this.deal_id
+      if (this.data.cloud_quote_type == '') {
+        this.data.extra_options = this.data.extra_options.filter(function(item) {
+          return item !== 'solaredge'
+        })
+      }
       if (this.data.financing_bank == 'energie360') {
-        this.data.financing_rate = 4.89
+        this.data.financing_rate = 5.09
       }
       if (this.data.financing_bank_heating == 'energie360') {
-        this.data.financing_rate_heating = 4.89
+        this.data.financing_rate_heating = 5.09
       }
       if (this.data.heating_quote_people && this.data.heating_quote_people >= 5 && this.data.heating_quote_extra_options.indexOf('extra_warm_water') < 0) {
         this.data.heating_quote_extra_options.push("extra_warm_water");

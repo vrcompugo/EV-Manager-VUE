@@ -91,6 +91,7 @@
         v-model="data.module_type" :items="pv_modules_selections"
         @change="calculateCloud();"
         style="flex: 0 1 8em; margin-right: 1em;"
+        item-disabled="disable"
         item-text="label"
         item-value="value"></v-select>
       <v-text-field
