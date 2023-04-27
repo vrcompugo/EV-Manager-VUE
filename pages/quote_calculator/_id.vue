@@ -1536,11 +1536,6 @@ export default {
       this.changePVModules()
       this.countModules()
       this.data["deal_id"] = this.deal_id
-      if (this.data.cloud_quote_type == '') {
-        this.data.extra_options = this.data.extra_options.filter(function(item) {
-          return item !== 'solaredge'
-        })
-      }
       if (this.data.financing_bank == 'energie360') {
         this.data.financing_rate = 5.09
       }
