@@ -82,6 +82,12 @@ export default {
           value: 'download_link'
         },
         {
+          text: 'Ist Vollständig',
+          align: 'start',
+          sortable: false,
+          value: 'is_complete'
+        },
+        {
           text: 'Kommentar',
           align: 'start',
           sortable: false,
