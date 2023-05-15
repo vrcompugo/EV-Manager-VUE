@@ -1532,6 +1532,9 @@ export default {
       }
     },
     calculateCloud(){
+      if (this.data.cloud_quote_type == 'synergy' && this.possible_storage_sizes.findIndex(element => element.value == this.data.overwrite_storage_size) < 0) {
+        this.data.overwrite_storage_size = 0
+      }
       this.changeRoofDirection()
       this.changePVModules()
       this.countModules()
