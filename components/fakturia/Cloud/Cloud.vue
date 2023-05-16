@@ -24,7 +24,7 @@
       Joules ID: {{ deal.enbw_data.joulesId }}<br />
       Log:<br />
       <div v-for="history in deal.enbw_data.histories" :key="history.id">
-        {{ history.datetime }} {{ history.action }}  {{ history.api_response_status }}
+        {{ history.datetime }} {{ history.action }}  {{ history.api_response_status }} <small>({{ history.api_response_raw }})</small>
       </div>
     </div>
     <br>
