@@ -24,12 +24,9 @@
       Joules ID: {{ deal.enbw_data.joulesId }}<br />
       Log:<br />
       <v-expansion-panels v-model="panel">
-        <v-expansion-panel v-for="history in deal.enbw_data.histories" :key="history.id">
-          <v-expansion-panel-title>{{ history.datetime }} {{ history.action }}  {{ history.api_response_status }}</v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <div>Response Raw: {{ history.api_response_raw }}</div>
-            <div>Post Data: {{ history.post_data }}</div>
-          </v-expansion-panel-text>
+        <v-expansion-panel v-for="history in deal.enbw_data.histories" :key="history.id" :title="`${history.datetime} ${history.action} ${history.api_response_status}`">
+          <div>Response Raw: {{ history.api_response_raw }}</div>
+          <div>Post Data: {{ history.post_data }}</div>
         </v-expansion-panel>
       </v-expansion-panels>
     </div>
