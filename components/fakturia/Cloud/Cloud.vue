@@ -23,9 +23,15 @@
       Status: {{ deal.enbw_data.status_message }} ({{ deal.enbw_data.status }})<br />
       Joules ID: {{ deal.enbw_data.joulesId }}<br />
       Log:<br />
-      <div v-for="history in deal.enbw_data.histories" :key="history.id">
-        {{ history.datetime }} {{ history.action }}  {{ history.api_response_status }} <small>({{ history.api_response_raw }})</small>
-      </div>
+      <v-expansion-panels v-model="panel">
+        <v-expansion-panel v-for="history in deal.enbw_data.histories" :key="history.id">
+          <v-expansion-panel-title>{{ history.datetime }} {{ history.action }}  {{ history.api_response_status }}</v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <div>Post Data: {{ history.post_data }}</div>
+            <div>Response Raw: {{ history.api_response_raw }}</div>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
     </div>
     <br>
     <br>
@@ -168,6 +174,7 @@ export default {
 
   data(){
     return {
+      panel: undefined,
       contractFile: undefined,
       enbwContractUploadForm: false,
       enbwContractUploadloading: false,
