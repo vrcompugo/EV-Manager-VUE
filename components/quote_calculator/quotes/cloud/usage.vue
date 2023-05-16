@@ -60,6 +60,20 @@
       </div>
     </div>
     <br />
+    <div v-if="data.cloud_quote_type === 'synergy'" >
+      <v-checkbox
+        v-model="data.synergy_autarkie_overwrite"
+        @change="calculateCloud"
+        label="Autarkiegrad überschreiben" />
+      <v-slider
+        v-model="data.autocracy_rate"
+        :disabled="!data.synergy_autarkie_overwrite"
+        thumb-label="always"
+        @change="calculateCloud"
+        type="number"
+        min="0"
+        max="90"></v-slider>
+    </div>
 
     <h3>Cloud Optionen</h3>
     <div class="layout horizontal wrap">
