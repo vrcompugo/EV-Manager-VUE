@@ -27,8 +27,8 @@
         <v-expansion-panel v-for="history in deal.enbw_data.histories" :key="history.id">
           <v-expansion-panel-title>{{ history.datetime }} {{ history.action }}  {{ history.api_response_status }}</v-expansion-panel-title>
           <v-expansion-panel-text>
-            <div>Post Data: {{ history.post_data }}</div>
             <div>Response Raw: {{ history.api_response_raw }}</div>
+            <div>Post Data: {{ history.post_data }}</div>
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
