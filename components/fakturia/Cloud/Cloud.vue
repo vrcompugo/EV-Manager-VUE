@@ -25,8 +25,10 @@
       Log:<br />
       <v-expansion-panels v-model="panel">
         <v-expansion-panel v-for="history in deal.enbw_data.histories" :key="history.id" :title="`${history.datetime} ${history.action} ${history.api_response_status}`">
-          <div>Response Raw: {{ history.api_response_raw }}</div>
-          <div>Post Data: {{ history.post_data }}</div>
+          <v-expansion-panel-content>
+            <div>Response Raw: {{ history.api_response_raw }}</div>
+            <div>Post Data: {{ history.post_data }}</div>
+          </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
     </div>
