@@ -29,8 +29,8 @@
             {{history.datetime}} {{history.action}} {{history.api_response_status}}
           </v-expansion-panel-header>
           <v-expansion-panel-content>
-            <div>Response Raw: {{ history.api_response_raw }}</div>
-            <div>Post Data: {{ history.post_data }}</div>
+            <div>Response Raw: <textarea v-model="history.api_response_raw"></textarea></div>
+            <div>Post Data: <textarea v-model="history.post_data"></textarea></div>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
