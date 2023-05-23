@@ -29,7 +29,7 @@
             {{history.datetime}} {{history.action}} {{history.api_response_status}}
           </v-expansion-panel-header>
           <v-expansion-panel-content>
-            <div>Response Raw: {{ history.api_response_raw }}</div>
+            <div>Response Raw: {{ history.api_response }}{{ history.api_response_raw }}</div>
             <div>Post Data: {{ history.post_data }}</div>
           </v-expansion-panel-content>
         </v-expansion-panel>
