@@ -1545,7 +1545,7 @@ export default {
       if (this.data.financing_bank_heating == 'energie360') {
         this.data.financing_rate_heating = 5.09
       }
-      if (this.data.heating_quote_extra_options === undefined) {
+      if (this.data.heating_quote_extra_options === undefined || this.data.heating_quote_extra_options === null) {
         this.data.heating_quote_extra_options = []
       }
       if (this.data.heating_quote_people && this.data.heating_quote_people >= 5 && this.data.heating_quote_extra_options.indexOf('extra_warm_water') < 0) {
