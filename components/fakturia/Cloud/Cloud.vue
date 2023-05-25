@@ -117,6 +117,9 @@
             item-text="label"
             item-value="base_tariff_id"
           ></v-select>
+          <v-checkbox
+            v-model="isTerminated"
+            label="Der Vertrag ist bereits gekündigt"></v-checkbox>
           <v-file-input
             v-model="contractFile"
             label="Optionaler Maklervertrag als PDF"></v-file-input>
@@ -178,6 +181,7 @@ export default {
     return {
       panel: undefined,
       contractFile: undefined,
+      isTerminated: false,
       enbwContractUploadForm: false,
       enbwContractUploadloading: false,
       tarifs: [],
@@ -203,7 +207,9 @@ export default {
           this.loading = false
         })
         .catch (error => this.showError(error))
-
+      if (this.deal.energie_delivery_provider === "EnBW Energie Baden-Württemberg AG") {
+        this.isTerminated = true
+      }
       this.enbwContractUploadForm = true
     },
     async enbw_transfer () {
@@ -215,7 +221,7 @@ export default {
       await this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich an ENBW übertragen?<br><small>Der Vorgang kann nicht rückgängig gemacht werden</small></div>').then(res => {
         if(res){
           this.loading = true
-          this.$store.dispatch('enbw/uploadContract', { deal: this.deal, contractFile: this.contractFile, tarif: this.selectedTarif})
+          this.$store.dispatch('enbw/uploadContract', { deal: this.deal, contractFile: this.contractFile, tarif: this.selectedTarif, isTerminated: this.isTerminated})
             .then((response) => {
             })
             .finally(() => {
