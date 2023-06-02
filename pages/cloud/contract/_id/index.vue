@@ -29,7 +29,15 @@
 </style>
 <template>
   <div v-if="contract">
-    <v-btn @click="reload">reload</v-btn><br>
+    <div class="layout horizontal">
+      <div class="flex">
+        <v-btn @click="reload">reload</v-btn>
+      </div>
+      <div v-if="user.id === 107 || user.id === 670">
+        <v-btn :href="`/vue/cloud/quote_modify?token=${token}`" target="_blank">Angebote editieren</v-btn>
+        <v-btn :href="`/vue/cloud/import?token=${token}`" target="_blank">Sherpa Daten importieren</v-btn>
+      </div>
+    </div>
     <div v-if="contract.errors">
         <div v-for="error in contract.errors" :key="error.code">
           {{ error.message }}
@@ -609,9 +617,11 @@ export default {
     EditForm
   },
 
-  async asyncData({ $axios, params, route }) {
+  async asyncData({ $auth, $axios, params, route }) {
     return {
-      contractNumber: params.id
+      contractNumber: params.id,
+      token: route.query.token,
+      user: $auth.user
     }
   },
 
