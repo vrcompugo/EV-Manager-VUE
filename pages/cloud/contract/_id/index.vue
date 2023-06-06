@@ -32,7 +32,6 @@
     <div class="layout horizontal">
       <div class="flex">
         <v-btn @click="reload">reload</v-btn>
-        {{ user.id }}
       </div>
       <div v-if="user.id === 107 || user.id === 356 || user.id === '356' ">
         <v-btn :href="`/vue/cloud/quote_modify?token=${token}`" target="_blank">Angebote editieren</v-btn>
