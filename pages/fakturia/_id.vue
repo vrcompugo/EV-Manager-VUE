@@ -95,7 +95,7 @@ export default {
     async reload () {
       this.loading = true
       await this.$store.dispatch('fakturia/loadDealData', {
-        dealId: this.deal.id
+        dealId: this.dealId
       })
       .catch (error => this.showError(error))
       this.loading = false
