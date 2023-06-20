@@ -93,7 +93,7 @@
             value="no-cloud"
             label="Keine Cloud" />
           <v-radio
-            disabled
+            v-if="checkCloudRights || checkBookkeepingRights"
             value="combination_quote"
             label="Cloud Kombinationsvertrag (nur 2 Jahre Laufzeit)" />
           <v-radio
