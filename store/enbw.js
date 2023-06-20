@@ -5,9 +5,9 @@ export const getters = {
 }
 
 export const actions = {
-  async getTarifs ({ commit }, { deal }) {
+  async getTarifs ({ commit }, { dealId }) {
     return new Promise((resolve, reject) => {
-      this.$axios.get(`/enbw/tarif/${deal.id}`)
+      this.$axios.get(`/enbw/tarif/${dealId}`)
         .then(response => {
           resolve(response.data.data)
         })
@@ -16,11 +16,11 @@ export const actions = {
         })
     })
   },
-  async uploadContract ({ commit }, {deal, contractFile, tarif, isTerminated}) {
+  async uploadContract ({ commit }, {dealId, contractFile, tarif, isTerminated}) {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
       formData.append("contract_file", contractFile);
-      formData.append("deal_id", deal["id"]);
+      formData.append("deal_id", dealId);
       formData.append("tarif", tarif);
       formData.append("is_terminated", isTerminated);
       return this.$axios.post(

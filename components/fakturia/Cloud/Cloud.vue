@@ -199,7 +199,7 @@ export default {
     },
     openEnbwContractForm () {
       this.loading = true
-      this.$store.dispatch('enbw/getTarifs', { deal: this.deal })
+      this.$store.dispatch('enbw/getTarifs', { dealId: this.dealId })
         .then((tarifs) => {
           this.tarifs = tarifs
         })
@@ -221,7 +221,7 @@ export default {
       await this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich an ENBW übertragen?<br><small>Der Vorgang kann nicht rückgängig gemacht werden</small></div>').then(res => {
         if(res){
           this.loading = true
-          this.$store.dispatch('enbw/uploadContract', { deal: this.deal, contractFile: this.contractFile, tarif: this.selectedTarif, isTerminated: this.isTerminated})
+          this.$store.dispatch('enbw/uploadContract', { dealId: this.dealId, contractFile: this.contractFile, tarif: this.selectedTarif, isTerminated: this.isTerminated})
             .then((response) => {
             })
             .finally(() => {
