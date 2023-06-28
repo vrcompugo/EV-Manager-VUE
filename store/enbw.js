@@ -16,13 +16,14 @@ export const actions = {
         })
     })
   },
-  async uploadContract ({ commit }, {dealId, contractFile, tarif, isTerminated}) {
+  async uploadContract ({ commit }, {dealId, contractFile, tarif, isTerminated, isTerminatedDate}) {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
       formData.append("contract_file", contractFile);
       formData.append("deal_id", dealId);
       formData.append("tarif", tarif);
       formData.append("is_terminated", isTerminated);
+      formData.append("is_terminated_date", isTerminatedDate);
       return this.$axios.post(
         '/enbw/contract',
         formData,

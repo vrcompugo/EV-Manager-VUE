@@ -120,6 +120,10 @@
           <v-checkbox
             v-model="isTerminated"
             label="Der Vertrag ist bereits gekündigt"></v-checkbox>
+          <v-text-field
+            v-if="isTerminated"
+            v-model="isTerminatedDate"
+            label="Kündigungsdatum"></v-text-field>
           <v-file-input
             v-model="contractFile"
             label="Optionaler Maklervertrag als PDF"></v-file-input>
@@ -182,6 +186,7 @@ export default {
       panel: undefined,
       contractFile: undefined,
       isTerminated: false,
+      isTerminatedDate: "",
       enbwContractUploadForm: false,
       enbwContractUploadloading: false,
       tarifs: [],
@@ -221,7 +226,7 @@ export default {
       await this.$confirm('<div style="padding: 1em 1em 0 1em; font-size: 1.4em">Wirklich an ENBW übertragen?<br><small>Der Vorgang kann nicht rückgängig gemacht werden</small></div>').then(res => {
         if(res){
           this.loading = true
-          this.$store.dispatch('enbw/uploadContract', { dealId: this.dealId, contractFile: this.contractFile, tarif: this.selectedTarif, isTerminated: this.isTerminated})
+          this.$store.dispatch('enbw/uploadContract', { dealId: this.dealId, contractFile: this.contractFile, tarif: this.selectedTarif, isTerminated: this.isTerminated, isTerminatedDate: this.isTerminatedDate})
             .then((response) => {
             })
             .finally(() => {
