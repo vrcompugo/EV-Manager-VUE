@@ -51,7 +51,7 @@
         </div>-->
         <div class="flex">
           <v-checkbox
-            label="Wärmepumpe"
+            label="Brauchwasserwärmepumpe"
             style="margin-right: 1em"
             @change="calculateCloud"
             v-model="data.extra_options"
@@ -68,7 +68,7 @@
               item-text="label"
               item-value="value"></v-select>
             <div v-if="data.extra_options_wwwp_variant == 'L'">mind. Deckenhöhe 1,80 Meter und Maximal für 4 Personen</div>
-            <div v-if="data.extra_options_wwwp_variant == 'XL'">Decknhöhe mind. 2,10 Meter und Maximal für 6 Personen</div>
+            <div v-if="data.extra_options_wwwp_variant == 'XL'">Deckenhöhe mind. 2,10 Meter und Maximal für 6 Personen</div>
           </div>
         </div>
         <div class="flex">
@@ -186,7 +186,7 @@
         </div>-->
         <div class="flex">
           <v-checkbox
-            label="Brauchwasserwärmepume"
+            label="Brauchwasserwärmepumpe"
             style="margin-right: 1em"
             @change="calculateCloud"
             v-model="data.extra_options_zero"
