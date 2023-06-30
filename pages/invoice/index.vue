@@ -76,16 +76,16 @@ export default {
           value: 'items_count'
         },
         {
-          text: 'Downloadlink',
-          align: 'start',
-          sortable: false,
-          value: 'download_link'
-        },
-        {
           text: 'Ist Vollständig',
           align: 'start',
           sortable: false,
           value: 'is_complete'
+        },
+        {
+          text: 'Downloadlink',
+          align: 'start',
+          sortable: false,
+          value: 'download_link'
         },
         {
           text: 'Kommentar',
