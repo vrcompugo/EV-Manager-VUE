@@ -42,7 +42,7 @@
       <v-btn v-if="deal.fakturia_contract_number" :href="`https://backoffice.fakturia.de/secure/tenant/Contract/ContractEdit.html?preload=${deal.fakturia_contract_number}`" target="_blank">
       In Fakturia öffnen
       </v-btn>
-      <v-btn v-if="isAbleToSend" @click="exportFakturia">An Fakturia senden</v-btn>
+      <v-btn disabled @click="exportFakturia">An Fakturia senden</v-btn>
     </div>
   </div>
 </template>
