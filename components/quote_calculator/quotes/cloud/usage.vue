@@ -138,20 +138,29 @@
             value=""
             label="Standard" />
           <v-radio
+            v-if="data.cloud_quote_type != 'synergy'"
             value="l2k3fblk3baxv55"
             label="Preisdefintion vor dem 16.12.2021" />
           <v-radio
+            v-if="data.cloud_quote_type != 'synergy'"
             value="5EQnMQSgTFhK3AlS"
             label="Preisdefintion vor dem 28.02.2022" />
           <v-radio
+            v-if="data.cloud_quote_type != 'synergy'"
             value="VOgcqFFeQLpV9cxOA02lzXdAYX"
             label="Preisdefintion vor dem 01.10.2022" />
           <v-radio
+            v-if="data.cloud_quote_type != 'synergy'"
             value="CXRsAMcrJw7V9wTA4L5ELE8xJx9NVNo9"
             label="Preisdefintion vor dem 15.10.2022" />
           <v-radio
+            v-if="data.cloud_quote_type != 'synergy'"
             value="oTv8BT9RzG3ms7QJcq7Y"
             label="Preisdefintion vor dem 25.02.2023" />
+          <v-radio
+            v-if="data.cloud_quote_type === 'synergy'"
+            value="yogoO96xeqmngNwplted"
+            label="Preisdefintion vor dem 30.06.2023" />
         </v-radio-group>
         <v-checkbox
           v-model="data.cloud_quote_heat_seperate"
