@@ -86,9 +86,10 @@
             v-if="checkCloudRights || checkBookkeepingRights"
             value="no-pv"
             label="Standard ohne PV" />
-          <v-radio
+          <!-- remove synergy as cloud option -->
+          <!-- <v-radio
             value="synergy"
-            label="Standard mit Synergy" />
+            label="Standard mit Synergy" /> -->
           <v-radio
             value="no-cloud"
             label="Keine Cloud" />
