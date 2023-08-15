@@ -81,7 +81,8 @@
         <v-radio-group v-model="data.cloud_quote_type" @change="calculateCloud" style="margin-top: 0.3em">
           <v-radio
             value=""
-            label="Standard" />
+            label="Standard"
+            checked />
           <v-radio
             v-if="checkCloudRights || checkBookkeepingRights"
             value="no-pv"
