@@ -1552,6 +1552,7 @@ export default {
         this.data.heating_quote_extra_options.push("extra_warm_water");
       }
       this.$axios.post(`/quote_calculator/${this.id}/calculate`, this.data).then(response => {
+        console.log(response.data.data)
         this.pdf_link = response.data.data.pdf_link
         this.pdf_wi_link = response.data.data.pdf_wi_link
         this.cloud_number = response.data.data.cloud_number

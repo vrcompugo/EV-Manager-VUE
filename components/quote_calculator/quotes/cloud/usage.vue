@@ -75,22 +75,21 @@
         max="90"></v-slider>
     </div>
 
-    <h3>Cloud Optionen</h3>
+    <h3>Cloud Optionen (Keine Synergy auswählen!)</h3>
     <div class="layout horizontal wrap">
       <div style="margin-right: 1em">
         <v-radio-group v-model="data.cloud_quote_type" @change="calculateCloud" style="margin-top: 0.3em">
           <v-radio
-            value=""
-            label="Standard"
-            checked />
+            value="standard"
+            label="Standard"/>
           <v-radio
             v-if="checkCloudRights || checkBookkeepingRights"
             value="no-pv"
             label="Standard ohne PV" />
-          <!-- remove synergy as cloud option -->
-          <!-- <v-radio
+          <v-radio
             value="synergy"
-            label="Standard mit Synergy" /> -->
+            label="Standard mit Synergy"
+            disabled />
           <v-radio
             value="no-cloud"
             label="Keine Cloud" />
@@ -241,6 +240,7 @@ export default {
 
   data(){
     return {
+      cloud_quote_type: 'standard',
       stepper: 1,
       histories__: [],
       editId: 0,

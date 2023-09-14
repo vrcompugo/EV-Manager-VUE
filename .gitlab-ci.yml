@@ -4,17 +4,46 @@
 # you can delete this line if you're not using Docker
 #image: busybox:latest
 
-
+# master-section build
 build1:
   stage: build
   script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN dev.energie360.de:4300
-    - docker build -t dev.energie360.de:4300/ev-manager/ev-manager-vue:web3 .
-    - docker push dev.energie360.de:4300/ev-manager/ev-manager-vue:web3
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN dev.hbbx.de:4300
+    - docker build -t dev.hbbx.de:4300/ev-manager/ev-manager-vue:web3 .
+    - docker push dev.hbbx.de:4300/ev-manager/ev-manager-vue:web3
   tags:
-  - builder1
+    - builder1
+  only:
+    - master
 
+# master-section deploy
 deploy1:
+  stage: deploy
+  script:
+    - curl https://web3.hbbx.de/deployment/schoen/api.korbacher-energiezentrum.de/pITaR3m6FoWfE9VYeyw9QuaJfDwI9DmC
+    - rm -r ./*
+    - rm -r .e*
+    - rm -r .g*
+    - rm -r .d*
+  tags:
+    - builder1
+  only:
+    - master
+
+# dev-section build
+build-dev:
+  stage: build
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN dev.hbbx.de:4300
+    - docker build -t dev.hbbx.de:4300/ev-manager/ev-manager-vue:dev .
+    - docker push dev.hbbx.de:4300/ev-manager/ev-manager-vue:dev
+  tags:
+    - builder1
+  only:
+    - dev
+
+# dev-section deploy
+deploy-dev:
   stage: deploy
   script:
     - curl https://dev.energie360.de/deployment/schoen/api.korbacher-energiezentrum.de/pITaR3m6FoWfE9VYeyw9QuaJfDwI9DmC
@@ -24,3 +53,5 @@ deploy1:
     - rm -r .d*
   tags:
     - builder1
+  only:
+    - dev
